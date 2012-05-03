@@ -39,5 +39,5 @@ Browser extensions:
 http://help.livereload.com/kb/general-use/browser-extensions
 """
 
-__version__ = '1.0'
+__version__ = '0.1'
 __author__ = 'Hsiaoming Yang <lepture@me.com>'

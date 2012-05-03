@@ -89,6 +89,7 @@ class LiveReloadHandler(websocket.WebSocketHandler):
             self.send_message(msg)
 
     def on_message(self, message):
+        logging.info(message)
         message = ObjectDict(escape.json_decode(message))
         if message.command == 'hello':
             handshake = {}
@@ -102,7 +103,6 @@ class LiveReloadHandler(websocket.WebSocketHandler):
             self.send_message(handshake)
 
         if message.command == 'info' and 'url' in message:
-            logging.info('Connect to %s' % message.url)
             if not LiveReloadHandler._watch_running:
                 LiveReloadHandler._watch_running = True
                 logging.info('Start watching changes')
