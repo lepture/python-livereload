@@ -34,7 +34,20 @@ class Task(object):
 
     @classmethod
     def add(cls, path, func=None):
-        cls.tasks[path] = func
+        if os.path.isdir(path):
+            for root, dirs, files in os.walk(path):
+                #: don't watch version control dirs
+                if '.git' in dirs:
+                    dirs.remove('.git')
+                if '.hg' in dirs:
+                    dirs.remove('.hg')
+                if '.svn' in dirs:
+                    dirs.remove('.svn')
+                for f in files:
+                    p = os.path.join(root, f)
+                    cls.tasks[p] = func
+        else:
+            cls.tasks[path] = func
 
     @classmethod
     def watch(cls):
