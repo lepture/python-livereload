@@ -51,24 +51,22 @@ class LiveReloadHandler(websocket.WebSocketHandler):
         path = Task.watch()
         if path:
             self.send_notify('Reload %s waiters\nChanged %s' % \
-                             (len(self.waiters), path))
+                             (len(LiveReloadHandler.waiters), path))
             msg = {
                 'command': 'reload',
                 'path': path,
                 'liveCSS': True
             }
-            for waiter in self.waiters:
+            for waiter in LiveReloadHandler.waiters:
                 try:
                     waiter.write_message(msg)
                 except:
                     logging.error('Error sending message', exc_info=True)
+                    LiveReloadHandler.waiters.remove(waiter)
 
     def on_message(self, message):
         message = ObjectDict(escape.json_decode(message))
         if message.command == 'hello':
-            if len(self.waiters) > 1:
-                self.send_notify('Connect to %s pages' % len(self.waiters))
-
             handshake = {}
             handshake['command'] = 'hello'
             protocols = message.protocols
