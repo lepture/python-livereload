@@ -12,8 +12,11 @@ def get_subprocess_output(cmd):
 
 def make_folder(dest):
     folder = os.path.split(dest)[0]
-    if not os.path.isdir(folder):
-        os.makedirs(folder)
+    if not folder:
+        return
+    if os.path.isdir(folder):
+        return
+    os.makedirs(folder)
 
 
 class Compiler(object):

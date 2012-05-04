@@ -82,7 +82,7 @@ class LiveReloadHandler(websocket.WebSocketHandler):
         if message.command == 'info' and 'url' in message:
             if not LiveReloadHandler._watch_running:
                 try:
-                    execfile('guardfile')
+                    execfile('Guardfile')
                 except:
                     Task.add(os.getcwd())
 
