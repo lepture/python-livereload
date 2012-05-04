@@ -3,62 +3,14 @@ import logging
 import tornado.web
 import tornado.options
 import tornado.ioloop
-from tornado.options import define, options
 from tornado import escape
 from tornado import websocket
 from tornado.util import ObjectDict
+from livereload.task import Task
+
 
 ROOT = os.path.abspath(os.path.dirname(__file__))
 STATIC_PATH = os.path.join(ROOT, 'static')
-
-define('port', default=35729, type=int, help='livereload port')
-
-
-class Task(object):
-    tasks = {}
-    _modified_times = {}
-
-    @classmethod
-    def _check_file(cls, path):
-        try:
-            modified = os.stat(path).st_mtime
-        except:
-            return False
-        if path not in cls._modified_times:
-            cls._modified_times[path] = modified
-            return False
-        if cls._modified_times[path] != modified:
-            cls._modified_times[path] = modified
-            return True
-        return False
-
-    @classmethod
-    def add(cls, path, func=None):
-        if os.path.isdir(path):
-            for root, dirs, files in os.walk(path):
-                #: don't watch version control dirs
-                if '.git' in dirs:
-                    dirs.remove('.git')
-                if '.hg' in dirs:
-                    dirs.remove('.hg')
-                if '.svn' in dirs:
-                    dirs.remove('.svn')
-                for f in files:
-                    p = os.path.join(root, f)
-                    cls.tasks[p] = func
-        else:
-            cls.tasks[path] = func
-
-    @classmethod
-    def watch(cls):
-        for path in cls.tasks:
-            if cls._check_file(path):
-                func = cls.tasks[path]
-                if func:
-                    func()
-                return path
-
-        return False
 
 
 class LiveReloadHandler(websocket.WebSocketHandler):
@@ -75,36 +27,48 @@ class LiveReloadHandler(websocket.WebSocketHandler):
         LiveReloadHandler.waiters.remove(self)
 
     @classmethod
-    def send_message(cls, message):
+    def send_notify(cls, message):
+        try:
+            import gntp.notifier
+            return gntp.notifier.mini(
+                message, applicationName='Python LiveReload',
+                title='LiveReload'
+            )
+        except ImportError:
+            logging.info(message)
+
+    def send_message(self, message):
         if isinstance(message, dict):
             message = escape.json_encode(message)
 
-        for waiter in cls.waiters:
-            try:
-                waiter.write_message(message)
-            except:
-                logging.error('Error sending message', exc_info=True)
+        try:
+            self.write_message(message)
+        except:
+            logging.error('Error sending message', exc_info=True)
 
     def watch_tasks(self):
-        try:
-            import julyfile
-        except:
-            Task.add(os.getcwd())
 
         path = Task.watch()
         if path:
-            logging.info('Changed %s', path)
+            self.send_notify('Reload %s waiters\nChanged %s' % \
+                             (len(self.waiters), path))
             msg = {
                 'command': 'reload',
                 'path': path,
                 'liveCSS': True
             }
-            self.send_message(msg)
+            for waiter in self.waiters:
+                try:
+                    waiter.write_message(msg)
+                except:
+                    logging.error('Error sending message', exc_info=True)
 
     def on_message(self, message):
-        logging.info(message)
         message = ObjectDict(escape.json_decode(message))
         if message.command == 'hello':
+            if len(self.waiters) > 1:
+                self.send_notify('Connect to %s pages' % len(self.waiters))
+
             handshake = {}
             handshake['command'] = 'hello'
             protocols = message.protocols
@@ -117,6 +81,11 @@ class LiveReloadHandler(websocket.WebSocketHandler):
 
         if message.command == 'info' and 'url' in message:
             if not LiveReloadHandler._watch_running:
+                try:
+                    execfile('guardfile')
+                except:
+                    Task.add(os.getcwd())
+
                 LiveReloadHandler._watch_running = True
                 logging.info('Start watching changes')
                 tornado.ioloop.PeriodicCallback(self.watch_tasks, 500).start()
@@ -131,9 +100,8 @@ handlers = [
 def main():
     tornado.options.parse_command_line()
     app = tornado.web.Application(handlers=handlers)
-    app.listen(options.port)
+    app.listen(35729)
     tornado.ioloop.IOLoop.instance().start()
-
 
 if __name__ == '__main__':
     main()
