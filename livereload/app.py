@@ -21,6 +21,7 @@ class LiveReloadHandler(websocket.WebSocketHandler):
         return True
 
     def open(self):
+        self.send_notify('Browser Connected')
         LiveReloadHandler.waiters.add(self)
 
     def on_close(self):
