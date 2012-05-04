@@ -16,7 +16,10 @@ def make_folder(dest):
         return
     if os.path.isdir(folder):
         return
-    os.makedirs(folder)
+    try:
+        os.makedirs(folder)
+    except:
+        pass
 
 
 class Compiler(object):
