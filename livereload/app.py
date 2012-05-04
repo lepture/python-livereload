@@ -36,6 +36,10 @@ class LiveReloadHandler(websocket.WebSocketHandler):
                 title='LiveReload'
             )
         except ImportError:
+            import pynotify
+            pynotify.Notification('LiveReload', message).show()
+            return
+        except ImportError:
             logging.info(message)
 
     def send_message(self, message):
