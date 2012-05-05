@@ -28,6 +28,20 @@ def make_folder(dest):
         pass
 
 
+def _get_http_file(url, build_dir='build/assets'):
+    import hashlib
+    key = hashlib.md5(url).hexdigest()
+    filename = os.path.join(os.getcwd(), build_dir, key)
+    if os.path.exists(filename):
+        return filename
+    make_folder(filename)
+
+    import urllib
+    print('Downloading: %s' % url)
+    urllib.urlretrieve(url, filename)
+    return filename
+
+
 class BaseCompiler(object):
     """BaseCompiler
 
@@ -38,6 +52,9 @@ class BaseCompiler(object):
     >>> c.append('c')  #: append compiled code to 'c'
     """
     def __init__(self, path):
+        if path.startswith('http://') or path.startswith('https://'):
+            path = _get_http_file(path)
+
         self.path = path
 
     def _get_code(self):
