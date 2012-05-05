@@ -41,7 +41,7 @@ def _get_growl():
 
 def _get_notifyOSD():
     import pynotify
-    pynotify.init()
+    pynotify.init('Python LiveReload')
     return lambda message: pynotify.Notification('LiveReload', message).show()
 
 
