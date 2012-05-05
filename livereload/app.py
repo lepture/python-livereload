@@ -12,6 +12,52 @@ from livereload.task import Task
 ROOT = os.path.abspath(os.path.dirname(__file__))
 STATIC_PATH = os.path.join(ROOT, 'static')
 
+NOTIFIER = None
+APPLICATION_ICON = None
+
+
+def _get_growl():
+    import gntp.notifier
+    growl = gntp.notifier.GrowlNotifier(
+        applicationName='Python LiveReload',
+        notifications=['Message'],
+        defaultNotifications=['Message'],
+        applicationIcon=APPLICATION_ICON,
+    )
+    result = growl.register()
+    if result is not True:
+        return None
+
+    def notifier(message):
+        return growl.notify(
+            'Message',
+            'LiveReload',
+            message,
+            icon=APPLICATION_ICON,
+        )
+
+    return notifier
+
+
+def _get_notifyOSD():
+    import pynotify
+    pynotify.init()
+    return lambda message: pynotify.Notification('LiveReload', message).show()
+
+
+def send_notify(message):
+    global NOTIFIER
+    if NOTIFIER:
+        return NOTIFIER(message)
+    try:
+        NOTIFIER = _get_growl()
+    except ImportError:
+        NOTIFIER = _get_notifyOSD()
+    except:
+        NOTIFIER = logging.info
+
+    return NOTIFIER(message)
+
 
 class LiveReloadHandler(websocket.WebSocketHandler):
     waiters = set()
@@ -20,27 +66,10 @@ class LiveReloadHandler(websocket.WebSocketHandler):
     def allow_draft76(self):
         return True
 
-    def open(self):
-        self.send_notify('Browser Connected')
-        LiveReloadHandler.waiters.add(self)
-
     def on_close(self):
-        LiveReloadHandler.waiters.remove(self)
-
-    @classmethod
-    def send_notify(cls, message):
-        try:
-            import gntp.notifier
-            return gntp.notifier.mini(
-                message, applicationName='Python LiveReload',
-                title='LiveReload'
-            )
-        except ImportError:
-            import pynotify
-            pynotify.Notification('LiveReload', message).show()
-            return
-        except ImportError:
-            logging.info(message)
+        if self in LiveReloadHandler.waiters:
+            LiveReloadHandler.waiters.remove(self)
+            send_notify('There are %s waiters left' % len(self.waiters))
 
     def send_message(self, message):
         if isinstance(message, dict):
@@ -55,7 +84,7 @@ class LiveReloadHandler(websocket.WebSocketHandler):
 
         path = Task.watch()
         if path:
-            self.send_notify('Reload %s waiters\nChanged %s' % \
+            send_notify('Reload %s waiters\nChanged %s' % \
                              (len(LiveReloadHandler.waiters), path))
             msg = {
                 'command': 'reload',
@@ -83,6 +112,8 @@ class LiveReloadHandler(websocket.WebSocketHandler):
             self.send_message(handshake)
 
         if message.command == 'info' and 'url' in message:
+            send_notify('Browser Connected: %s' % message.url)
+            LiveReloadHandler.waiters.add(self)
             if not LiveReloadHandler._watch_running:
                 try:
                     execfile('Guardfile')
