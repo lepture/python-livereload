@@ -75,14 +75,15 @@ class LessCompiler(_CommandCompiler):
     command_options = '--compress'
 
 
-@functools.partial
 def lessc(path, output, mode='w'):
-    c = LessCompiler(path)
-    if mode == 'a':
-        c.append(output)
-    else:
+    def _compile(path, output, mode):
+        c = LessCompiler(path)
+        if mode == 'a':
+            c.append(output)
+            return
         c.write(output)
-    return
+        return
+    return functools.partial(_compile, path, output, mode)
 
 
 class UglifyJSCompiler(_CommandCompiler):
@@ -90,14 +91,15 @@ class UglifyJSCompiler(_CommandCompiler):
     command_options = '-nc'
 
 
-@functools.partial
 def uglifyjs(path, output, mode='w'):
-    c = UglifyJSCompiler(path)
-    if mode == 'a':
-        c.append(output)
-    else:
+    def _compile(path, output, mode):
+        c = UglifyJSCompiler(path)
+        if mode == 'a':
+            c.append(output)
+            return
         c.write(output)
-    return
+        return
+    return functools.partial(_compile, path, output, mode)
 
 
 class SlimmerCompiler(BaseCompiler):
@@ -115,11 +117,12 @@ class SlimmerCompiler(BaseCompiler):
         return code
 
 
-@functools.partial
 def slimmer(path, output, mode='w'):
-    c = SlimmerCompiler(path)
-    if mode == 'a':
-        c.append(output)
-    else:
+    def _compile(path, output, mode):
+        c = SlimmerCompiler(path)
+        if mode == 'a':
+            c.append(output)
+            return
         c.write(output)
-    return
+        return
+    return functools.partial(_compile, path, output, mode)

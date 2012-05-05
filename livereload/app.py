@@ -6,6 +6,7 @@ Core Server of LiveReload.
 """
 
 import os
+import sys
 import logging
 import tornado.web
 import tornado.options
@@ -150,6 +151,16 @@ handlers = [
 
 
 def main():
+    if len(sys.argv) > 1:
+        #: command-line tools like Makefile
+        execfile('Guardfile')
+        for cmd in sys.argv[1:]:
+            print(cmd)
+            exec('%s()' % cmd)
+        return
+
+    #: option config is not available
+    #: but this enables pretty colorful logging
     tornado.options.parse_command_line()
     app = tornado.web.Application(handlers=handlers)
     app.listen(35729)

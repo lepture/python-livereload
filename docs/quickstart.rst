@@ -56,6 +56,27 @@ And it will compile less css before refreshing the browser now.
 
 Want to know about :ref:`guardfile` ?
 
+
+Commands like Makefile
+-----------------------
+
+New in :ref:`ver0.3`
+
+If you want to do some tasks in Guardfile manually::
+
+    # Guardfile
+
+    def task1():
+        print('task1')
+
+    def task2():
+        print('task2')
+
+In terminal::
+
+    $ livereload task1 task2
+
+
 Others
 --------
 
