@@ -103,7 +103,7 @@ def uglifyjs(path, output, mode='w'):
 class SlimmerCompiler(BaseCompiler):
     def _get_code(self):
         import slimmer
-        f = open(self.output)
+        f = open(self.path)
         code = f.read()
         f.close()
         if self.path.endswith('.css'):
