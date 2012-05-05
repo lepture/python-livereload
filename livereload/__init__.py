@@ -133,5 +133,5 @@ If you are on a Mac, you can buy `LiveReload2 <http://livereload.com/>`_.
 If you are a rubist, you can get guard-livereload.
 """
 
-__version__ = '0.2'
+__version__ = '0.3'
 __author__ = 'Hsiaoming Yang <lepture@me.com>'

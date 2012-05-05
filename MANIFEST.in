@@ -1,2 +1,3 @@
 recursive-include livereload/static *.*
 include LICENSE
+include README.rst
