@@ -13,7 +13,7 @@ setup(
     author_email='lepture@me.com',
     url='http://lepture.com/project/livereload/',
     packages=find_packages(),
-    description='Python LiveReload is an awsome tool for web developers',
+    description='Python LiveReload is an awesome tool for web developers',
     long_description=livereload.__doc__,
     entry_points={
         'console_scripts': ['livereload= livereload.app:main'],

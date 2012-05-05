@@ -44,6 +44,8 @@ pip-log.txt
 # Mr Developer
 .mr.developer.cfg
 
+# sphinx
+docs/_build
 
 ##############
 # Mac ignore #
