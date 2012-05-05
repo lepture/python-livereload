@@ -221,7 +221,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'pythonlivereload', u'Python LiveReload Documentation',
+    ('index', 'livereload', u'Python LiveReload Documentation',
      [u'Hsiaoming Yang'], 1)
 ]
 

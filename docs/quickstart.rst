@@ -1,53 +1,13 @@
+.. _quickstart:
+
 Quickstart
 ==========
 
-
-Installation
-------------
-
-Python LiveReload is designed for web developers who know Python.
-
-Install python-livereload
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Install Python LiveReload with pip::
-
-    $ pip install livereload
-
-If you don't have pip installed, try easy_install::
-
-    $ easy_install livereload
+This section assumes that you have everything installed. If you do not,
+head over to the :ref:`installation` section.
 
 
-Install Browser Extensions
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Get Browser Extensions From LiveReload.com
-
-+ Chrome Extension
-+ Safari Extension
-+ Firefox Extension
-
-Visit: http://help.livereload.com/kb/general-use/browser-extensions
-
-Get Notification
-~~~~~~~~~~~~~~~~~
-
-If you are on Mac, and you are a Growl user::
-
-    $ pip install gntp
-
-If you are on Ubuntu, you don't need to do anything. Notification just works.
-
-Working with file protocal
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Enable file protocal on Chrome:
-
-.. image:: http://i.imgur.com/qGpJI.png
-
-
-Quickstart
+Simple Task
 ------------
 
 LiveReload is designed for more complex tasks, not just for refreshing a
@@ -59,6 +19,14 @@ working directory. With command::
     $ livereload
 
 your browser will reload, if any file in the working directory changed.
+
+
+Working with file protocal
+---------------------------
+
+Enable file protocal on Chrome:
+
+.. image:: http://i.imgur.com/qGpJI.png
 
 
 Guardfile
@@ -86,6 +54,7 @@ refreshing the browser::
 
 And it will compile less css before refreshing the browser now.
 
+Want to know about :ref:`guardfile` ?
 
 Others
 --------

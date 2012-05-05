@@ -1,7 +1,9 @@
 Welcome to Python LiveReload
 =============================
 
-`LiveReload  <http://livereload.com/>`_ Server in Python Version.
+`LiveReload  <http://livereload.com/>`_ contains two parts,
+the client side and the server side.
+And Python LiveReload is the server side in python version.
 
 Web Developers need to refresh a browser everytime when he saved a file (css,
 javascript, html), it is really boring. LiveReload will take care of that for
@@ -9,6 +11,7 @@ you. When you saved a file, your browser will refresh itself.
 
 And what's more, it can do some tasks like 
 **compiling less to css before the browser refreshing**.
+
 
 User's Guide
 -------------
@@ -21,7 +24,22 @@ If you are not, you should buy LiveReload2.app instead.
 .. toctree::
     :maxdepth: 2
 
+    install
     quickstart
     guardfile
     compiler
     changelog
+
+
+Contact
+---------
+
+Have any trouble? Want to know more?
+
++ Follow me on GitHub_ for the latest updates.
++ Follow me on Twitter_ (most tweets are in Chinese).
++ Send Email_ to me.
+
+.. _GitHub: https://github.com/lepture
+.. _Twitter: https://twitter.com/lepture
+.. _Email: lepture@me.com
