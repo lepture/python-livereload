@@ -52,6 +52,8 @@ class BaseCompiler(object):
     >>> c.append('c')  #: append compiled code to 'c'
     """
     def __init__(self, path):
+        self.filetype = os.path.splitext(path)[1]
+
         if path.startswith('http://') or path.startswith('https://'):
             path = _get_http_file(path)
 
@@ -127,11 +129,11 @@ class SlimmerCompiler(BaseCompiler):
         f = open(self.path)
         code = f.read()
         f.close()
-        if self.path.endswith('.css'):
+        if self.filetype == '.css':
             return slimmer.css_slimmer(code)
-        if self.path.endswith('.js'):
+        if self.filetype == '.js':
             return slimmer.js_slimmer(code)
-        if self.path.endswith('.html'):
+        if self.filetype == '.html':
             return slimmer.xhtml_slimmer(code)
         return code
 

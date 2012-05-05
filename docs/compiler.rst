@@ -48,6 +48,17 @@ and easy alias. The available:
 + slimmer
 
 
+Get static files from internet
+-------------------------------
+
+New in :ref:`ver0.3`.
+
+With this new feature, you can keep the source of your project clean::
+
+    js = UglifyJSCompiler('http://code.jquery.com/jquery.js')
+    js.write('static/lib.js')
+
+
 Contribute
 -----------
 
