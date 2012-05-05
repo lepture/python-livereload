@@ -67,6 +67,8 @@ class _CommandCompiler(BaseCompiler):
         cmd = [self.command, self.command_options, self.path]
         p = Popen(cmd, stdout=PIPE, stderr=PIPE)
         stdout, stderr = p.communicate()
+        if stderr:
+            raise Exception(stderr)
         return stdout
 
 

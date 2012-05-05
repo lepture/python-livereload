@@ -10,6 +10,7 @@ Version 0.3
 Release on May 6th, 2012
 
 + bugfix for compiler alias
++ raise error for CommandCompiler
 + add comand-line feature
 
 Version 0.2
