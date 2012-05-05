@@ -1,14 +1,8 @@
 #!/usr/bin/env python
 
-import functools
 from livereload.task import Task
+from livereload.compiler import lessc
 
 
-def lessc(path, output):
-    from livereload.compiler import LessCompiler
-    less = LessCompiler(path)
-    less.write(output)
-
-
-Task.add('style.less', functools.partial(lessc, 'style.less', 'style.css'))
+Task.add('style.less', lessc('style.less', 'style.css'))
 Task.add('*.html')

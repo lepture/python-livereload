@@ -1,3 +1,21 @@
+# -*- coding: utf-8 -*-
+
+"""livereload.task
+
+Task management for LiveReload Server.
+
+A basic syntax overview::
+
+    from livereload.task import Task
+
+    Task.add('file.css')
+
+    def do_some_thing():
+        pass
+
+    Task.add('file.css', do_some_thing)
+"""
+
 import os
 import glob
 

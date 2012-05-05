@@ -1,13 +1,19 @@
 #!/usr/bin/python
 
+"""livereload.compiler
+
+Provides a set of compilers for web developers.
+
+Available compilers now:
+
++ less
++ uglifyjs
++ slimmer
+"""
+
 import os
-import subprocess
-
-
-def get_subprocess_output(cmd):
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    stdout, stderr = p.communicate()
-    return stdout
+import functools
+from subprocess import Popen, PIPE
 
 
 def make_folder(dest):
@@ -22,7 +28,15 @@ def make_folder(dest):
         pass
 
 
-class Compiler(object):
+class BaseCompiler(object):
+    """BaseCompiler
+
+    BaseCompiler defines the basic syntax of a Compiler.
+
+    >>> c = BaseCompiler('a')
+    >>> c.write('b')  #: write compiled code to 'b'
+    >>> c.append('c')  #: append compiled code to 'c'
+    """
     def __init__(self, path):
         self.path = path
 
@@ -45,24 +59,30 @@ class Compiler(object):
         f.close()
 
 
-class _CommandCompiler(Compiler):
+class _CommandCompiler(BaseCompiler):
     command = ''
     command_options = ''
 
     def _get_code(self):
         cmd = [self.command, self.command_options, self.path]
-        return get_subprocess_output(cmd)
+        p = Popen(cmd, stdout=PIPE, stderr=PIPE)
+        stdout, stderr = p.communicate()
+        return stdout
 
 
 class LessCompiler(_CommandCompiler):
-    """LessCompiler
-
-    >>> less = LessCompiler('style.less')
-    >>> less.write('style.css')
-    """
-
     command = 'lessc'
     command_options = '--compress'
+
+
+@functools.partial
+def lessc(path, output, mode='w'):
+    c = LessCompiler(path)
+    if mode == 'a':
+        c.append(output)
+    else:
+        c.write(output)
+    return
 
 
 class UglifyJSCompiler(_CommandCompiler):
@@ -70,7 +90,17 @@ class UglifyJSCompiler(_CommandCompiler):
     command_options = '-nc'
 
 
-class SlimmerCompiler(Compiler):
+@functools.partial
+def uglifyjs(path, output, mode='w'):
+    c = UglifyJSCompiler(path)
+    if mode == 'a':
+        c.append(output)
+    else:
+        c.write(output)
+    return
+
+
+class SlimmerCompiler(BaseCompiler):
     def _get_code(self):
         import slimmer
         f = open(self.output)
@@ -83,3 +113,13 @@ class SlimmerCompiler(Compiler):
         if self.path.endswith('.html'):
             return slimmer.xhtml_slimmer(code)
         return code
+
+
+@functools.partial
+def slimmer(path, output, mode='w'):
+    c = SlimmerCompiler(path)
+    if mode == 'a':
+        c.append(output)
+    else:
+        c.write(output)
+    return

@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os
+ROOT = os.path.dirname(__file__)
 from setuptools import setup, find_packages
 import livereload
 
@@ -11,7 +13,8 @@ setup(
     author_email='lepture@me.com',
     url='http://lepture.com/project/livereload/',
     packages=find_packages(),
-    description='python-livereload is a tool for july project',
+    description='Python LiveReload is an awsome tool for web developers',
+    long_description=livereload.__doc__,
     entry_points={
         'console_scripts': ['livereload= livereload.app:main'],
     },
@@ -19,5 +22,19 @@ setup(
         'tornado',
     ],
     include_package_data=True,
-    license='BSD License',
+    license=open(os.path.join(ROOT, 'LICENSE')).read(),
+    classifiers=[
+        'Development Status :: 4 - Beta',
+        'Environment :: Console',
+        'Environment :: Web Environment :: Mozilla',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: BSD License',
+        'Natural Language :: English',
+        'Operating System :: MacOS :: MacOS X',
+        'Operating System :: POSIX :: Linux',
+        'Programming Language :: Python',
+        'Topic :: Software Development :: Build Tools',
+        'Topic :: Software Development :: Compilers',
+        'Topic :: Software Development :: Debuggers',
+    ]
 )

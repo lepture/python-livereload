@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+
+"""livereload.app
+
+Core Server of LiveReload.
+"""
+
 import os
 import logging
 import tornado.web
@@ -69,7 +76,7 @@ class LiveReloadHandler(websocket.WebSocketHandler):
     def on_close(self):
         if self in LiveReloadHandler.waiters:
             LiveReloadHandler.waiters.remove(self)
-            send_notify('There are %s waiters left' % len(self.waiters))
+            #send_notify('There are %s waiters left' % len(self.waiters))
 
     def send_message(self, message):
         if isinstance(message, dict):
@@ -84,8 +91,11 @@ class LiveReloadHandler(websocket.WebSocketHandler):
 
         path = Task.watch()
         if path:
-            send_notify('Reload %s waiters\nChanged %s' % \
-                             (len(LiveReloadHandler.waiters), path))
+            send_notify(
+                'Reload %s waiters'
+                '\nChanged %s'
+                % (len(LiveReloadHandler.waiters), path)
+            )
             msg = {
                 'command': 'reload',
                 'path': path,
@@ -99,6 +109,14 @@ class LiveReloadHandler(websocket.WebSocketHandler):
                     LiveReloadHandler.waiters.remove(waiter)
 
     def on_message(self, message):
+        """Handshake with livereload.js
+
+        1. client send 'hello'
+        2. server reply 'hello'
+        3. client send 'info'
+
+        http://help.livereload.com/kb/ecosystem/livereload-protocol
+        """
         message = ObjectDict(escape.json_decode(message))
         if message.command == 'hello':
             handshake = {}
