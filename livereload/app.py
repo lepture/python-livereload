@@ -18,7 +18,7 @@ from livereload.task import Task
 
 
 ROOT = os.path.abspath(os.path.dirname(__file__))
-STATIC_PATH = os.path.join(ROOT, 'static')
+STATIC_PATH = os.path.join(ROOT, 'livereload-js/dist')
 
 NOTIFIER = None
 APPLICATION_ICON = None
@@ -146,7 +146,11 @@ class LiveReloadHandler(websocket.WebSocketHandler):
 
 handlers = [
     (r'/livereload', LiveReloadHandler),
-    (r'/(.*)', tornado.web.StaticFileHandler, {'path': STATIC_PATH}),
+    (
+        r'/(livereload.js)',
+        tornado.web.StaticFileHandler,
+        {'path': STATIC_PATH}
+    ),
 ]
 
 

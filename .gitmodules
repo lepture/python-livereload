@@ -1,3 +1,6 @@
 [submodule "docs/_themes"]
 	path = docs/_themes
 	url = git://github.com/mitsuhiko/flask-sphinx-themes.git
+[submodule "livereload/livereload-js"]
+	path = livereload/livereload-js
+	url = git://github.com/livereload/livereload-js.git
