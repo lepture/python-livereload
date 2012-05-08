@@ -3,6 +3,13 @@
 
 import os
 ROOT = os.path.dirname(__file__)
+
+import sys
+kwargs = {}
+major, minor = sys.version_info[:2]
+if major >= 3:
+    kwargs['use_2to3'] = True
+
 from setuptools import setup, find_packages
 import livereload
 
@@ -39,5 +46,6 @@ setup(
         'Topic :: Software Development :: Build Tools',
         'Topic :: Software Development :: Compilers',
         'Topic :: Software Development :: Debuggers',
-    ]
+    ],
+    **kwargs
 )

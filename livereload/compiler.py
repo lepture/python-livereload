@@ -66,12 +66,14 @@ class BaseCompiler(object):
         return code
 
     def write(self, output):
+        """write code to output"""
         make_folder(output)
         f = open(output, 'w')
         f.write(self._get_code())
         f.close()
 
     def append(self, output):
+        """append code to output"""
         make_folder(output)
         f = open(output, 'a')
         f.write(self._get_code())
@@ -88,7 +90,8 @@ class _CommandCompiler(BaseCompiler):
         stdout, stderr = p.communicate()
         if stderr:
             raise Exception(stderr)
-        return stdout
+        #: stdout is bytes, decode for python3
+        return stdout.decode()
 
 
 class LessCompiler(_CommandCompiler):
