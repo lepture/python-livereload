@@ -59,10 +59,11 @@ def send_notify(message):
         return NOTIFIER(message)
     try:
         NOTIFIER = _get_growl()
-    except ImportError:
-        NOTIFIER = _get_notifyOSD()
     except:
-        NOTIFIER = logging.info
+        try:
+            NOTIFIER = _get_notifyOSD()
+        except:
+            NOTIFIER = logging.info
 
     return NOTIFIER(message)
 
