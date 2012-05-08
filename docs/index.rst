@@ -5,9 +5,9 @@ Welcome to Python LiveReload
 the client side and the server side.
 And Python LiveReload is the server side in python version.
 
-Web Developers need to refresh a browser everytime when he saved a file (css,
-javascript, html), it is really boring. LiveReload will take care of that for
-you. When you saved a file, your browser will refresh itself.
+Web Developers need to refresh a browser everytime when he saves a file (css,
+javascript, html). It is really boring. LiveReload will take care of that for
+you. When you save a file, your browser will refresh itself.
 
 And what's more, it can do some tasks like 
 **compiling less to css before the browser refreshing**.
