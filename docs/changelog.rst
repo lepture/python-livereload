@@ -3,6 +3,14 @@ Changelog
 
 The full list of changes between each Python LiveReload release.
 
+.. _ver0.4:
+
+Version 0.4
+-----------
+Release on May 8th, 2012
+
++ bugfix for notify (sorry)
+
 .. _ver0.3:
 
 Version 0.3

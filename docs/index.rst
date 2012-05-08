@@ -12,6 +12,7 @@ you. When you save a file, your browser will refresh itself.
 And what's more, it can do some tasks like 
 **compiling less to css before the browser refreshing**.
 
+**Bug Report** https://github.com/lepture/python-livereload/issues
 
 User's Guide
 -------------
