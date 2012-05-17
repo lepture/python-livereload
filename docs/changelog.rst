@@ -3,6 +3,14 @@ Changelog
 
 The full list of changes between each Python LiveReload release.
 
+.. _ver0.5:
+
+Version 0.5
+-----------
+Release on May 17th, 2012
+
++ support for python3
+
 .. _ver0.4:
 
 Version 0.4
