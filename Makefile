@@ -6,7 +6,7 @@
 
 
 doc:
-	doki.py -l js -t assets/_template.html README.md > index.html
+	doki.py -t assets/_template.html README.md > index.html
 
 upload:
 	git push origin master
