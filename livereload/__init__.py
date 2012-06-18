@@ -135,3 +135,4 @@ If you are a rubist, you can get guard-livereload.
 
 __version__ = '0.4'
 __author__ = 'Hsiaoming Yang <lepture@me.com>'
+__homepage__ = 'http://lepture.com/project/livereload/'

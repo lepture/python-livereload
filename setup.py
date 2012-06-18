@@ -12,13 +12,15 @@ if major >= 3:
 
 from setuptools import setup, find_packages
 import livereload
+from email.utils import parseaddr
+author, author_email = parseaddr(livereload.__author__)
 
 setup(
     name='livereload',
     version=livereload.__version__,
-    author='Hsiaoming Yang',
-    author_email='lepture@me.com',
-    url='http://lepture.com/project/livereload/',
+    author=author,
+    author_email=author_email,
+    url=livereload.__homepage__,
     packages=find_packages(),
     description='Python LiveReload is an awesome tool for web developers',
     long_description=livereload.__doc__,
