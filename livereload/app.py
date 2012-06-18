@@ -145,6 +145,14 @@ class LiveReloadHandler(websocket.WebSocketHandler):
                 tornado.ioloop.PeriodicCallback(self.watch_tasks, 500).start()
 
 
+class IndexHandler(tornado.web.StaticFileHandler):
+    def get(self, path):
+        if path.endswith('/'):
+            path = path + 'index.html'
+
+        super(IndexHandler, self).get(path)
+
+
 handlers = [
     (r'/livereload', LiveReloadHandler),
     (
@@ -152,6 +160,7 @@ handlers = [
         tornado.web.StaticFileHandler,
         {'path': STATIC_PATH}
     ),
+    (r'/(.*)', IndexHandler, {'path': '.'}),
 ]
 
 
@@ -169,6 +178,7 @@ def main():
     tornado.options.parse_command_line()
     app = tornado.web.Application(handlers=handlers)
     app.listen(35729)
+    print('Start service at  127.0.0.1:35729')
     tornado.ioloop.IOLoop.instance().start()
 
 if __name__ == '__main__':
