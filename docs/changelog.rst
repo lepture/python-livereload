@@ -3,6 +3,14 @@ Changelog
 
 The full list of changes between each Python LiveReload release.
 
+.. _ver0.6:
+
+Version 0.6
+------------
+Release on Jun 18th, 2012
+
++ Add static server, 127.0.0.1:35729
+
 .. _ver0.5:
 
 Version 0.5
