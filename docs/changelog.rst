@@ -3,6 +3,14 @@ Changelog
 
 The full list of changes between each Python LiveReload release.
 
+
+Version 0.7
+-------------
+Released on Jun 20th, 2012
+
++ Static Server support index
++ Dynamic watch directory changes
+
 .. _ver0.6:
 
 Version 0.6

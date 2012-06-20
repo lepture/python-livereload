@@ -91,16 +91,16 @@ class LiveReloadHandler(websocket.WebSocketHandler):
 
     def watch_tasks(self):
 
-        path = Task.watch()
-        if path:
+        changes = Task.watch()
+        if changes:
             send_notify(
                 'Reload %s waiters'
                 '\nChanged %s'
-                % (len(LiveReloadHandler.waiters), path)
+                % (len(LiveReloadHandler.waiters), changes)
             )
             msg = {
                 'command': 'reload',
-                'path': path,
+                'path': '*',
                 'liveCSS': True
             }
             for waiter in LiveReloadHandler.waiters:
@@ -197,6 +197,8 @@ def main():
     tornado.options.parse_command_line()
     app = tornado.web.Application(handlers=handlers)
     app.listen(35729)
+    #: task watch initialize
+    Task.watch()
     print('Start service at  127.0.0.1:35729')
     tornado.ioloop.IOLoop.instance().start()
 
