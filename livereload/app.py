@@ -148,9 +148,28 @@ class LiveReloadHandler(websocket.WebSocketHandler):
 class IndexHandler(tornado.web.StaticFileHandler):
     def get(self, path):
         if path.endswith('/'):
+            root = path
+
             path = path + 'index.html'
+            if not os.path.exists(path):
+                self.create_index(root)
+                return
 
         super(IndexHandler, self).get(path)
+
+    def create_index(self, root):
+        files = os.listdir(root)
+        self.write('<ul>')
+        for f in files:
+            path = os.path.join(root, f)
+            self.write('<li>')
+            if os.path.isdir(path):
+                self.write('<a href="%s/">%s</a>' % (f, f))
+            else:
+                self.write('<a href="%s">%s</a>' % (f, f))
+            self.write('</li>')
+
+        self.write('</ul>')
 
 
 handlers = [
