@@ -29,28 +29,47 @@ class Task(object):
     _modified_times = {}
 
     @classmethod
-    def _check_file(cls, path):
-        try:
-            modified = os.stat(path).st_mtime
-        except:
-            return False
-        if path not in cls._modified_times:
-            cls._modified_times[path] = modified
-            return False
-        if cls._modified_times[path] != modified:
-            cls._modified_times[path] = modified
-            return True
-        return False
-
-    @classmethod
-    def _add_task(cls, path, func=None):
-        for ext in IGNORE:
-            if not path.endswith(ext):
-                cls.tasks[path] = func
-
-    @classmethod
     def add(cls, path, func=None):
+        cls.tasks[path] = func
+
+    @classmethod
+    def watch(cls):
+        result = False
+        changes = []
+        for path in cls.tasks:
+            if cls._checking(path):
+                result = True
+                changes.append(path)
+                func = cls.tasks[path]
+                if func:
+                    func()
+
+        return result and changes
+
+    @classmethod
+    def _check_file(cls, path):
+        for ext in IGNORE:
+            if path.endswith(ext):
+                return False
+
+        if not os.path.isfile(path):
+            return False
+
+        modified = os.stat(path).st_mtime
+        if path in cls._modified_times and \
+           cls._modified_times[path] == modified:
+            return False
+
+        cls._modified_times[path] = modified
+        return True
+
+    @classmethod
+    def _checking(cls, path):
+        if os.path.isfile(path):
+            return cls._check_file(path)
+
         if os.path.isdir(path):
+            result = False
             for root, dirs, files in os.walk(path):
                 #: don't watch version control dirs
                 if '.git' in dirs:
@@ -60,20 +79,13 @@ class Task(object):
                 if '.svn' in dirs:
                     dirs.remove('.svn')
                 for f in files:
-                    cls._add_task(os.path.join(root, f), func)
-        elif os.path.isfile(path):
-            cls._add_task(path, func)
-        else:
-            for p in glob.glob(path):
-                cls._add_task(p, func)
+                    path = os.path.join(root, f)
+                    result = cls._check_file(path) or result
 
-    @classmethod
-    def watch(cls):
-        for path in cls.tasks:
-            if cls._check_file(path):
-                func = cls.tasks[path]
-                if func:
-                    func()
-                return path
+            return result
 
-        return False
+        result = False
+        for f in glob.glob(path):
+            result = cls._check_file(f) or result
+
+        return result
