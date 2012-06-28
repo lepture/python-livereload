@@ -146,7 +146,11 @@ class LiveReloadHandler(websocket.WebSocketHandler):
 
 
 class IndexHandler(tornado.web.StaticFileHandler):
-    def get(self, path):
+    def get(self, path=None):
+        if not path:
+            super(IndexHandler, self).get('index.html')
+            return
+
         if path.endswith('/'):
             root = path
 
@@ -180,6 +184,7 @@ handlers = [
         {'path': STATIC_PATH}
     ),
     (r'/(.*)', IndexHandler, {'path': '.'}),
+    (r'/', IndexHandler, {'path': '.'}),
 ]
 
 

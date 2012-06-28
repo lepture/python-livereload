@@ -6,6 +6,7 @@ ROOT = os.path.dirname(__file__)
 
 import sys
 kwargs = {}
+kwargs['include_package_data'] = True
 major, minor = sys.version_info[:2]
 if major >= 3:
     kwargs['use_2to3'] = True
@@ -30,7 +31,6 @@ setup(
     install_requires=[
         'tornado',
     ],
-    include_package_data=True,
     license=open(os.path.join(ROOT, 'LICENSE')).read(),
     classifiers=[
         'Development Status :: 4 - Beta',
