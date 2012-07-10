@@ -3,6 +3,12 @@ Changelog
 
 The full list of changes between each Python LiveReload release.
 
+Version 0.8
+------------
+Released on Jul 10th, 2012
+
++ Static Server support root page
++ Don't compile at first start
 
 Version 0.7
 -------------
