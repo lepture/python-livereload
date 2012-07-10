@@ -56,11 +56,15 @@ class Task(object):
             return False
 
         modified = os.stat(path).st_mtime
+
+        if path not in cls._modified_times:
+            cls._modified_times[path] = modified
+            return False
+
         if path in cls._modified_times and \
            cls._modified_times[path] == modified:
             return False
 
-        cls._modified_times[path] = modified
         return True
 
     @classmethod
