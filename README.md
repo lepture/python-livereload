@@ -2,7 +2,7 @@
 
 LiveReload Server in Python Version.
 
-> This is a project by [Hsiaoming Yang](http://lepture.com). All projects are listed at [project page](http://project.lepture.com).
+> This is a project by [Hsiaoming Yang](http://lepture.com). All projects are listed at [project page](http://lab.lepture.com).
 
 
 Web Developers need to refresh a browser everytime when he saved a file (css,
