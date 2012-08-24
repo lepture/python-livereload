@@ -18,9 +18,10 @@ A basic syntax overview::
 
 import os
 import glob
+import logging
 
 IGNORE = [
-    '.pyc', '.pyo', '.o',
+    '.pyc', '.pyo', '.o', '.swp'
 ]
 
 
@@ -36,8 +37,9 @@ class Task(object):
     def watch(cls):
         result = False
         changes = []
+
         for path in cls.tasks:
-            if cls._checking(path):
+            if cls.is_changed(path):
                 result = True
                 changes.append(path)
                 func = cls.tasks[path]
@@ -47,49 +49,50 @@ class Task(object):
         return result and changes
 
     @classmethod
-    def _check_file(cls, path):
-        for ext in IGNORE:
-            if path.endswith(ext):
+    def is_changed(cls, path):
+        def is_file_changed(path):
+            if not os.path.isfile(path):
                 return False
 
-        if not os.path.isfile(path):
-            return False
+            _, ext = os.path.splitext(path)
+            if ext in IGNORE:
+                return False
 
-        modified = os.stat(path).st_mtime
+            modified = int(os.stat(path).st_mtime)
 
-        if path not in cls._modified_times:
+            if path in cls._modified_times and \
+               cls._modified_times[path] == modified:
+                return False
+
             cls._modified_times[path] = modified
-            return False
+            logging.info('file changed: %s' % path)
+            return True
 
-        if path in cls._modified_times and \
-           cls._modified_times[path] == modified:
-            return False
-
-        return True
-
-    @classmethod
-    def _checking(cls, path):
-        if os.path.isfile(path):
-            return cls._check_file(path)
-
-        if os.path.isdir(path):
-            result = False
+        def is_folder_changed(path):
             for root, dirs, files in os.walk(path):
-                #: don't watch version control dirs
-                if '.git' in dirs:
-                    dirs.remove('.git')
-                if '.hg' in dirs:
-                    dirs.remove('.hg')
-                if '.svn' in dirs:
-                    dirs.remove('.svn')
+                dirs.remove('.git')
+                dirs.remove('.hg')
+                dirs.remove('.svn')
+                dirs.remove('.cvs')
+
                 for f in files:
                     path = os.path.join(root, f)
-                    result = cls._check_file(path) or result
+                    if is_file_changed(path):
+                        return True
 
-            return result
+            return False
 
-        result = False
-        for f in glob.glob(path):
-            result = cls._check_file(f) or result
+        def is_glob_changed(path):
+            for f in glob.glob(path):
+                if is_file_changed(f):
+                    return True
 
-        return result
+            return False
+
+        if os.path.isfile(path):
+            return is_file_changed(path)
+        elif os.path.isdir(path):
+            return is_folder_changed(path)
+        else:
+            return is_glob_changed(path)
+        return False
