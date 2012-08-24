@@ -70,10 +70,14 @@ class Task(object):
 
         def is_folder_changed(path):
             for root, dirs, files in os.walk(path):
-                dirs.remove('.git')
-                dirs.remove('.hg')
-                dirs.remove('.svn')
-                dirs.remove('.cvs')
+                if '.git' in dirs:
+                    dirs.remove('.git')
+                if '.hg' in dirs:
+                    dirs.remove('.hg')
+                if '.svn' in dirs:
+                    dirs.remove('.svn')
+                if '.cvs' in dirs:
+                    dirs.remove('.cvs')
 
                 for f in files:
                     path = os.path.join(root, f)
