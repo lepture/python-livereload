@@ -65,6 +65,7 @@ class Task(object):
            cls._modified_times[path] == modified:
             return False
 
+        cls._modified_times[path] = modified
         return True
 
     @classmethod
