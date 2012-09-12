@@ -20,52 +20,9 @@ from livereload.task import Task
 ROOT = os.path.abspath(os.path.dirname(__file__))
 STATIC_PATH = os.path.join(ROOT, 'livereload-js/dist')
 
-NOTIFIER = None
-APPLICATION_ICON = None
-
-
-def _get_growl():
-    import gntp.notifier
-    growl = gntp.notifier.GrowlNotifier(
-        applicationName='Python LiveReload',
-        notifications=['Message'],
-        defaultNotifications=['Message'],
-        applicationIcon=APPLICATION_ICON,
-    )
-    result = growl.register()
-    if result is not True:
-        return None
-
-    def notifier(message):
-        return growl.notify(
-            'Message',
-            'LiveReload',
-            message,
-            icon=APPLICATION_ICON,
-        )
-
-    return notifier
-
-
-def _get_notifyOSD():
-    import pynotify
-    pynotify.init('Python LiveReload')
-    return lambda message: pynotify.Notification('LiveReload', message).show()
-
 
 def send_notify(message):
-    global NOTIFIER
-    if NOTIFIER:
-        return NOTIFIER(message)
-    try:
-        NOTIFIER = _get_growl()
-    except:
-        try:
-            NOTIFIER = _get_notifyOSD()
-        except:
-            NOTIFIER = logging.info
-
-    return NOTIFIER(message)
+    return logging.info(message)
 
 
 class LiveReloadHandler(websocket.WebSocketHandler):
@@ -78,7 +35,6 @@ class LiveReloadHandler(websocket.WebSocketHandler):
     def on_close(self):
         if self in LiveReloadHandler.waiters:
             LiveReloadHandler.waiters.remove(self)
-            #send_notify('There are %s waiters left' % len(self.waiters))
 
     def send_message(self, message):
         if isinstance(message, dict):
