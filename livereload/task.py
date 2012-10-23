@@ -61,12 +61,13 @@ class Task(object):
             modified = int(os.stat(path).st_mtime)
 
             if path in cls._modified_times and \
-               cls._modified_times[path] == modified:
-                return False
+               cls._modified_times[path] != modified:
+                logging.info('file changed: %s' % path)
+                cls._modified_times[path] = modified
+                return True
 
             cls._modified_times[path] = modified
-            logging.info('file changed: %s' % path)
-            return True
+            return False
 
         def is_folder_changed(path):
             for root, dirs, files in os.walk(path):
