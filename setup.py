@@ -26,10 +26,10 @@ setup(
     description='Python LiveReload is an awesome tool for web developers',
     long_description=livereload.__doc__,
     entry_points={
-        'console_scripts': ['livereload= livereload.app:main'],
+        'console_scripts': ['livereload= livereload.cli:main'],
     },
     install_requires=[
-        'tornado',
+        'tornado', 'docopt',
     ],
     license=open(os.path.join(ROOT, 'LICENSE')).read(),
     classifiers=[
