@@ -13,6 +13,7 @@ Available compilers now:
 
 import os
 import functools
+import logging
 from subprocess import Popen, PIPE
 
 
@@ -67,6 +68,7 @@ class BaseCompiler(object):
 
     def write(self, output):
         """write code to output"""
+        logging.info('write %s' % output)
         make_folder(output)
         f = open(output, 'w')
         f.write(self._get_code())
@@ -74,6 +76,7 @@ class BaseCompiler(object):
 
     def append(self, output):
         """append code to output"""
+        logging.info('append %s' % output)
         make_folder(output)
         f = open(output, 'a')
         f.write(self._get_code())

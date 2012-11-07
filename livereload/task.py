@@ -31,6 +31,7 @@ class Task(object):
 
     @classmethod
     def add(cls, path, func=None):
+        logging.info('Add task: %s' % path)
         cls.tasks[path] = func
 
     @classmethod
