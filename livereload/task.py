@@ -60,6 +60,10 @@ class Task(object):
 
             modified = int(os.stat(path).st_mtime)
 
+            if path not in cls._modified_times:
+                cls._modified_times[path] = modified
+                return False
+
             if path in cls._modified_times and \
                cls._modified_times[path] != modified:
                 logging.info('file changed: %s' % path)

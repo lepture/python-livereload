@@ -100,7 +100,7 @@ class LiveReloadHandler(websocket.WebSocketHandler):
 
                 LiveReloadHandler._watch_running = True
                 logging.info('Start watching changes')
-                ioloop.PeriodicCallback(self.watch_tasks, 5000).start()
+                ioloop.PeriodicCallback(self.watch_tasks, 800).start()
 
 
 class IndexHandler(RequestHandler):
