@@ -3,6 +3,15 @@ Changelog
 
 The full list of changes between each Python LiveReload release.
 
+Version 0.11
+-------------
+
+Released on Nov 7th, 2012
+
++ Redesign server
++ remove notification
+
+
 Version 0.8
 ------------
 Released on Jul 10th, 2012
