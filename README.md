@@ -1,9 +1,10 @@
 # Python LiveReload
 
+---------------------
+
 LiveReload Server in Python Version.
 
-> This is a project by [Hsiaoming Yang](http://lepture.com). All projects are listed at [project page](http://lab.lepture.com).
-
+[View Documentation](http://livereload.readthedocs.org) on RTD.
 
 Web Developers need to refresh a browser everytime when he saved a file (css,
 javascript, html), it is really boring. LiveReload will take care of that for

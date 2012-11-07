@@ -1,0 +1,115 @@
+@import url(http://fonts.googleapis.com/css?family=Marcellus);
+
+body {
+    background-color: #F2F0E9;
+    padding: 0 10px;
+    text-rendering: optimizelegibility;
+}
+#header-wrapper {
+    text-align: center;
+    font-family: 'Marcellus', serif;
+}
+#header-wrapper h1 {
+    margin-top: 30px;
+    margin-bottom: 20px;
+    font-size: 34px;
+    color:#333;
+}
+.color-gray {
+    color: #999;
+}
+
+#navigation, #content-wrapper, #footer-wrapper {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 980px;
+}
+#navigation ul {
+    margin: 0 0 10px 0;
+    padding: 0 30px;
+    list-style-type: none;
+    zoom: 1;
+}
+#navigation ul:after {
+    display:block;
+    content:" ";
+    clear:both;
+    visibility:hidden;
+    height:0;
+    font-size:0;
+}
+#navigation li {
+    float: left;
+}
+#navigation li.side {
+    float: right;
+}
+#navigation li + li {
+    margin-left: 18px;
+}
+#navigation a {
+    color: #666;
+    border-bottom: 3px solid transparent;
+    text-decoration: none;
+    padding: 0 2px 10px 2px;
+}
+#navigation a:hover {
+    color: #333;
+    border-color: #87c442;
+}
+#content-wrapper {
+    border: 3px solid #E6E6E6;
+    background-color: #FFF;
+}
+#content {
+    padding: 10px 30px 30px;
+    border: 1px solid #D6D4CE;
+    border-radius: 1px;
+}
+#content .entry-title {
+    margin-bottom: 12px;
+}
+#content .meta {
+    color: #BCBCBD;
+    font-size: 12px;
+}
+#content p, #content h1, #content h2, #content h3, #content h4 {
+    font-family: Georgia,'Xin Gothic','PT Sans','Hiragino Sans GB','Helvetica Neue',Helvetica,Arial,sans-serif;
+}
+#content p, #content ul, #content ol, #content blockquote {
+    color: #666;
+}
+#content li {
+    line-height: 1.6;
+}
+#content a {
+    color: #55A4F2;
+    text-decoration: none;
+}
+#content a:hover {
+    text-decoration: underline;
+}
+#content h2 {
+    margin-top: 40px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #eee;
+}
+#content pre {
+    border: 1px solid #ccc;
+    padding: 6px 10px;
+    overflow: auto;
+    border-radius: 3px;
+    background-color: #F8F8F8;
+    line-height: 19px;
+    font-size: 13px;
+}
+#footer-wrapper {
+    color: #9C9C9C;
+    text-shadow: 0 1px 0 #FFF;
+    font-family: Georgia,'Xin Gothic','PT Sans','Hiragino Sans GB','Helvetica Neue',Helvetica,Arial,sans-serif;
+    font-size: 12px;
+}
+#footer-wrapper a {
+    color: #9C9C9C;
+    text-decoration: none;
+}
