@@ -85,10 +85,11 @@ class BaseCompiler(object):
 
 class _CommandCompiler(BaseCompiler):
     command = ''
-    command_options = ''
 
     def _get_code(self):
-        cmd = [self.command, self.command_options, self.path]
+        cmd = self.command.split()
+        cmd.append(self.path)
+
         p = Popen(cmd, stdout=PIPE, stderr=PIPE)
         stdout, stderr = p.communicate()
         if stderr:
@@ -98,8 +99,7 @@ class _CommandCompiler(BaseCompiler):
 
 
 class LessCompiler(_CommandCompiler):
-    command = 'lessc'
-    command_options = '--compress'
+    command = 'lessc --compress'
 
 
 def lessc(path, output, mode='w'):
@@ -114,8 +114,7 @@ def lessc(path, output, mode='w'):
 
 
 class UglifyJSCompiler(_CommandCompiler):
-    command = 'uglifyjs'
-    command_options = '-nc'
+    command = 'uglifyjs -nc'
 
 
 def uglifyjs(path, output, mode='w'):
@@ -152,4 +151,18 @@ def slimmer(path, output, mode='w'):
             return
         c.write(output)
         return
+    return functools.partial(_compile, path, output, mode)
+
+
+class RstCompiler(_CommandCompiler):
+    command = 'rst2html.py'
+
+
+def rstc(path, output, mode='w'):
+    def _compile(path, output, mode):
+        c = RstCompiler(path)
+        if mode == 'a':
+            c.append(output)
+        else:
+            c.write(output)
     return functools.partial(_compile, path, output, mode)
