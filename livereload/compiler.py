@@ -85,7 +85,7 @@ class _CommandCompiler(BaseCompiler):
     command_options = ''
 
     def _get_code(self):
-        cmd = [self.command]# self.command_options, self.path]
+        cmd = [self.command]
         if self.command_options:
             cmd.append(self.command_options)
         cmd.append(self.path)
@@ -155,8 +155,10 @@ def slimmer(path, output, mode='w'):
         return
     return functools.partial(_compile, path, output, mode)
 
+
 class RstCompiler(_CommandCompiler):
     command = 'rst2html.py'
+
 
 def rstc(path, output, mode='w'):
     def _compile(path, output, mode):
@@ -166,4 +168,3 @@ def rstc(path, output, mode='w'):
         else:
             c.write(output)
     return functools.partial(_compile, path, output, mode)
-
