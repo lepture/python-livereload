@@ -7,6 +7,7 @@ Provides a set of compilers for web developers.
 Available compilers now:
 
 + less
++ coffee
 + uglifyjs
 + slimmer
 """
@@ -107,6 +108,29 @@ class _CommandCompiler(BaseCompiler):
         return stdout.decode()
 
 
+class _StdinCompiler(BaseCompiler):
+    command = ''
+
+    def _get_code(self):
+        cmd = self.command.split()
+
+        try:
+            p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        except OSError as e:
+            logging.error(e)
+            if e.errno == os.errno.ENOENT: # file (command) not found
+                logging.error("maybe you haven't installed %s", cmd[0])
+            return None
+        stdout, stderr = p.communicate(
+            input=super(_StdinCompiler, self)._get_code())
+        if stderr:
+            logging.error(stderr)
+            return None
+        #: stdout is bytes, decode for python3
+        return stdout.decode()
+
+
+
 class LessCompiler(_CommandCompiler):
     command = 'lessc --compress'
 
@@ -114,6 +138,21 @@ class LessCompiler(_CommandCompiler):
 def lessc(path, output, mode='w'):
     def _compile(path, output, mode):
         c = LessCompiler(path)
+        if mode == 'a':
+            c.append(output)
+            return
+        c.write(output)
+        return
+    return functools.partial(_compile, path, output, mode)
+
+
+class CoffeeCompiler(_StdinCompiler):
+    command = 'coffee --compile --stdio'
+
+
+def coffee(path, output, mode='w'):
+    def _compile(path, output, mode):
+        c = CoffeeCompiler(path)
         if mode == 'a':
             c.append(output)
             return
