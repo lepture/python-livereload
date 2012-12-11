@@ -96,7 +96,8 @@ class _CommandCompiler(BaseCompiler):
             p = Popen(cmd, stdout=PIPE, stderr=PIPE)
         except OSError as e:
             logging.error(e)
-            logging.error("it maybe you haven't installed %s", cmd[0])
+            if e.errno == os.errno.ENOENT: # file (command) not found
+                logging.error("maybe you haven't installed %s", cmd[0])
             return None
         stdout, stderr = p.communicate()
         if stderr:
