@@ -7,6 +7,7 @@ Core Server of LiveReload.
 
 import os
 import logging
+import time
 import mimetypes
 from tornado import ioloop
 from tornado import escape
@@ -26,7 +27,7 @@ LIVERELOAD = os.path.join(
 
 class LiveReloadHandler(websocket.WebSocketHandler):
     waiters = set()
-    _watch_running = False
+    _last_reload_time = None
 
     def allow_draft76(self):
         return True
@@ -48,6 +49,10 @@ class LiveReloadHandler(websocket.WebSocketHandler):
         changes = Task.watch()
         if not changes:
             return
+        if time.time() - self._last_reload_time < 1:
+            # if you changed lot of files in one time
+            # it will refresh too many times
+            return
 
         logging.info(
             'Reload %s waiters'
@@ -59,6 +64,8 @@ class LiveReloadHandler(websocket.WebSocketHandler):
             'path': '*',
             'liveCSS': True
         }
+
+        self._last_reload_time = time.time()
         for waiter in LiveReloadHandler.waiters:
             try:
                 waiter.write_message(msg)
@@ -90,7 +97,7 @@ class LiveReloadHandler(websocket.WebSocketHandler):
         if message.command == 'info' and 'url' in message:
             logging.info('Browser Connected: %s' % message.url)
             LiveReloadHandler.waiters.add(self)
-            if not LiveReloadHandler._watch_running:
+            if not LiveReloadHandler._last_reload_time:
                 if os.path.exists('Guardfile'):
                     logging.info('Reading Guardfile')
                     execfile('Guardfile')
@@ -98,7 +105,7 @@ class LiveReloadHandler(websocket.WebSocketHandler):
                     logging.info('No Guardfile')
                     Task.add(os.getcwd())
 
-                LiveReloadHandler._watch_running = True
+                LiveReloadHandler._last_reload_time = time.time()
                 logging.info('Start watching changes')
                 ioloop.PeriodicCallback(self.watch_tasks, 800).start()
 
