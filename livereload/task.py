@@ -36,18 +36,14 @@ class Task(object):
 
     @classmethod
     def watch(cls):
-        result = False
-        changes = []
-
+        _changed = False
         for path in cls.tasks:
             if cls.is_changed(path):
-                result = True
-                changes.append(path)
+                _changed = True
                 func = cls.tasks[path]
-                if func:
-                    func()
+                func and func()
 
-        return result and changes
+        return _changed
 
     @classmethod
     def is_changed(cls, path):
@@ -75,6 +71,7 @@ class Task(object):
             return False
 
         def is_folder_changed(path):
+            _changed = False
             for root, dirs, files in os.walk(path):
                 if '.git' in dirs:
                     dirs.remove('.git')
@@ -86,18 +83,18 @@ class Task(object):
                     dirs.remove('.cvs')
 
                 for f in files:
-                    path = os.path.join(root, f)
-                    if is_file_changed(path):
-                        return True
+                    if is_file_changed(os.path.join(root, f)):
+                        _changed = True
 
-            return False
+            return _changed
 
         def is_glob_changed(path):
+            _changed = False
             for f in glob.glob(path):
                 if is_file_changed(f):
-                    return True
+                    _changed = True
 
-            return False
+            return _changed
 
         if os.path.isfile(path):
             return is_file_changed(path)

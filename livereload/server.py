@@ -49,16 +49,14 @@ class LiveReloadHandler(websocket.WebSocketHandler):
         changes = Task.watch()
         if not changes:
             return
-        if time.time() - self._last_reload_time < 1:
+        if time.time() - self._last_reload_time < 3:
             # if you changed lot of files in one time
             # it will refresh too many times
+            logging.info('ignore this reload action')
             return
 
-        logging.info(
-            'Reload %s waiters'
-            '\nChanged %s'
-            % (len(LiveReloadHandler.waiters), changes)
-        )
+        logging.info('Reload %s waiters', len(self.waiters))
+
         msg = {
             'command': 'reload',
             'path': '*',
