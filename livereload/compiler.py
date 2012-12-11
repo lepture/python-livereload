@@ -71,7 +71,9 @@ class BaseCompiler(object):
         logging.info('write %s' % output)
         make_folder(output)
         f = open(output, 'w')
-        f.write(self._get_code())
+        code = self._get_code()
+        if code:
+            f.write(code)
         f.close()
 
     def append(self, output):
@@ -90,10 +92,16 @@ class _CommandCompiler(BaseCompiler):
         cmd = self.command.split()
         cmd.append(self.path)
 
-        p = Popen(cmd, stdout=PIPE, stderr=PIPE)
+        try:
+            p = Popen(cmd, stdout=PIPE, stderr=PIPE)
+        except OSError as e:
+            logging.error(e)
+            logging.error("it maybe you haven't installed %s", cmd[0])
+            return None
         stdout, stderr = p.communicate()
         if stderr:
-            raise Exception(stderr)
+            logging.error(stderr)
+            return None
         #: stdout is bytes, decode for python3
         return stdout.decode()
 
