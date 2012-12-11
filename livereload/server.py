@@ -180,7 +180,7 @@ handlers = [
 ]
 
 
-def start(port):
+def start(port=35729):
     global PORT
     PORT = port
     logging.getLogger().setLevel(logging.INFO)
