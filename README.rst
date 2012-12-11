@@ -36,15 +36,6 @@ Get Browser Extensions From LiveReload.com
 
 Visit: http://help.livereload.com/kb/general-use/browser-extensions
 
-Get Notification
-~~~~~~~~~~~~~~~~~
-
-If you are on Mac, and you are a Growl user::
-
-    $ pip install gntp
-
-If you are on Ubuntu, you don't need to do anything. Notification just works.
-
 Working with file protocal
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -62,10 +53,20 @@ browser. But you can still do the simple task.
 Assume you have livereload and its extension installed, and now you are in your
 working directory. With command::
 
-    $ livereload
+    $ livereload [-p port]
 
 your browser will reload, if any file in the working directory changed.
 
+
+LiveReload as SimpleHTTPServer
+-------------------------------
+
+Livereload server can be a SimpleHTTPServer::
+
+    $ livereload -p 8000
+
+It will set up a server at port 8000, take a look at http://127.0.0.1:8000.
+Oh, it can livereload!
 
 Guardfile
 ----------
