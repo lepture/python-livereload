@@ -53,7 +53,7 @@ class BaseCompiler(object):
     >>> c.write('b')  #: write compiled code to 'b'
     >>> c.append('c')  #: append compiled code to 'c'
     """
-    def __init__(self, path):
+    def __init__(self, path=None):
         self.filetype = os.path.splitext(path)[1]
 
         if path.startswith('http://') or path.startswith('https://'):
@@ -61,7 +61,7 @@ class BaseCompiler(object):
 
         self.path = path
 
-    def _get_code(self):
+    def get_code(self):
         f = open(self.path)
         code = f.read()
         f.close()
@@ -72,7 +72,7 @@ class BaseCompiler(object):
         logging.info('write %s' % output)
         make_folder(output)
         f = open(output, 'w')
-        code = self._get_code()
+        code = self.get_code()
         if code:
             f.write(code)
         f.close()
@@ -82,47 +82,37 @@ class BaseCompiler(object):
         logging.info('append %s' % output)
         make_folder(output)
         f = open(output, 'a')
-        f.write(self._get_code())
+        f.write(self.get_code())
         f.close()
 
+    def __call__(self, output, mode='w'):
+        if mode == 'a':
+            self.append(output)
+            return
+        self.write(output)
+        return
 
-class _CommandCompiler(BaseCompiler):
-    command = ''
 
-    def _get_code(self):
+class CommandCompiler(BaseCompiler):
+    def init_command(self, command, source=None):
+        self.command = command
+        self.source = source
+
+    def get_code(self):
         cmd = self.command.split()
         cmd.append(self.path)
-
-        try:
-            p = Popen(cmd, stdout=PIPE, stderr=PIPE)
-        except OSError as e:
-            logging.error(e)
-            if e.errno == os.errno.ENOENT: # file (command) not found
-                logging.error("maybe you haven't installed %s", cmd[0])
-            return None
-        stdout, stderr = p.communicate()
-        if stderr:
-            logging.error(stderr)
-            return None
-        #: stdout is bytes, decode for python3
-        return stdout.decode()
-
-
-class _StdinCompiler(BaseCompiler):
-    command = ''
-
-    def _get_code(self):
-        cmd = self.command.split()
 
         try:
             p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE)
         except OSError as e:
             logging.error(e)
-            if e.errno == os.errno.ENOENT: # file (command) not found
+            if e.errno == os.errno.ENOENT:  # file (command) not found
                 logging.error("maybe you haven't installed %s", cmd[0])
             return None
-        stdout, stderr = p.communicate(
-            input=super(_StdinCompiler, self)._get_code())
+        if self.source:
+            stdout, stderr = p.communicate(input=self.source)
+        else:
+            stdout, stderr = p.communicate()
         if stderr:
             logging.error(stderr)
             return None
@@ -130,54 +120,20 @@ class _StdinCompiler(BaseCompiler):
         return stdout.decode()
 
 
-
-class LessCompiler(_CommandCompiler):
-    command = 'lessc --compress'
-
-
 def lessc(path, output, mode='w'):
-    def _compile(path, output, mode):
-        c = LessCompiler(path)
-        if mode == 'a':
-            c.append(output)
-            return
-        c.write(output)
-        return
-    return functools.partial(_compile, path, output, mode)
-
-
-class CoffeeCompiler(_StdinCompiler):
-    command = 'coffee --compile --stdio'
-
-
-def coffee(path, output, mode='w'):
-    def _compile(path, output, mode):
-        c = CoffeeCompiler(path)
-        if mode == 'a':
-            c.append(output)
-            return
-        c.write(output)
-        return
-    return functools.partial(_compile, path, output, mode)
-
-
-class UglifyJSCompiler(_CommandCompiler):
-    command = 'uglifyjs -nc'
+    _compile = CommandCompiler(path)
+    _compile.init_command('lessc --compress')
+    return functools.partial(_compile, output, mode)
 
 
 def uglifyjs(path, output, mode='w'):
-    def _compile(path, output, mode):
-        c = UglifyJSCompiler(path)
-        if mode == 'a':
-            c.append(output)
-            return
-        c.write(output)
-        return
-    return functools.partial(_compile, path, output, mode)
+    _compile = CommandCompiler(path)
+    _compile.init_command('uglifyjs --nc')
+    return functools.partial(_compile, output, mode)
 
 
 class SlimmerCompiler(BaseCompiler):
-    def _get_code(self):
+    def get_code(self):
         import slimmer
         f = open(self.path)
         code = f.read()
@@ -192,25 +148,11 @@ class SlimmerCompiler(BaseCompiler):
 
 
 def slimmer(path, output, mode='w'):
-    def _compile(path, output, mode):
-        c = SlimmerCompiler(path)
-        if mode == 'a':
-            c.append(output)
-            return
-        c.write(output)
-        return
-    return functools.partial(_compile, path, output, mode)
-
-
-class RstCompiler(_CommandCompiler):
-    command = 'rst2html.py'
+    _compile = SlimmerCompiler(path)
+    return functools.partial(_compile, output, mode)
 
 
 def rstc(path, output, mode='w'):
-    def _compile(path, output, mode):
-        c = RstCompiler(path)
-        if mode == 'a':
-            c.append(output)
-        else:
-            c.write(output)
-    return functools.partial(_compile, path, output, mode)
+    _compile = CommandCompiler(path)
+    _compile.init_command('rst2html.py')
+    return functools.partial(_compile, output, mode)
