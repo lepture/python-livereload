@@ -156,3 +156,12 @@ def rstc(path, output, mode='w'):
     _compile = CommandCompiler(path)
     _compile.init_command('rst2html.py')
     return functools.partial(_compile, output, mode)
+
+
+def coffee(path, output, mode='w'):
+    _compile = CommandCompiler(path)
+    f = open(path)
+    code = f.read()
+    f.close()
+    _compile.init_command('coffee --compile --stdio', code)
+    return functools.partial(_compile, output, mode)
