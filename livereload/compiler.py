@@ -136,7 +136,7 @@ def uglifyjs(path, output, mode='w'):
 class SlimmerCompiler(BaseCompiler):
     def get_code(self):
         import slimmer
-        f = open(self.path)
+        f = codecs.open(self.path, 'r', 'utf-8')
         code = f.read()
         f.close()
         if self.filetype == '.css':
@@ -161,7 +161,7 @@ def rstc(path, output, mode='w'):
 
 def coffee(path, output, mode='w'):
     _compile = CommandCompiler(path)
-    f = open(path)
+    f = codecs.open(path, 'r', 'utf-8')
     code = f.read()
     f.close()
     _compile.init_command('coffee --compile --stdio', code)
