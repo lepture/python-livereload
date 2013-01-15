@@ -181,7 +181,7 @@ handlers = [
 ]
 
 
-def start(port=35729, root='.'):
+def start(port=35729, root='.', autoraise=False):
     global PORT
     PORT = port
     global ROOT
@@ -193,7 +193,11 @@ def start(port=35729, root='.'):
     app = Application(handlers=handlers)
     app.listen(port)
     print('Serving path %s on 127.0.0.1:%s' % (root, port))
-    webbrowser.open('http://localhost:%s' % port, new=2, autoraise=True)
+
+    if autoraise:
+        webbrowser.open(
+            'http://127.0.0.1:%s' % port, new=2, autoraise=True
+        )
     ioloop.IOLoop.instance().start()
 
 
