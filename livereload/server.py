@@ -9,6 +9,7 @@ import os
 import logging
 import time
 import mimetypes
+import webbrowser
 from tornado import ioloop
 from tornado import escape
 from tornado import websocket
@@ -192,6 +193,7 @@ def start(port=35729, root='.'):
     app = Application(handlers=handlers)
     app.listen(port)
     print('Serving path %s on 127.0.0.1:%s' % (root, port))
+    webbrowser.open('http://localhost:%s' % port, new=2, autoraise=True)
     ioloop.IOLoop.instance().start()
 
 
