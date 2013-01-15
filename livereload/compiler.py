@@ -16,6 +16,7 @@ Available compilers now:
 import os
 import functools
 import logging
+import codecs
 from subprocess import Popen, PIPE
 
 
@@ -63,7 +64,7 @@ class BaseCompiler(object):
         self.path = path
 
     def get_code(self):
-        f = open(self.path)
+        f = codecs.open(self.path, 'r', 'utf-8')
         code = f.read()
         f.close()
         return code
@@ -72,7 +73,7 @@ class BaseCompiler(object):
         """write code to output"""
         logging.info('write %s' % output)
         make_folder(output)
-        f = open(output, 'w')
+        f = codecs.open(output, 'w', 'utf-8')
         code = self.get_code()
         if code:
             f.write(code)
@@ -82,7 +83,7 @@ class BaseCompiler(object):
         """append code to output"""
         logging.info('append %s' % output)
         make_folder(output)
-        f = open(output, 'a')
+        f = codecs.open(output, 'a', 'utf-8')
         f.write(self.get_code())
         f.close()
 
@@ -118,7 +119,7 @@ class CommandCompiler(BaseCompiler):
             logging.error(stderr)
             return None
         #: stdout is bytes, decode for python3
-        return stdout.decode()
+        return stdout.decode(encoding='UTF-8')
 
 
 def lessc(path, output, mode='w'):
@@ -136,7 +137,7 @@ def uglifyjs(path, output, mode='w'):
 class SlimmerCompiler(BaseCompiler):
     def get_code(self):
         import slimmer
-        f = open(self.path)
+        f = codecs.open(self.path, 'r', 'utf-8')
         code = f.read()
         f.close()
         if self.filetype == '.css':
@@ -161,7 +162,7 @@ def rstc(path, output, mode='w'):
 
 def coffee(path, output, mode='w'):
     _compile = CommandCompiler(path)
-    f = open(path)
+    f = codecs.open(path, 'r', 'utf-8')
     code = f.read()
     f.close()
     _compile.init_command('coffee --compile --stdio', code)
