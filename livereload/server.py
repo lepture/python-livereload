@@ -19,6 +19,7 @@ from livereload.task import Task
 
 
 PORT = 35729
+ROOT = '.'
 LIVERELOAD = os.path.join(
     os.path.abspath(os.path.dirname(__file__)),
     'livereload.js',
@@ -109,8 +110,9 @@ class LiveReloadHandler(websocket.WebSocketHandler):
 
 
 class IndexHandler(RequestHandler):
+
     def get(self, path='/'):
-        abspath = os.path.join(os.path.abspath('.'), path.lstrip('/'))
+        abspath = os.path.join(os.path.abspath(ROOT), path.lstrip('/'))
         mime_type, encoding = mimetypes.guess_type(abspath)
         if not mime_type:
             mime_type = 'text/html'
@@ -178,14 +180,18 @@ handlers = [
 ]
 
 
-def start(port=35729):
+def start(port=35729, root='.'):
     global PORT
     PORT = port
+    global ROOT
+    if root is None:
+        root = '.'
+    ROOT = root
     logging.getLogger().setLevel(logging.INFO)
     enable_pretty_logging()
     app = Application(handlers=handlers)
     app.listen(port)
-    print('Start service at  127.0.0.1:%s' % port)
+    print('Serving path %s on 127.0.0.1:%s' % (root, port))
     ioloop.IOLoop.instance().start()
 
 
