@@ -142,8 +142,15 @@ class IndexHandler(RequestHandler):
         if os.path.exists(filepath):
             for line in open(filepath):
                 if '</head>' in line:
+		    before, after = line.split("</head>")
+		    # If there is stuff in front of </head>, write it before
+		    # injecting the script
+		    self.write(before)
                     self.inject_livereload()
-                self.write(line)
+		    self.write("</head>")
+		    self.write(after)
+		else:
+                    self.write(line)
             return
         self.send_error(404)
         return
