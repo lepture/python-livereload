@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from docopt import docopt
-from .server import start
+from server import start
 
 
 cmd = """Python LiveReload
@@ -27,3 +27,6 @@ def main():
         port = 35729
 
     start(port, root, autoraise)
+
+if __name__ == "__main__":
+    main()
