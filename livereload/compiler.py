@@ -55,11 +55,10 @@ class BaseCompiler(object):
     >>> c.append('c')  #: append compiled code to 'c'
     """
     def __init__(self, path=None):
-        self.filetype = os.path.splitext(path)[1]
-
-        if path.startswith('http://') or path.startswith('https://'):
-            path = _get_http_file(path)
-
+        if path:
+            if path.startswith('http://') or path.startswith('https://'):
+                path = _get_http_file(path)
+            self.filetype = os.path.splitext(path)[1]
         self.path = path
 
     def get_code(self):
@@ -101,7 +100,8 @@ class CommandCompiler(BaseCompiler):
 
     def get_code(self):
         cmd = self.command.split()
-        cmd.append(self.path)
+        if self.path:
+            cmd.append(self.path)
 
         try:
             p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE)
@@ -157,6 +157,15 @@ def rstc(path, output, mode='w'):
     _compile = CommandCompiler(path)
     _compile.init_command('rst2html.py')
     return functools.partial(_compile, output, mode)
+
+
+def shell(command, path=None, output=None, mode='w'):
+    _compile = CommandCompiler(path)
+    _compile.init_command(command)
+    if output:
+        return functools.partial(_compile, output, mode)
+    else:
+        return _compile.get_code
 
 
 def coffee(path, output, mode='w'):
