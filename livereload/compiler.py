@@ -159,13 +159,10 @@ def rstc(path, output, mode='w'):
     return functools.partial(_compile, output, mode)
 
 
-def shell(command, path=None, output=None, mode='w'):
+def shell(command, path=None, output=os.devnull, mode='w'):
     _compile = CommandCompiler(path)
     _compile.init_command(command)
-    if output:
-        return functools.partial(_compile, output, mode)
-    else:
-        return _compile.get_code
+    return functools.partial(_compile, output, mode)
 
 
 def coffee(path, output, mode='w'):
