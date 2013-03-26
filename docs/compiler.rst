@@ -46,6 +46,7 @@ and easy alias. The available:
 + lessc
 + uglifyjs
 + slimmer
++ shell
 
 
 Get static files from internet
@@ -57,6 +58,18 @@ With this new feature, you can keep the source of your project clean::
 
     js = UglifyJSCompiler('http://code.jquery.com/jquery.js')
     js.write('static/lib.js')
+
+
+Invoke command line task
+------------------------
+
+Using ``shell``, you can invoke any command line tasks such as *Sphinx*
+html documentation::
+
+    from livereload.task import Task
+    from livereload.compiler import shell
+
+    Task.add('*.rst', shell('make html'))
 
 
 Contribute
