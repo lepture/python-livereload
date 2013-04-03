@@ -15,7 +15,7 @@ from tornado import escape
 from tornado import websocket
 from tornado.web import RequestHandler, Application
 from tornado.util import ObjectDict
-from tornado.options import enable_pretty_logging
+from tornado.log import enable_pretty_logging
 from livereload.task import Task
 
 
