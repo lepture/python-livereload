@@ -3,7 +3,7 @@
 Guardfile
 =========
 
-Guardfile is an executable python file which defines the tasks Python LiveReload
+:file:`Guardfile` is an executable python file which defines the tasks Python LiveReload
 should guard.
 
 Writing Guardfile is simple (or not).
@@ -57,11 +57,11 @@ A good example in :ref:`quickstart`::
 
     Task.add('style.less', lessc('style.less', 'style.css'))
 
-This means when ``style.less`` is save, the server will execute::
+This means when ``style.less`` is saved, the server will execute::
 
     lessc('style.less', 'style.css')()
 
-Please note, that ``lessc`` here will create a function. You can't do::
+Please note that ``lessc`` here will create a function. You can't do::
 
     #!/usr/bin/env python
     from livereload.task import Task
@@ -76,7 +76,7 @@ But you can easily create a function by::
 
     #!/usr/bin/env python
     from livereload.task import Task
-    from functools
+    import functools
 
     @functools.partial
     def say(word):
@@ -100,5 +100,5 @@ outside of the task function::
         return B.do_some_thing()
 
 
-Python LiveReload has provides some common tasks for web developers already,
+Python LiveReload provides some common tasks for web developers,
 check :ref:`compiler` .
