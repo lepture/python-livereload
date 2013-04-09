@@ -205,7 +205,10 @@ def start(port=35729, root='.', autoraise=False):
         webbrowser.open(
             'http://127.0.0.1:%s' % port, new=2, autoraise=True
         )
-    ioloop.IOLoop.instance().start()
+    try:
+        ioloop.IOLoop.instance().start()
+    except KeyboardInterrupt:
+        print "Shutting down..."
 
 
 if __name__ == '__main__':
