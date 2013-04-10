@@ -15,7 +15,10 @@ from tornado import escape
 from tornado import websocket
 from tornado.web import RequestHandler, Application
 from tornado.util import ObjectDict
-from tornado.log import enable_pretty_logging
+try:
+    from tornado.log import enable_pretty_logging
+except ImportError:
+    from tornado.options import enable_pretty_logging
 from livereload.task import Task
 
 
@@ -208,7 +211,7 @@ def start(port=35729, root='.', autoraise=False):
     try:
         ioloop.IOLoop.instance().start()
     except KeyboardInterrupt:
-        print "Shutting down..."
+        print('Shutting down...')
 
 
 if __name__ == '__main__':
