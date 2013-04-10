@@ -15,7 +15,7 @@ from tornado import escape
 from tornado import websocket
 from tornado.web import RequestHandler, Application
 from tornado.util import ObjectDict
-from tornado.options import enable_pretty_logging
+from tornado.log import enable_pretty_logging
 from livereload.task import Task
 
 
@@ -131,7 +131,7 @@ class IndexHandler(RequestHandler):
 
     def read_path(self, abspath):
         filepath = abspath
-        if abspath.endswith('/'):
+        if os.path.isdir(filepath):
             filepath = os.path.join(abspath, 'index.html')
             if not os.path.exists(filepath):
                 self.create_index(abspath)
@@ -205,7 +205,10 @@ def start(port=35729, root='.', autoraise=False):
         webbrowser.open(
             'http://127.0.0.1:%s' % port, new=2, autoraise=True
         )
-    ioloop.IOLoop.instance().start()
+    try:
+        ioloop.IOLoop.instance().start()
+    except KeyboardInterrupt:
+        print "Shutting down..."
 
 
 if __name__ == '__main__':
