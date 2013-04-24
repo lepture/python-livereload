@@ -28,6 +28,7 @@ IGNORE = [
 class Task(object):
     tasks = {}
     _modified_times = {}
+    last_modified = None
 
     @classmethod
     def add(cls, path, func=None):
@@ -65,6 +66,7 @@ class Task(object):
                cls._modified_times[path] != modified:
                 logging.info('file changed: %s' % path)
                 cls._modified_times[path] = modified
+                cls.last_modified = path
                 return True
 
             cls._modified_times[path] = modified
