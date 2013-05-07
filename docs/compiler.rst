@@ -75,6 +75,15 @@ html documentation::
 
     Task.add('*.rst', shell('make html'))
 
+Using ``substshell`` you can invoke a command which relies on the name
+of the specific file modified.  Use %F for the full filename, %f for
+the leading part and %e for the extension::
+
+    from livereload.task import Task
+    from livereload.compiler import substshell
+
+    Task.add('*.rst', substshell('rst2pdf.py %F %f.pdf'))
+
 
 Contribute
 -----------
