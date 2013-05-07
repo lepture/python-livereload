@@ -72,7 +72,7 @@ class Task(object):
 
         def is_folder_changed(path):
             _changed = False
-            for root, dirs, files in os.walk(path):
+            for root, dirs, files in os.walk(path, followlinks=True):
                 if '.git' in dirs:
                     dirs.remove('.git')
                 if '.hg' in dirs:
