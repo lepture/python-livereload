@@ -133,13 +133,15 @@ class CommandCompiler(BaseCompiler):
 
 
 class SubstCommandCompiler(CommandCompiler):
-    """SubstCommandCompiler substitutes the
-    filename (without extension) of the actual file modified
-    for all '%f' instances in the command.
+    """SubstCommandCompiler substitutes the filename of the actual file
+    modified when specificied in the command.  This allows the user to
+    use wildcards when specifying files to be watched in Tasks but
+    still take specific action for the file changed.
 
-    This allows the user to use wildcards when specifying
-    files to be watched in Tasks but still take specific action
-    for the file changed.
+    %F to substitute the entire filename (without path)
+    %f to substitute the filename without extension
+    %e to substitute the extension
+
     """
 
     def substitute_values(self, command):
