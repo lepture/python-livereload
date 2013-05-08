@@ -85,12 +85,23 @@ class BaseCompiler(object):
         f.write(self.get_code())
         f.close()
 
-    def __call__(self, output, mode='w'):
-        if mode == 'a':
-            self.append(output)
+
+
+    def __call__(self, output, mode='w', **kwargs):
+        logging.info('kwargs', kwargs)
+
+        # if 'modified_path' is passed as a keyword argument
+        # store it so specialized Commands can use it
+        if 'modified_path' in kwargs:
+            self.modified_path = kwargs['modified_path']
+        try:
+            if mode == 'a':
+                self.append(output)
+                return
+            self.write(output)
             return
-        self.write(output)
-        return
+        finally:
+            self.modified_path = None
 
 
 class CommandCompiler(BaseCompiler):
@@ -120,6 +131,33 @@ class CommandCompiler(BaseCompiler):
         #: stdout is bytes, decode for python3
         return stdout.decode()
 
+
+class SubstCommandCompiler(CommandCompiler):
+    """SubstCommandCompiler substitutes the filename of the actual file
+    modified when specificied in the command.  This allows the user to
+    use wildcards when specifying files to be watched in Tasks but
+    still take specific action for the file changed.
+
+    %F to substitute the entire filename (without path)
+    %f to substitute the filename without extension
+    %e to substitute the extension
+
+    """
+
+    def substitute_values(self, command):
+        leading, ext = os.path.splitext(self.modified_path)
+        result = command.replace('%F', self.modified_path)
+        result = result.replace('%f', leading)
+        result = result.replace('%e', ext)
+        return result
+
+    def get_code(self):
+        try:
+            old_command = self.command
+            self.command = self.substitute_values(self.command)
+            return super(SubstCommandCompiler, self).get_code()
+        finally:
+            self.command = old_command
 
 def lessc(path, output, mode='w'):
     _compile = CommandCompiler(path)
@@ -161,6 +199,15 @@ def rstc(path, output, mode='w'):
 
 def shell(command, path=None, output=os.devnull, mode='w'):
     _compile = CommandCompiler(path)
+    _compile.init_command(command)
+    return functools.partial(_compile, output, mode)
+
+def substshell(command, path=None, output=os.devnull, mode='w'):
+    """In the command argument, %f will be replaced by the filename
+    (without extension) of the actual changed file before being
+    executed.
+    """
+    _compile = SubstCommandCompiler(path)
     _compile.init_command(command)
     return functools.partial(_compile, output, mode)
 

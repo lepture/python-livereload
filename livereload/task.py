@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """livereload.task
 
 Task management for LiveReload Server.
@@ -19,6 +17,7 @@ A basic syntax overview::
 import os
 import glob
 import logging
+from collections import defaultdict
 
 IGNORE = [
     '.pyc', '.pyo', '.o', '.swp'
@@ -28,6 +27,7 @@ IGNORE = [
 class Task(object):
     tasks = {}
     _modified_times = {}
+    _modified_files = defaultdict(list) # a file/glob : list of files
 
     @classmethod
     def add(cls, path, func=None):
@@ -41,33 +41,34 @@ class Task(object):
             if cls.is_changed(path):
                 _changed = True
                 func = cls.tasks[path]
-                func and func()
+                func and func(modified_path = cls._modified_files[path][0])
 
         return _changed
 
     @classmethod
     def is_changed(cls, path):
-        def is_file_changed(path):
-            if not os.path.isfile(path):
+        def is_file_changed(file_path):
+            if not os.path.isfile(file_path):
                 return False
 
-            _, ext = os.path.splitext(path)
+            _, ext = os.path.splitext(file_path)
             if ext in IGNORE:
                 return False
 
-            modified = int(os.stat(path).st_mtime)
+            modified = int(os.stat(file_path).st_mtime)
 
-            if path not in cls._modified_times:
-                cls._modified_times[path] = modified
+            if file_path not in cls._modified_times:
+                cls._modified_times[file_path] = modified
                 return False
 
-            if path in cls._modified_times and \
-               cls._modified_times[path] != modified:
-                logging.info('file changed: %s' % path)
-                cls._modified_times[path] = modified
+            if file_path in cls._modified_times and \
+               cls._modified_times[file_path] != modified:
+                logging.info('file changed: %s' % file_path)
+                cls._modified_times[file_path] = modified
+                cls._modified_files[path].append(file_path)
                 return True
 
-            cls._modified_times[path] = modified
+            cls._modified_times[file_path] = modified
             return False
 
         def is_folder_changed(path):
@@ -95,6 +96,8 @@ class Task(object):
                     _changed = True
 
             return _changed
+
+        cls._modified_files[path] = []
 
         if os.path.isfile(path):
             return is_file_changed(path)
