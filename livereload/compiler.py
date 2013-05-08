@@ -134,7 +134,7 @@ class CommandCompiler(BaseCompiler):
 
 class SubstCommandCompiler(CommandCompiler):
     """SubstCommandCompiler substitutes the filename of the actual file
-    modified when specificied in the command.  This allows the user to
+    modified when specified in the command.  This allows the user to
     use wildcards when specifying files to be watched in Tasks but
     still take specific action for the file changed.
 
