@@ -64,7 +64,7 @@ class LiveReloadHandler(websocket.WebSocketHandler):
 
         msg = {
             'command': 'reload',
-            'path': '*',
+            'path': Task.last_modified or '*',
             'liveCSS': True
         }
 
