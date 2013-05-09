@@ -3,6 +3,14 @@ Changelog
 
 The full list of changes between each Python LiveReload release.
 
+Version 1.0.0
+-------------
+
+Release on May 9th, 2013
+
++ Redesign the compiler
++ Various bugfix
+
 Version 0.11
 -------------
 
