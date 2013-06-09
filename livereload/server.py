@@ -10,6 +10,7 @@ import logging
 import time
 import mimetypes
 import webbrowser
+import hashlib
 from tornado import ioloop
 from tornado import escape
 from tornado import websocket
@@ -143,17 +144,24 @@ class IndexHandler(RequestHandler):
             filepath = abspath + '.html'
 
         if os.path.exists(filepath):
-            for line in open(filepath):
-                if '</head>' in line:
-                    before, after = line.split("</head>")
-                    # If there is stuff in front of </head>, write it before
-                    # injecting the script
-                    self.write(before)
-                    self.inject_livereload()
-                    self.write("</head>")
-                    self.write(after)
-                else:
-                    self.write(line)
+            if self.mime_type == 'text/html':
+                f = open(filepath)
+                data = f.read()
+                f.close()
+                before, after = data.split('</head>')
+                self.write(before)
+                self.inject_livereload()
+                self.write('</head>')
+                self.write(after)
+            else:
+                f = open(filepath, 'rb')
+                data = f.read()
+                f.close()
+                self.write(data)
+
+            hasher = hashlib.sha1()
+            hasher.update(data)
+            self.set_header('Etag', '"%s"' % hasher.hexdigest())
             return
         self.send_error(404)
         return
