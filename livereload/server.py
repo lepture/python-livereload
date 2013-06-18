@@ -107,7 +107,7 @@ class LiveReloadHandler(websocket.WebSocketHandler):
             if not LiveReloadHandler._last_reload_time:
                 if os.path.exists('Guardfile'):
                     logging.info('Reading Guardfile')
-                    execfile('Guardfile')
+                    execfile('Guardfile', {})
                 else:
                     logging.info('No Guardfile')
                     Task.add(os.getcwd())
