@@ -51,10 +51,13 @@ class LiveReloadHandler(websocket.WebSocketHandler):
         except:
             logging.error('Error sending message', exc_info=True)
 
-    def watch_tasks(self):
+    def poll_tasks(self):
         changes = Task.watch()
         if not changes:
             return
+        self.watch_tasks()
+
+    def watch_tasks(self):
         if time.time() - self._last_reload_time < 3:
             # if you changed lot of files in one time
             # it will refresh too many times
@@ -104,14 +107,15 @@ class LiveReloadHandler(websocket.WebSocketHandler):
             if not LiveReloadHandler._last_reload_time:
                 if os.path.exists('Guardfile'):
                     logging.info('Reading Guardfile')
-                    execfile('Guardfile')
+                    execfile('Guardfile', {})
                 else:
                     logging.info('No Guardfile')
                     Task.add(os.getcwd())
 
                 LiveReloadHandler._last_reload_time = time.time()
                 logging.info('Start watching changes')
-                ioloop.PeriodicCallback(self.watch_tasks, 800).start()
+                if not Task.start(self.watch_tasks):
+                    ioloop.PeriodicCallback(self.poll_tasks, 800).start()
 
 
 class IndexHandler(RequestHandler):
