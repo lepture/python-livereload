@@ -100,6 +100,7 @@ If you're using python-livereload under Linux, you should also install pyinotify
 as it will greatly improve responsiveness and reduce CPU load.
 
 You may see errors such as::
+
     [2013-06-19 11:11:07,499 pyinotify ERROR] add_watch: cannot watch somefile WD=-1, Errno=No space left on device (ENOSPC)
 
 If so, you need to increase the number of "user watches". You can either do this temporarily by running (as root)::
