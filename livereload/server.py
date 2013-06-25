@@ -53,6 +53,7 @@ class LiveReloadHandler(websocket.WebSocketHandler):
 
     def watch_tasks(self):
         changes = Task.watch()
+
         if not changes:
             return
         if time.time() - self._last_reload_time < 3:
@@ -61,6 +62,12 @@ class LiveReloadHandler(websocket.WebSocketHandler):
             logging.info('ignore this reload action')
             return
 
+        post_funcs = Task.tasks.get('post')
+        if post_funcs:
+            [func() for func in post_funcs if callable(func)]
+
+        Task.current_position = 0
+
         logging.info('Reload %s waiters', len(self.waiters))
 
         msg = {
@@ -68,6 +75,7 @@ class LiveReloadHandler(websocket.WebSocketHandler):
             'path': Task.last_modified or '*',
             'liveCSS': True
         }
+
 
         self._last_reload_time = time.time()
         for waiter in LiveReloadHandler.waiters:
