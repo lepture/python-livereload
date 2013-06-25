@@ -31,9 +31,9 @@ class Task(object):
     last_modified = None
 
     @classmethod
-    def add(cls, path, func=None):
+    def add(cls, path, *funcs):
         logging.info('Add task: %s' % path)
-        cls.tasks[path] = func
+        cls.tasks[path] = *funcs
 
     @classmethod
     def watch(cls):
@@ -41,8 +41,8 @@ class Task(object):
         for path in cls.tasks:
             if cls.is_changed(path):
                 _changed = True
-                func = cls.tasks[path]
-                func and func()
+                funcs = cls.tasks[path]
+                [func() for func in funcs if callable(func)]
 
         return _changed
 
