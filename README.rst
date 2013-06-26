@@ -25,25 +25,6 @@ If you don't have pip installed, try easy_install::
     $ easy_install livereload
 
 
-Install Browser Extensions
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Get Browser Extensions From LiveReload.com
-
-+ Chrome Extension
-+ Safari Extension
-+ Firefox Extension
-
-Visit: http://help.livereload.com/kb/general-use/browser-extensions
-
-Working with file protocal
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Enable file protocal on Chrome:
-
-.. image:: http://i.imgur.com/qGpJI.png
-
-
 Quickstart
 ------------
 
@@ -70,6 +51,7 @@ Oh, it can livereload!
 
 Guardfile
 ----------
+
 More complex tasks can be done by Guardfile. Write a Guardfile in your working
 directory, the basic syntax::
 
@@ -96,6 +78,7 @@ And it will compile less css before refreshing the browser now.
 
 Linux
 ----------
+
 If you're using python-livereload under Linux, you should also install pyinotify,
 as it will greatly improve responsiveness and reduce CPU load.
 
