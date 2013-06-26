@@ -20,6 +20,22 @@ import os
 import glob
 import logging
 
+try:
+    import pyinotify
+    from tornado import ioloop
+
+    class TaskEventHandler(pyinotify.ProcessEvent):
+        def my_init(self, **kwargs):
+            self.func = kwargs['func']
+
+        def process_default(self, event):
+            if Task.watch():
+                self.func()
+
+    HAS_PYINOTIFY = True
+except ImportError:
+    HAS_PYINOTIFY = False
+
 IGNORE = [
     '.pyc', '.pyo', '.o', '.swp'
 ]
@@ -29,11 +45,24 @@ class Task(object):
     tasks = {}
     _modified_times = {}
     last_modified = None
+    if HAS_PYINOTIFY:
+        wm = pyinotify.WatchManager()
+        notifier = None
 
     @classmethod
     def add(cls, path, func=None):
         logging.info('Add task: %s' % path)
+        if HAS_PYINOTIFY:
+            cls.wm.add_watch(path, pyinotify.IN_CREATE | pyinotify.IN_DELETE | pyinotify.IN_MODIFY, rec=True, do_glob=True, auto_add=True)
         cls.tasks[path] = func
+
+    @classmethod
+    def start(cls, func):
+        if HAS_PYINOTIFY:
+            if not cls.notifier:
+                cls.notifier = pyinotify.TornadoAsyncNotifier(cls.wm, ioloop.IOLoop.instance(), default_proc_fun=TaskEventHandler(func=func))
+                Task.watch()  # initial run so we don't miss the first change
+        return HAS_PYINOTIFY
 
     @classmethod
     def watch(cls):
