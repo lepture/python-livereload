@@ -77,13 +77,3 @@ Install slimmer::
 
 .. _Lesscss: http://lesscss.org
 .. _UglifyJs: https://github.com/mishoo/UglifyJS
-
-
-Get Notification
-~~~~~~~~~~~~~~~~~
-
-If you are on Mac, and you are a Growl user::
-
-    $ pip install gntp
-
-If you are on Ubuntu, you don't need to do anything. Notification just works.
