@@ -25,6 +25,22 @@ If you don't have pip installed, try easy_install::
     $ easy_install livereload
 
 
+Install Browser Extensions
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A browser extension is not required, you can insert a script into your
+html page manually::
+
+    <script type="text/javascript" src="http://127.0.0.1:35729/livereload.js"></script>
+
+But a browser extension will make your life easier, available extensions:
+
++ Chrome Extension
++ Safari Extension
++ Firefox Extension
+
+Visit: http://help.livereload.com/kb/general-use/browser-extensions
+
 Quickstart
 ------------
 
