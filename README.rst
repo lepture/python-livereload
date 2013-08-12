@@ -65,6 +65,8 @@ Livereload server can be a SimpleHTTPServer::
 It will set up a server at port 8000, take a look at http://127.0.0.1:8000.
 Oh, it can livereload!
 
+**IF YOU ARE NOT USING IT AS A HTTP SERVER, DO NOT ADD THE PORT OPTION**.
+
 Guardfile
 ----------
 
