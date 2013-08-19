@@ -3,6 +3,15 @@ Changelog
 
 The full list of changes between each Python LiveReload release.
 
+Version 1.0.1
+-------------
+
+Release on Aug 19th, 2013
+
++ Documentation improvement
++ Bugfix for server #29
++ Bugfix for Task #34
+
 Version 1.0.0
 -------------
 

@@ -133,6 +133,6 @@ If you are on a Mac, you can buy `LiveReload2 <http://livereload.com/>`_.
 If you are a rubist, you can get guard-livereload.
 """
 
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __author__ = 'Hsiaoming Yang <me@lepture.com>'
 __homepage__ = 'http://lab.lepture.com/livereload/'
