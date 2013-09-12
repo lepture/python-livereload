@@ -167,12 +167,12 @@ def shell(command, path=None, output=os.devnull, mode='w'):
 
 def coffee(path, output):
     def _compile():
-            c = CommandCompiler()
-            f = open(path)
-            code = f.read()
-            f.close()
-            c.init_command('coffee --compile --stdio', code)
-            c.write(output)
+        c = CommandCompiler()
+        f = open(path)
+        code = f.read()
+        f.close()
+        c.init_command('coffee --compile --stdio', code)
+        c.write(output)
 
     return _compile
 
