@@ -165,10 +165,20 @@ def shell(command, path=None, output=os.devnull, mode='w'):
     return functools.partial(_compile, output, mode)
 
 
-def coffee(path, output, mode='w'):
+def coffee(path, output):
+    def _compile():
+            c = CommandCompiler()
+            f = open(path)
+            code = f.read()
+            f.close()
+            c.init_command('coffee --compile --stdio', code)
+            c.write(output)
+
+    return _compile
+
+
+def sass(path, output, mode='w'):
     _compile = CommandCompiler(path)
-    f = open(path)
-    code = f.read()
-    f.close()
-    _compile.init_command('coffee --compile --stdio', code)
+    _compile.init_command('sass')
     return functools.partial(_compile, output, mode)
+
