@@ -6,6 +6,7 @@ Core Server of LiveReload.
 """
 
 import os
+import sys
 import logging
 import time
 import mimetypes
@@ -21,6 +22,11 @@ try:
 except ImportError:
     from tornado.options import enable_pretty_logging
 from livereload.task import Task
+
+if sys.version_info[0] == 3:
+    text_type = str
+else:
+    text_type = unicode
 
 
 PORT = 35729
@@ -164,6 +170,8 @@ class IndexHandler(RequestHandler):
                 self.write(data)
 
             hasher = hashlib.sha1()
+            if isinstance(data, text_type):
+                data = data.encode('utf-8')
             hasher.update(data)
             self.set_header('Etag', '"%s"' % hasher.hexdigest())
             return
