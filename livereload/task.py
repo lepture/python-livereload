@@ -86,10 +86,13 @@ class Task(object):
                 return False
 
             modified = int(os.stat(path).st_mtime)
-
+            is_touched = int(os.path.getmtime(path))
             if path not in cls._modified_times:
                 cls._modified_times[path] = modified
                 return True
+
+            if cls._modified_times[path] != is_touched:
+                modified = is_touched
 
             if path in cls._modified_times and \
                cls._modified_times[path] != modified:
