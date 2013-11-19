@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
+"""
+    livereload.server
+    ~~~~~~~~~~~~~~~~~
 
-"""livereload.app
+    HTTP and WebSocket server for livereload.
 
-Core Server of LiveReload.
+    :copyright: (c) 2013 by Hsiaoming Yang
 """
 
 import os
@@ -15,29 +18,14 @@ import hashlib
 from tornado import ioloop
 from tornado import escape
 from tornado import websocket
+from tornado.websocket import WebSocketHandler
 from tornado.web import RequestHandler, Application
 from tornado.util import ObjectDict
-try:
-    from tornado.log import enable_pretty_logging
-except ImportError:
-    from tornado.options import enable_pretty_logging
 from livereload.task import Task
-
-if sys.version_info[0] == 3:
-    text_type = str
-else:
-    text_type = unicode
+from ._compat import to_bytes
 
 
-PORT = 35729
-ROOT = '.'
-LIVERELOAD = os.path.join(
-    os.path.abspath(os.path.dirname(__file__)),
-    'livereload.js',
-)
-
-
-class LiveReloadHandler(websocket.WebSocketHandler):
+class LiveReloadHandler(WebSocketHandler):
     waiters = set()
     _last_reload_time = None
 
@@ -125,9 +113,11 @@ class LiveReloadHandler(websocket.WebSocketHandler):
 
 
 class IndexHandler(RequestHandler):
+    def initialize(self, root='.'):
+        self._root = os.path.abspath(root)
 
     def get(self, path='/'):
-        abspath = os.path.join(os.path.abspath(ROOT), path.lstrip('/'))
+        abspath = os.path.join(self._root, path.lstrip('/'))
         mime_type, encoding = mimetypes.guess_type(abspath)
         if not mime_type:
             mime_type = 'text/html'
@@ -153,30 +143,25 @@ class IndexHandler(RequestHandler):
         elif not os.path.exists(abspath):
             filepath = abspath + '.html'
 
-        if os.path.exists(filepath):
-            if self.mime_type == 'text/html':
-                f = open(filepath)
-                data = f.read()
-                f.close()
-                before, after = data.split('</head>')
-                self.write(before)
-                self.inject_livereload()
-                self.write('</head>')
-                self.write(after)
-            else:
-                f = open(filepath, 'rb')
-                data = f.read()
-                f.close()
-                self.write(data)
+        if not os.path.exists(filepath):
+            return self.send_error(404)
 
-            hasher = hashlib.sha1()
-            if isinstance(data, text_type):
-                data = data.encode('utf-8')
-            hasher.update(data)
-            self.set_header('Etag', '"%s"' % hasher.hexdigest())
-            return
-        self.send_error(404)
-        return
+        if self.mime_type == 'text/html':
+            with open(filepath, 'r') as f:
+                data = f.read()
+            before, after = data.split('</head>')
+            self.write(before)
+            self.inject_livereload()
+            self.write('</head>')
+            self.write(after)
+        else:
+            with open(filepath, 'rb') as f:
+                data = f.read()
+            self.write(data)
+
+        hasher = hashlib.sha1()
+        hasher.update(to_bytes(data))
+        self.set_header('Etag', '"%s"' % hasher.hexdigest())
 
     def create_index(self, root):
         self.inject_livereload()
@@ -195,33 +180,43 @@ class IndexHandler(RequestHandler):
 
 
 class LiveReloadJSHandler(RequestHandler):
-    def get(self):
-        f = open(LIVERELOAD)
-        self.set_header('Content-Type', 'application/javascript')
-        for line in f:
-            if '{{port}}' in line:
-                line = line.replace('{{port}}', str(PORT))
-            self.write(line)
-        f.close()
+    def initialize(self, port=35729):
+        self._port = port
 
-handlers = [
-    (r'/livereload', LiveReloadHandler),
-    (r'/livereload.js', LiveReloadJSHandler),
-    (r'(.*)', IndexHandler),
-]
+    def get(self):
+        js = os.path.join(
+            os.path.abspath(os.path.dirname(__file__)), 'livereload.js',
+        )
+        self.set_header('Content-Type', 'application/javascript')
+        with open(js, 'r') as f:
+            for line in f:
+                if '{{port}}' in line:
+                    line = line.replace('{{port}}', str(self._port))
+                self.write(line)
+
+
+
+def create_app(port=35729, root='.'):
+    handlers = [
+        (r'/livereload', LiveReloadHandler),
+        (r'/livereload.js', LiveReloadJSHandler, dict(port=port)),
+        (r'(.*)', IndexHandler, dict(root=root)),
+    ]
+    return Application(handlers=handlers)
 
 
 def start(port=35729, root='.', autoraise=False):
-    global PORT
-    PORT = port
-    global ROOT
-    if root is None:
-        root = '.'
-    ROOT = root
+    try:
+        from tornado.log import enable_pretty_logging
+    except ImportError:
+        from tornado.options import enable_pretty_logging
+
     logging.getLogger().setLevel(logging.INFO)
     enable_pretty_logging()
-    app = Application(handlers=handlers)
+
+    app = create_app(port, root)
     app.listen(port)
+
     print('Serving path %s on 127.0.0.1:%s' % (root, port))
 
     if autoraise:

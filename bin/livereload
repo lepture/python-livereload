@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 from docopt import docopt
-from .server import start
 
 
 cmd = """Python LiveReload
@@ -17,6 +16,7 @@ Options:
 
 
 def main():
+    from livereload.server import start
     args = docopt(cmd)
     port = args.get('--port')
     root = args.get('<directory>')
@@ -26,4 +26,10 @@ def main():
     else:
         port = 35729
 
+    if root is None:
+        root = '.'
     start(port, root, autoraise)
+
+
+if __name__ == '__main__':
+    main()
