@@ -195,11 +195,32 @@ class LiveReloadJSHandler(RequestHandler):
                 self.write(line)
 
 
+class ForceReloadHandler(RequestHandler):
+
+    def get(self):
+        logging.info('Recieved reload request')
+
+        msg = {
+            'command': 'reload',
+            'path': '*',
+            'liveCSS': True
+        }
+
+        for waiter in LiveReloadHandler.waiters:
+            try:
+                waiter.write_message(msg)
+            except:
+                logging.error('Error sending message', exc_info=True)
+                LiveReloadHandler.waiters.remove(waiter)
+
+        self.write("Success!")
+
 
 def create_app(port=35729, root='.'):
     handlers = [
         (r'/livereload', LiveReloadHandler),
         (r'/livereload.js', LiveReloadJSHandler, dict(port=port)),
+        (r'/reload', ForceReloadHandler),
         (r'(.*)', IndexHandler, dict(root=root)),
     ]
     return Application(handlers=handlers)
