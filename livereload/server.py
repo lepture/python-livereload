@@ -102,6 +102,10 @@ class LiveReloadHandler(WebSocketHandler):
                 if os.path.exists('Guardfile'):
                     logging.info('Reading Guardfile')
                     execfile('Guardfile', {})
+                elif Task.tasks:
+                    # Tasks have been added through library-use.
+                    logging.debug('Not loading any tasks, library-use.')
+                    pass
                 else:
                     logging.info('No Guardfile')
                     Task.add(os.getcwd())
