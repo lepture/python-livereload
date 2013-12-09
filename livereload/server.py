@@ -121,55 +121,51 @@ class IndexHandler(RequestHandler):
     def initialize(self, root='.'):
         self._root = os.path.abspath(root)
 
+    def filepath(self, url):
+        url = url.lstrip('/')
+        url = os.path.join(self._root, url)
+
+        if url.endswith('/'):
+            url += 'index.html'
+        elif not os.path.exists(url) and not url.endswith('.html'):
+            url += '.html'
+
+        if not os.path.exists(url):
+            return None
+        return url
+
     def get(self, path='/'):
-        abspath = os.path.join(self._root, path.lstrip('/'))
-        mime_type, encoding = mimetypes.guess_type(abspath)
+        filepath = self.filepath(path)
+        if not filepath and path.endswith('/'):
+            rootdir = os.path.join(self._root, path.lstrip('/'))
+            return self.create_index(rootdir)
+
+        if not filepath:
+            return self.send_error(404)
+
+        mime_type, encoding = mimetypes.guess_type(filepath)
         if not mime_type:
             mime_type = 'text/html'
 
         self.mime_type = mime_type
         self.set_header('Content-Type', mime_type)
-        self.read_path(abspath)
 
-    def inject_livereload(self):
-        if self.mime_type != 'text/html':
-            return
-        ua = self.request.headers.get('User-Agent', 'bot').lower()
-        if 'msie' not in ua:
-            self.write('<script src="/livereload.js"></script>')
-
-    def read_path(self, abspath):
-        filepath = abspath
-        if os.path.isdir(filepath):
-            filepath = os.path.join(abspath, 'index.html')
-            if not os.path.exists(filepath):
-                self.create_index(abspath)
-                return
-        elif not os.path.exists(abspath):
-            filepath = abspath + '.html'
-
-        if not os.path.exists(filepath):
-            return self.send_error(404)
-
-        if self.mime_type == 'text/html':
-            with open(filepath, 'r') as f:
-                data = f.read()
-            before, after = data.split('</head>')
-            self.write(before)
-            self.inject_livereload()
-            self.write('</head>')
-            self.write(after)
-        else:
-            with open(filepath, 'rb') as f:
-                data = f.read()
-            self.write(data)
+        with open(filepath, 'r') as f:
+            data = f.read()
 
         hasher = hashlib.sha1()
         hasher.update(to_bytes(data))
         self.set_header('Etag', '"%s"' % hasher.hexdigest())
 
+        ua = self.request.headers.get('User-Agent', 'bot').lower()
+        if mime_type == 'text/html' and 'msie' not in ua:
+            data = data.replace(
+                '</head>',
+                '<script src="/livereload.js"></script></head>'
+            )
+        self.write(data)
+
     def create_index(self, root):
-        self.inject_livereload()
         files = os.listdir(root)
         self.write('<ul>')
         for f in files:
@@ -180,7 +176,6 @@ class IndexHandler(RequestHandler):
             else:
                 self.write('<a href="%s">%s</a>' % (f, f))
             self.write('</li>')
-
         self.write('</ul>')
 
 
