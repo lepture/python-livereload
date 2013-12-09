@@ -31,20 +31,6 @@ def make_folder(dest):
         pass
 
 
-def _get_http_file(url, build_dir='build/assets'):
-    import hashlib
-    key = hashlib.md5(url).hexdigest()
-    filename = os.path.join(os.getcwd(), build_dir, key)
-    if os.path.exists(filename):
-        return filename
-    make_folder(filename)
-
-    import urllib
-    print('Downloading: %s' % url)
-    urllib.urlretrieve(url, filename)
-    return filename
-
-
 class BaseCompiler(object):
     """BaseCompiler
 
@@ -56,8 +42,6 @@ class BaseCompiler(object):
     """
     def __init__(self, path=None):
         if path:
-            if path.startswith('http://') or path.startswith('https://'):
-                path = _get_http_file(path)
             self.filetype = os.path.splitext(path)[1]
         self.path = path
 
@@ -121,18 +105,6 @@ class CommandCompiler(BaseCompiler):
         return stdout.decode()
 
 
-def lessc(path, output, mode='w'):
-    _compile = CommandCompiler(path)
-    _compile.init_command('lessc --compress')
-    return functools.partial(_compile, output, mode)
-
-
-def uglifyjs(path, output, mode='w'):
-    _compile = CommandCompiler(path)
-    _compile.init_command('uglifyjs --nc')
-    return functools.partial(_compile, output, mode)
-
-
 class SlimmerCompiler(BaseCompiler):
     def get_code(self):
         import slimmer
@@ -153,13 +125,15 @@ def slimmer(path, output, mode='w'):
     return functools.partial(_compile, output, mode)
 
 
-def rstc(path, output, mode='w'):
-    _compile = CommandCompiler(path)
-    _compile.init_command('rst2html.py')
-    return functools.partial(_compile, output, mode)
+def shell(command, path=None, output=None, mode='w'):
+    """Command shell command.
 
+    Define a task in your Guardfile::
 
-def shell(command, path=None, output=os.devnull, mode='w'):
+        Task.add('*.styl', shell('make stylus'))
+    """
+    if not output:
+        output = os.devnull
     _compile = CommandCompiler(path)
     _compile.init_command(command)
     return functools.partial(_compile, output, mode)
