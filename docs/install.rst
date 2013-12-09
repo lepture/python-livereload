@@ -1,79 +1,56 @@
 .. _installation:
 
 Installation
-=============
+============
 
-This section covers the installation of Python LiveReload and other
-essentials to make LiveReload available.
-
-LiveReload contains two parts, the client side and the server side.
-Client means the browser, it listens to the server's signal, and refreshs
-your browser when catching the proper signals.
-
-Install Browser Extensions
-----------------------------
-
-A browser extension is not required, you can insert a script into your
-html page manually::
-
-    <script type="text/javascript" src="http://127.0.0.1:35729/livereload.js"></script>
-
-But a browser extension will make your life easier, available extensions:
-
-+ Chrome Extension
-+ Safari Extension
-+ Firefox Extension
-
-Visit: http://help.livereload.com/kb/general-use/browser-extensions
+This part of the documentation covers the installation of livereload.
+The first step to using any software package is getting it properly installed.
 
 
 Distribute & Pip
------------------
+----------------
 
-Installing Python LiveReload is simple with pip::
+Installing livereload is simple with `pip <http://www.pip-installer.org/>`_::
 
     $ pip install livereload
 
-If you don't have pip installed, try easy_install::
+or, with `easy_install <http://pypi.python.org/pypi/setuptools>`_::
 
     $ easy_install livereload
 
+But, you really `shouldn't do that <http://www.pip-installer.org/en/latest/other-tools.html#pip-compared-to-easy-install>`_.
 
-Enhancement
+
+
+Cheeseshop Mirror
+-----------------
+
+If the Cheeseshop is down, you can also install livereload from one of the
+mirrors. `Crate.io <http://crate.io>`_ is one of them::
+
+    $ pip install -i http://simple.crate.io/ livereload
+
+
+Get the Code
 ------------
 
-Python LiveReload is designed to do some complex tasks like compiling.
-The package itself has provided some useful compilers for you. But
-you need to install them first.
+livereload is actively developed on GitHub, where the code is
+`always available <https://github.com/lepture/python-livereload>`_.
 
-Get Lesscss
-~~~~~~~~~~~~
+You can either clone the public repository::
 
-Lesscss_ is a dynamic stylesheet language that makes css more elegent.
+    git clone git://github.com/lepture/python-livereload.git
 
-Install less with npm::
+Download the `tarball <https://github.com/lepture/python-livereload/tarball/master>`_::
 
-    $ npm install less -g
+    $ curl -OL https://github.com/lepture/python-livereload/tarball/master
 
-Get UglifyJS
-~~~~~~~~~~~~
+Or, download the `zipball <https://github.com/lepture/python-livereload/zipball/master>`_::
 
-UglifyJS_ is a popular JavaScript parser/compressor/beautifier.
-
-Install UglifyJS with npm::
-
-    $ npm install uglify-js -g
+    $ curl -OL https://github.com/lepture/python-livereload/zipball/master
 
 
-Get slimmer
-~~~~~~~~~~~~
+Once you have a copy of the source, you can embed it in your Python package,
+or install it into your site-packages easily::
 
-Slimmer is a python library that compressing css, JavaScript, and
-html.
-
-Install slimmer::
-
-    $ pip install slimmer
-
-.. _Lesscss: http://lesscss.org
-.. _UglifyJs: https://github.com/mishoo/UglifyJS
+    $ python setup.py install

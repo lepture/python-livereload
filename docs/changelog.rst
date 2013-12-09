@@ -3,6 +3,12 @@ Changelog
 
 The full list of changes between each Python LiveReload release.
 
+Version 2.0.0
+-------------
+
+A new designed livereload server which has the power to serve a wsgi
+application.
+
 Version 1.0.1
 -------------
 

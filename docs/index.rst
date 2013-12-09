@@ -26,9 +26,7 @@ If you are not, you should buy LiveReload2.app instead.
     :maxdepth: 2
 
     install
-    quickstart
-    guardfile
-    compiler
+    guide
     changelog
 
 
@@ -43,4 +41,4 @@ Have any trouble? Want to know more?
 
 .. _GitHub: https://github.com/lepture
 .. _Twitter: https://twitter.com/lepture
-.. _Email: lepture@me.com
+.. _Email: me@lepture.com
