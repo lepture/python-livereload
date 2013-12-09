@@ -13,14 +13,14 @@ import sys
 import logging
 import time
 import mimetypes
-import webbrowser
 import hashlib
 from tornado import ioloop
 from tornado import escape
 from tornado import websocket
 from tornado.websocket import WebSocketHandler
-from tornado.web import RequestHandler, Application
+from tornado.web import RequestHandler, Application, FallbackHandler
 from tornado.util import ObjectDict
+from tornado.wsgi import WSGIContainer
 from livereload.task import Task
 from ._compat import to_bytes
 
@@ -105,7 +105,6 @@ class LiveReloadHandler(WebSocketHandler):
                 elif Task.tasks:
                     # Tasks have been added through library-use.
                     logging.debug('Not loading any tasks, library-use.')
-                    pass
                 else:
                     logging.info('No Guardfile')
                     Task.add(os.getcwd())
@@ -199,39 +198,46 @@ class LiveReloadJSHandler(RequestHandler):
                 self.write(line)
 
 
+class Server(object):
+    def __init__(self, wsgi_app=None, port=35729, root='.'):
+        handlers = [
+            (r'/livereload', LiveReloadHandler),
+            (r'/livereload.js', LiveReloadJSHandler, dict(port=port)),
+        ]
+        if wsgi_app:
+            wsgi_app = WSGIContainer(wsgi_app)
+            handlers.append(
+                (r'.*', FallbackHandler, dict(fallback=wsgi_app))
+            )
+        else:
+            handlers.append(
+                (r'(.*)', IndexHandler, dict(root=root)),
+            )
 
-def create_app(port=35729, root='.'):
-    handlers = [
-        (r'/livereload', LiveReloadHandler),
-        (r'/livereload.js', LiveReloadJSHandler, dict(port=port)),
-        (r'(.*)', IndexHandler, dict(root=root)),
-    ]
-    return Application(handlers=handlers)
+        self.app = Application(handlers=handlers)
+        self.port = port
 
+    def serve(self, autoraise=False):
+        try:
+            from tornado.log import enable_pretty_logging
+        except ImportError:
+            from tornado.options import enable_pretty_logging
 
-def start(port=35729, root='.', autoraise=False):
-    try:
-        from tornado.log import enable_pretty_logging
-    except ImportError:
-        from tornado.options import enable_pretty_logging
+        logging.getLogger().setLevel(logging.INFO)
+        enable_pretty_logging()
+        self.app.listen(self.port)
 
-    logging.getLogger().setLevel(logging.INFO)
-    enable_pretty_logging()
-
-    app = create_app(port, root)
-    app.listen(port)
-
-    print('Serving path %s on 127.0.0.1:%s' % (root, port))
-
-    if autoraise:
-        webbrowser.open(
-            'http://127.0.0.1:%s' % port, new=2, autoraise=True
-        )
-    try:
-        ioloop.IOLoop.instance().start()
-    except KeyboardInterrupt:
-        print('Shutting down...')
+        print('Serving on 127.0.0.1:%s' % self.port)
+        if autoraise:
+            import webbrowser
+            webbrowser.open(
+                'http://127.0.0.1:%s' % self.port, new=2, autoraise=True
+            )
+        try:
+            ioloop.IOLoop.instance().start()
+        except KeyboardInterrupt:
+            print('Shutting down...')
 
 
 if __name__ == '__main__':
-    start(8000)
+    Server(port=8000).serve()

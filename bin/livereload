@@ -16,7 +16,7 @@ Options:
 
 
 def main():
-    from livereload.server import start
+    from livereload.server import Server
     args = docopt(cmd)
     port = args.get('--port')
     root = args.get('<directory>')
@@ -28,7 +28,8 @@ def main():
 
     if root is None:
         root = '.'
-    start(port, root, autoraise)
+
+    Server(port=port, root=root).serve(autoraise)
 
 
 if __name__ == '__main__':
