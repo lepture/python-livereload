@@ -9,14 +9,12 @@
 """
 
 import os
-import sys
 import logging
 import time
 import mimetypes
 import hashlib
 from tornado import ioloop
 from tornado import escape
-from tornado import websocket
 from tornado.websocket import WebSocketHandler
 from tornado.web import RequestHandler, Application, FallbackHandler
 from tornado.util import ObjectDict
@@ -195,6 +193,54 @@ class LiveReloadJSHandler(RequestHandler):
                 self.write(line)
 
 
+class WSGIWrapper(WSGIContainer):
+    """Insert livereload scripts into response body."""
+
+    def __call__(self, request):
+        data = {}
+        response = []
+
+        def start_response(status, response_headers, exc_info=None):
+            data["status"] = status
+            data["headers"] = response_headers
+            return response.append
+        app_response = self.wsgi_application(
+            WSGIContainer.environ(request), start_response)
+        try:
+            response.extend(app_response)
+            body = b"".join(response)
+        finally:
+            if hasattr(app_response, "close"):
+                app_response.close()
+        if not data:
+            raise Exception("WSGI app did not call start_response")
+
+        status_code = int(data["status"].split()[0])
+        headers = data["headers"]
+        header_set = set(k.lower() for (k, v) in headers)
+        body = escape.utf8(body)
+        if status_code != 304:
+            if "content-length" not in header_set:
+                headers.append(("Content-Length", str(len(body))))
+            if "content-type" not in header_set:
+                headers.append(("Content-Type", "text/html; charset=UTF-8"))
+        if "server" not in header_set:
+            headers.append(("Server", "livereload-tornado"))
+
+        parts = [escape.utf8("HTTP/1.1 " + data["status"] + "\r\n")]
+        for key, value in headers:
+            parts.append(escape.utf8(key) + b": " + escape.utf8(value) + b"\r\n")
+        parts.append(b"\r\n")
+        body = body.replace(
+            '</head>',
+            '<script src="/livereload.js"></script></head>'
+        )
+        parts.append(body)
+        request.write(b"".join(parts))
+        request.finish()
+        self._log(status_code, request)
+
+
 class Server(object):
     def __init__(self, wsgi_app=None, port=35729, root='.'):
         handlers = [
@@ -202,7 +248,7 @@ class Server(object):
             (r'/livereload.js', LiveReloadJSHandler, dict(port=port)),
         ]
         if wsgi_app:
-            wsgi_app = WSGIContainer(wsgi_app)
+            wsgi_app = WSGIWrapper(wsgi_app)
             handlers.append(
                 (r'.*', FallbackHandler, dict(fallback=wsgi_app))
             )
@@ -211,7 +257,7 @@ class Server(object):
                 (r'(.*)', IndexHandler, dict(root=root)),
             )
 
-        self.app = Application(handlers=handlers)
+        self.app = Application(handlers=handlers, debug=True)
         self.port = port
 
     def serve(self, autoraise=False):
