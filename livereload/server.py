@@ -81,17 +81,19 @@ class LiveReloadHandler(WebSocketHandler):
         2. server reply 'hello'
         3. client send 'info'
 
-        http://help.livereload.com/kb/ecosystem/livereload-protocol
+        http://feedback.livereload.com/knowledgebase/articles/86174-livereload-protocol
         """
         message = ObjectDict(escape.json_decode(message))
         if message.command == 'hello':
             handshake = {}
             handshake['command'] = 'hello'
-            protocols = message.protocols
-            protocols.append(
+            handshake['protocols'] = [
+                'http://livereload.com/protocols/official-7',
+                'http://livereload.com/protocols/official-8',
+                'http://livereload.com/protocols/official-9',
+                'http://livereload.com/protocols/2.x-origin-version-negotiation',
                 'http://livereload.com/protocols/2.x-remote-control'
-            )
-            handshake['protocols'] = protocols
+            ]
             handshake['serverName'] = 'livereload-tornado'
             self.send_message(handshake)
 
