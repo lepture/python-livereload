@@ -1,19 +1,11 @@
 # -*- coding: utf-8 -*-
+"""
+    livereload.task
+    ~~~~~~~~~~~~~~~
 
-"""livereload.task
+    Task management for LiveReload Server.
 
-Task management for LiveReload Server.
-
-A basic syntax overview::
-
-    from livereload.task import Task
-
-    Task.add('file.css')
-
-    def do_some_thing():
-        pass
-
-    Task.add('file.css', do_some_thing)
+    :copyright: (c) 2013 by Hsiaoming Yang
 """
 
 import os
@@ -42,15 +34,31 @@ IGNORE = [
 
 
 class Task(object):
+    """Task management for LiveReload Server.
+
+    A basic usage for task::
+
+        from livereload.task import Task
+
+        Task.add('file.css')
+
+        def do_some_thing():
+            pass
+
+        Task.add('file.css', do_some_thing)
+    """
+
     tasks = {}
     _modified_times = {}
     last_modified = None
+
     if HAS_PYINOTIFY:
         wm = pyinotify.WatchManager()
         notifier = None
 
     @classmethod
     def add(cls, path, func=None):
+        """User interface for add a task."""
         logging.info('Add task: %s' % path)
         if HAS_PYINOTIFY:
             cls.wm.add_watch(path, pyinotify.IN_CREATE | pyinotify.IN_DELETE | pyinotify.IN_MODIFY, rec=True, do_glob=True, auto_add=True)
