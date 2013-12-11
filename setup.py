@@ -1,20 +1,31 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import livereload
+import re
 from setuptools import setup
-from email.utils import parseaddr
-author, author_email = parseaddr(livereload.__author__)
+
+
+def fread(filepath):
+    with open(filepath, 'r') as f:
+        return f.read()
+
+
+def version():
+    content = fread('livereload/__init__.py')
+    pattern = r"__version__ = '([0-9\.]*)'"
+    m = re.findall(pattern, content)
+    return m[0]
+
 
 setup(
     name='livereload',
-    version=livereload.__version__,
-    author=author,
-    author_email=author_email,
-    url=livereload.__homepage__,
+    version=version(),
+    author='Hsiaoming Yang',
+    author_email='me@lepture.com',
+    url='https://github.com/lepture/python-livereload',
     packages=['livereload'],
     description='Python LiveReload is an awesome tool for web developers',
-    long_description=livereload.__doc__,
+    long_description=fread('README.rst'),
     scripts=[
         'bin/livereload',
     ],

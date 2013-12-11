@@ -28,8 +28,7 @@ Developer Guide
 The new livereload server is designed for developers. It can power a
 wsgi application now::
 
-    from livereload.server import Server
-    from livereload.task import Task
+    from livereload import Server, Task
     from livereload.compiler import shell
 
     Task.add('public/*.less', shell('make static'))
