@@ -11,4 +11,5 @@ __author__ = 'Hsiaoming Yang <me@lepture.com>'
 __homepage__ = 'https://github.com/lepture/python-livereload'
 
 from .server import Server
-from .task import Task
+
+__all__ = ('Server', )
