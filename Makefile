@@ -1,4 +1,4 @@
-.PHONY: clean-pyc clean-build docs
+.PHONY: clean-pyc clean-build docs test coverage
 
 clean: clean-build clean-pyc
 
@@ -19,3 +19,10 @@ install:
 
 docs:
 	$(MAKE) -C docs html
+
+test:
+	@nosetests -s
+
+coverage:
+	@rm -f .coverage
+	@nosetests --with-coverage --cover-package=livereload --cover-html
