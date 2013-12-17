@@ -1,12 +1,7 @@
-Python LiveReload
-=================
+LiveReload
+==========
 
-`LiveReload  <http://livereload.com/>`_ Server in Python Version.
-
-Web Developers need to refresh a browser everytime when he saved a file (css,
-javascript, html), it is really boring. LiveReload will take care of that for
-you. When you saved a file, your browser will refresh itself. And what's more,
-it can do some tasks like compiling less to css before the browser refreshing.
+This is a brand new LiveReload in version 2.0.0.
 
 Installation
 ------------
@@ -28,8 +23,11 @@ Developer Guide
 The new livereload server is designed for developers. It can power a
 wsgi application now::
 
-    from livereload import Server, Task
-    from livereload.compiler import shell
+    from livereload import Server
 
-    Task.add('public/*.less', shell('make static'))
-    Server(wsgi_app, port=8000).serve()
+    server = Server(wsgi_app)
+    # run a shell command
+    server.watch('static/*.stylus', 'make static')
+    # run a function
+    server.watch('foo.txt', lambda: print('foo'))
+    server.serve()
