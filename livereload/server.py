@@ -8,12 +8,54 @@
     :copyright: (c) 2013 by Hsiaoming Yang
 """
 
+import os
+import logging
+from subprocess import Popen, PIPE
 from tornado import escape
 from tornado.wsgi import WSGIContainer
 from tornado.ioloop import IOLoop
 from tornado.web import Application, FallbackHandler
 from .handlers import LiveReloadHandler, LiveReloadJSHandler, StaticHandler
 from .watcher import Watcher
+from ._compat import text_types
+from tornado.log import enable_pretty_logging
+enable_pretty_logging()
+
+
+def shell(command, output=None, mode='w'):
+    """Command shell command.
+
+    You can add a shell command::
+
+        server.watch('*.styl', shell('make stylus'))
+    """
+    if not output:
+        output = os.devnull
+    else:
+        folder = os.path.dirname(output)
+        if folder and not os.path.isdir(folder):
+            os.makedirs(folder)
+
+    cmd = command.split()
+
+    def run_shell():
+        try:
+            p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        except OSError as e:
+            logging.error(e)
+            if e.errno == os.errno.ENOENT:  # file (command) not found
+                logging.error("maybe you haven't installed %s", cmd[0])
+            return e
+        stdout, stderr = p.communicate()
+        if stderr:
+            logging.error(stderr)
+            return stderr
+        #: stdout is bytes, decode for python3
+        code = stdout.decode()
+        with open(output, mode) as f:
+            f.write(code)
+
+    return run_shell
 
 
 class WSGIWrapper(WSGIContainer):
@@ -67,7 +109,7 @@ class WSGIWrapper(WSGIContainer):
 
 
 class Server(object):
-    def __init__(self, app=None, port=35729, root=None, watcher=None):
+    def __init__(self, app=None, port=5500, root=None, watcher=None):
         self.app = app
         self.port = port
         self.root = root
@@ -75,28 +117,40 @@ class Server(object):
             watcher = Watcher()
         self.watcher = watcher
 
+    def watch(self, filepath, func=None):
+        """Add the given filepath for watcher list."""
+        if isinstance(func, text_types):
+            func = shell(func)
+
+        self.watcher.watch(filepath, func)
+
+    def application(self):
+        LiveReloadHandler.watcher = self.watcher
         handlers = [
             (r'/livereload', LiveReloadHandler),
-            (r'/livereload.js', LiveReloadJSHandler, dict(port=port)),
+            (r'/livereload.js', LiveReloadJSHandler, dict(port=self.port)),
         ]
-        if app:
-            app = WSGIWrapper(app)
+
+        if self.app:
+            self.app = WSGIWrapper(self.app)
             handlers.append(
-                (r'.*', FallbackHandler, dict(fallback=app))
+                (r'.*', FallbackHandler, dict(fallback=self.app))
             )
         else:
             handlers.append(
-                (r'(.*)', StaticHandler, dict(root=root)),
+                (r'(.*)', StaticHandler, dict(root=self.root or '.')),
             )
+        return Application(handlers=handlers, debug=True)
 
-        self.app = Application(handlers=handlers, debug=True)
-        self.port = port
+    def serve(self, root=None, port=None):
+        if root:
+            self.root = root
 
-    def serve(self, port=None):
         if port:
             self.port = port
 
-        self.app.listen(self.port)
+        self.application().listen(self.port)
+        logging.getLogger().setLevel(logging.INFO)
         print('Serving on 127.0.0.1:%s' % self.port)
         try:
             IOLoop.instance().start()

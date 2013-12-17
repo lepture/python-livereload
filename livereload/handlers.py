@@ -23,10 +23,8 @@ from ._compat import to_bytes
 
 class LiveReloadHandler(WebSocketHandler):
     waiters = set()
+    watcher = None
     _last_reload_time = None
-
-    def initialize(self, watcher):
-        self.watcher = watcher
 
     def allow_draft76(self):
         return True
