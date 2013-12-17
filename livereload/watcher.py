@@ -46,9 +46,7 @@ class Watcher(object):
             return self.is_file_changed(path)
         elif os.path.isdir(path):
             return self.is_folder_changed(path)
-        else:
-            return self.is_glob_changed(path)
-        return False
+        return self.is_glob_changed(path)
 
     def is_file_changed(self, path):
         if not os.path.isfile(path):
@@ -61,6 +59,7 @@ class Watcher(object):
 
         if path not in self._mtimes:
             self._mtimes[path] = mtime
+            self.filepath = path
             return True
 
         if self._mtimes[path] != mtime:
