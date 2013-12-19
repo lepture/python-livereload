@@ -1,37 +1,19 @@
-Welcome to Python LiveReload
-=============================
+.. include:: ../README.rst
 
-`LiveReload  <http://livereload.com/>`_ contains two parts,
-the client side and the server side.
-And Python LiveReload is the server side in python version.
 
-Web Developers need to refresh a browser everytime when he saves a file (css,
-javascript, html). It is really boring. LiveReload will take care of that for
-you. When you save a file, your browser will refresh itself.
+Changelog
+---------
 
-And what's more, it can do some tasks like 
-**compiling less to css before the browser refreshing**.
-
-**Bug Report** https://github.com/lepture/python-livereload/issues
-
-User's Guide
--------------
-
-Python LiveReload is designed for **Web Developers who know Python**. It
-assumes that you want to do some complex tasks that LiveReload2.app can't do.
-
-If you are not, you should buy LiveReload2.app instead.
+The full list of changes between each Python LiveReload release.
 
 .. toctree::
-    :maxdepth: 2
+   :maxdepth: 2
 
-    install
-    guide
-    changelog
+   changelog
 
 
 Contact
----------
+-------
 
 Have any trouble? Want to know more?
 
