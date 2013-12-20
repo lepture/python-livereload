@@ -27,7 +27,12 @@ def shell(command, output=None, mode='w'):
 
     You can add a shell command::
 
-        server.watch('*.styl', shell('make stylus'))
+        server.watch('style.less', shell('lessc style.less', output='style.css'))
+
+    :param command: a shell command
+    :param output: output stdout to the given file
+    :param mode: only works with output, mode ``w`` means write,
+                 mode ``a`` means append
     """
     if not output:
         output = os.devnull
@@ -172,7 +177,7 @@ class Server(object):
     def serve(self, port=None, root=None):
         """Start serve the server with the given port.
 
-        :param port: serve on this port
+        :param port: serve on this port, default is 5500
         :param root: serve static on this root directory
         """
         if root:

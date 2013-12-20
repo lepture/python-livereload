@@ -43,6 +43,4 @@ wsgi application now::
 The ``Server`` class accepts parameters:
 
 - app: a wsgi application
-- port: server port, default is 5500
-- root: if **app** is not specified, it will serve a static server at this give root
 - watcher: a watcher instance, you don't have to create one

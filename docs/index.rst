@@ -1,5 +1,14 @@
 .. include:: ../README.rst
 
+API
+---
+
+.. module:: livereload
+
+.. autoclass:: Server
+   :members:
+
+.. autofunction:: shell
 
 Changelog
 ---------
