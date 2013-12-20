@@ -109,16 +109,43 @@ class WSGIWrapper(WSGIContainer):
 
 
 class Server(object):
-    def __init__(self, app=None, port=5500, root=None, watcher=None):
+    """Livereload server interface.
+
+    Initialize a server and watch file changes::
+
+        server = Server(wsgi_app)
+        server.serve()
+
+    :param app: a wsgi application instance
+    :param watcher: A Watcher instance, you don't have to initialize
+                    it by yourself
+    """
+    def __init__(self, app=None, watcher=None):
         self.app = app
-        self.port = port
-        self.root = root
+        self.port = 5500
+        self.root = None
         if not watcher:
             watcher = Watcher()
         self.watcher = watcher
 
     def watch(self, filepath, func=None):
-        """Add the given filepath for watcher list."""
+        """Add the given filepath for watcher list.
+
+        Once you have intialized a server, watch file changes before
+        serve the server::
+
+            server.watch('static/*.stylus', 'make static')
+            def alert():
+                print('foo')
+            server.watch('foo.txt', alert)
+            server.serve()
+
+        :param filepath: files to be watched, it can be a filepath,
+                         a directory, or a glob pattern
+        :param func: the function to be called, it can be a string of
+                     shell command, or any callable object without
+                     parameters
+        """
         if isinstance(func, text_types):
             func = shell(func)
 
@@ -142,7 +169,12 @@ class Server(object):
             )
         return Application(handlers=handlers, debug=True)
 
-    def serve(self, root=None, port=None):
+    def serve(self, port=None, root=None):
+        """Start serve the server with the given port.
+
+        :param port: serve on this port
+        :param root: serve static on this root directory
+        """
         if root:
             self.root = root
 
