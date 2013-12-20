@@ -10,6 +10,7 @@
 
 import os
 import glob
+import time
 
 
 class Watcher(object):
@@ -20,6 +21,7 @@ class Watcher(object):
 
         # filepath that is changed
         self.filepath = None
+        self._start = time.time()
 
     def ignore(self, filename):
         """Ignore a given filename or not."""
@@ -60,7 +62,7 @@ class Watcher(object):
         if path not in self._mtimes:
             self._mtimes[path] = mtime
             self.filepath = path
-            return True
+            return mtime > self._start
 
         if self._mtimes[path] != mtime:
             self._mtimes[path] = mtime
