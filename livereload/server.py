@@ -90,6 +90,11 @@ class WSGIWrapper(WSGIContainer):
         header_set = set(k.lower() for (k, v) in headers)
         body = escape.utf8(body)
         if status_code != 304:
+            if 'content-type' in headers:
+                body = body.replace(
+                    '</head>',
+                    '<script src="/livereload.js"></script></head>'
+                )
             if "content-length" not in header_set:
                 headers.append(("Content-Length", str(len(body))))
             if "content-type" not in header_set:
@@ -99,14 +104,12 @@ class WSGIWrapper(WSGIContainer):
 
         parts = [escape.utf8("HTTP/1.1 " + data["status"] + "\r\n")]
         for key, value in headers:
+            if key.lower() == 'content-length':
+                value = str(len(body))
             parts.append(
                 escape.utf8(key) + b": " + escape.utf8(value) + b"\r\n"
             )
         parts.append(b"\r\n")
-        body = body.replace(
-            '</head>',
-            '<script src="/livereload.js"></script></head>'
-        )
         parts.append(body)
         request.write(b"".join(parts))
         request.finish()
