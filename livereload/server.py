@@ -89,12 +89,12 @@ class WSGIWrapper(WSGIContainer):
         headers = data["headers"]
         header_set = set(k.lower() for (k, v) in headers)
         body = escape.utf8(body)
+        body = body.replace(
+            '</head>',
+            '<script src="/livereload.js"></script></head>'
+        )
+
         if status_code != 304:
-            if 'content-type' in headers:
-                body = body.replace(
-                    '</head>',
-                    '<script src="/livereload.js"></script></head>'
-                )
             if "content-length" not in header_set:
                 headers.append(("Content-Length", str(len(body))))
             if "content-type" not in header_set:
