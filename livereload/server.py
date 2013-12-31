@@ -159,7 +159,7 @@ class Server(object):
 
         self.watcher.watch(filepath, func)
 
-    def application(self):
+    def application(self, debug=True):
         LiveReloadHandler.watcher = self.watcher
         handlers = [
             (r'/livereload', LiveReloadHandler),
@@ -175,21 +175,23 @@ class Server(object):
             handlers.append(
                 (r'(.*)', StaticHandler, dict(root=self.root or '.')),
             )
-        return Application(handlers=handlers, debug=True)
+        return Application(handlers=handlers, debug=debug)
 
-    def serve(self, port=None, root=None):
+    def serve(self, port=None, host=None, root=None, debug=True):
         """Start serve the server with the given port.
 
         :param port: serve on this port, default is 5500
+        :param host: serve on this hostname, default is 0.0.0.0
         :param root: serve static on this root directory
         """
         if root:
             self.root = root
-
         if port:
             self.port = port
+        if host is None:
+            host = ''
 
-        self.application().listen(self.port)
+        self.application(debug=debug).listen(self.port, address=host)
         logging.getLogger().setLevel(logging.INFO)
         print('Serving on 127.0.0.1:%s' % self.port)
         try:
