@@ -90,8 +90,8 @@ class WSGIWrapper(WSGIContainer):
         header_set = set(k.lower() for (k, v) in headers)
         body = escape.utf8(body)
         body = body.replace(
-            '</head>',
-            '<script src="/livereload.js"></script></head>'
+            b'</head>',
+            b'<script src="/livereload.js"></script></head>'
         )
 
         if status_code != 304:
