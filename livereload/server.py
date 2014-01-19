@@ -15,7 +15,8 @@ from tornado import escape
 from tornado.wsgi import WSGIContainer
 from tornado.ioloop import IOLoop
 from tornado.web import Application, FallbackHandler
-from .handlers import LiveReloadHandler, LiveReloadJSHandler, StaticHandler
+from .handlers import LiveReloadHandler, LiveReloadJSHandler
+from .handlers import ForceReloadHandler, StaticHandler
 from .watcher import Watcher
 from ._compat import text_types
 from tornado.log import enable_pretty_logging
@@ -163,6 +164,7 @@ class Server(object):
         LiveReloadHandler.watcher = self.watcher
         handlers = [
             (r'/livereload', LiveReloadHandler),
+            (r'/forcereload', ForceReloadHandler),
             (r'/livereload.js', LiveReloadJSHandler, dict(port=self.port)),
         ]
 

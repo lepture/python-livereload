@@ -124,6 +124,22 @@ class LiveReloadJSHandler(RequestHandler):
             self.write(content)
 
 
+class ForceReloadHandler(RequestHandler):
+    def get(self):
+        msg = {
+            'command': 'reload',
+            'path': '*',
+            'liveCSS': True
+        }
+        for waiter in LiveReloadHandler.waiters:
+            try:
+                waiter.write_message(msg)
+            except:
+                logging.error('Error sending message', exc_info=True)
+                LiveReloadHandler.waiters.remove(waiter)
+        self.write('ok')
+
+
 class StaticHandler(RequestHandler):
     def initialize(self, root, fallback=None):
         self._root = os.path.abspath(root)
