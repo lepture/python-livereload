@@ -3,6 +3,11 @@ Changelog
 
 The full list of changes between each Python LiveReload release.
 
+Version 2.1.0
+-------------
+
+Add ForceReloadHandler.
+
 Version 2.0.0
 -------------
 
