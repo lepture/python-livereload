@@ -128,8 +128,9 @@ class ForceReloadHandler(RequestHandler):
     def get(self):
         msg = {
             'command': 'reload',
-            'path': '*',
-            'liveCSS': True
+            'path': self.get_argument('path', default=None) or '*',
+            'liveCSS': True,
+            'liveImg': True
         }
         for waiter in LiveReloadHandler.waiters:
             try:
