@@ -32,6 +32,11 @@ class Watcher(object):
         """Add a task to watcher."""
         self._tasks[path] = func
 
+    def start(self, callback):
+        """Start the watcher running, calling callback when changes are observed. If this returns False,
+        regular polling will be used."""
+        return False
+
     def examine(self):
         """Check if there are changes, if true, run the given task."""
         # clean filepath
@@ -93,3 +98,31 @@ class Watcher(object):
             if self.is_file_changed(f):
                 return True
         return False
+
+
+class INotifyWatcher(Watcher):
+    def __init__(self):
+        Watcher.__init__(self)
+
+        import pyinotify
+        self.wm = pyinotify.WatchManager()
+        self.notifier = None
+        self.callback = None
+
+    def watch(self, path, func=None):
+        import pyinotify
+        self.wm.add_watch(path, pyinotify.IN_CREATE | pyinotify.IN_DELETE | pyinotify.IN_MODIFY, rec=True, do_glob=True, auto_add=True)
+        Watcher.watch(self, path, func)
+
+    def inotify_event(self, event):
+        self.callback()
+
+    def start(self, callback):
+        if not self.notifier:
+            self.callback = callback
+
+            import pyinotify
+            from tornado import ioloop
+            self.notifier = pyinotify.TornadoAsyncNotifier(self.wm, ioloop.IOLoop.instance(), default_proc_fun=self.inotify_event)
+            callback()
+        return True
