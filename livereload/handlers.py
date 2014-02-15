@@ -106,7 +106,8 @@ class LiveReloadHandler(WebSocketHandler):
 
                 LiveReloadHandler._last_reload_time = time.time()
                 logging.info('Start watching changes')
-                ioloop.PeriodicCallback(self.poll_tasks, 800).start()
+                if not self.watcher.start(self.poll_tasks):
+                    ioloop.PeriodicCallback(self.poll_tasks, 800).start()
 
 
 class LiveReloadJSHandler(RequestHandler):
