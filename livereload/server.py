@@ -128,7 +128,8 @@ class Server(object):
     :param app: a wsgi application instance
     :param watcher: A Watcher instance, you don't have to initialize
                     it by yourself. Under Linux, you will want to install
-                    pyinotify and use INotifyWatcher() to avoid wasted CPU usage.
+                    pyinotify and use INotifyWatcher() to avoid wasted
+                    CPU usage.
     """
     def __init__(self, app=None, watcher=None):
         self.app = app

@@ -111,7 +111,8 @@ class INotifyWatcher(Watcher):
 
     def watch(self, path, func=None):
         import pyinotify
-        self.wm.add_watch(path, pyinotify.IN_CREATE | pyinotify.IN_DELETE | pyinotify.IN_MODIFY, rec=True, do_glob=True, auto_add=True)
+        flag = pyinotify.IN_CREATE | pyinotify.IN_DELETE | pyinotify.IN_MODIFY
+        self.wm.add_watch(path, flag, rec=True, do_glob=True, auto_add=True)
         Watcher.watch(self, path, func)
 
     def inotify_event(self, event):
@@ -123,6 +124,9 @@ class INotifyWatcher(Watcher):
 
             import pyinotify
             from tornado import ioloop
-            self.notifier = pyinotify.TornadoAsyncNotifier(self.wm, ioloop.IOLoop.instance(), default_proc_fun=self.inotify_event)
+            self.notifier = pyinotify.TornadoAsyncNotifier(
+                self.wm, ioloop.IOLoop.instance(),
+                default_proc_fun=self.inotify_event
+            )
             callback()
         return True
