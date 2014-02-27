@@ -4,4 +4,4 @@ from livereload import Server, shell
 
 server = Server()
 server.watch('style.less', shell('lessc style.less', output='style.css'))
-server.serve()
+server.serve(open_url=True)
