@@ -3,6 +3,14 @@ LiveReload
 
 This is a brand new LiveReload in version 2.0.0.
 
+.. image:: https://pypip.in/d/livereload/badge.png
+   :target: https://pypi.python.org/pypi/livereload
+   :alt: Downloads
+.. image:: https://pypip.in/v/livereload/badge.png
+   :target: https://pypi.python.org/pypi/livereload
+   :alt: Version
+
+
 Installation
 ------------
 
