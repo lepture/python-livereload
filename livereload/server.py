@@ -11,6 +11,10 @@
 import os
 import logging
 from subprocess import Popen, PIPE
+import time
+import thread
+import webbrowser
+
 from tornado import escape
 from tornado.wsgi import WSGIContainer
 from tornado.ioloop import IOLoop
@@ -181,12 +185,13 @@ class Server(object):
             )
         return Application(handlers=handlers, debug=debug)
 
-    def serve(self, port=None, host=None, root=None, debug=True):
+    def serve(self, port=None, host=None, root=None, debug=True, open_url=False):
         """Start serve the server with the given port.
 
         :param port: serve on this port, default is 5500
         :param host: serve on this hostname, default is 0.0.0.0
         :param root: serve static on this root directory
+        :param open_url: open system browser
         """
         if root:
             self.root = root
@@ -198,6 +203,14 @@ class Server(object):
         self.application(debug=debug).listen(self.port, address=host)
         logging.getLogger().setLevel(logging.INFO)
         print('Serving on 127.0.0.1:%s' % self.port)
+        
+        # Async open web browser after 5 sec timeout
+        if open_url:
+            def opener():
+                time.sleep(5)
+                webbrowser.open('http://127.0.0.1:%s' % self.port)
+            thread.start_new_thread(opener, ())
+
         try:
             IOLoop.instance().start()
         except KeyboardInterrupt:
