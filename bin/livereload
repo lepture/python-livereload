@@ -1,0 +1,21 @@
+#!/usr/bin/env python
+
+import argparse
+from livereload.server import Server
+
+def main():
+    """Define command to parse CLI arguments and start `livereload` server"""
+    # Parse our arguments
+    parser = argparse.ArgumentParser(description='Start a `livereload` server')
+    parser.add_argument('-p', '--port',
+        help='Port to run `livereload` server on', type=int, default=35729)
+    parser.add_argument('directory',
+        help='Directory to watch for changes', type=str, default='.', nargs='?')
+    args = parser.parse_args()
+
+    # Create a new application
+    server = Server()
+    server.serve(port=args.port, root=args.directory)
+
+if __name__ == '__main__':
+    main()
