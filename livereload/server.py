@@ -135,10 +135,16 @@ class Server(object):
                     pyinotify and use INotifyWatcher() to avoid wasted
                     CPU usage.
     """
-    def __init__(self, app=None, watcher=None):
+    def __init__(self,
+                 app=None,
+                 watcher=None,
+                 port=None,
+                 host=None,
+                 root=None):
         self.app = app
-        self.port = 5500
-        self.root = None
+        self.port = port or 5500
+        self.host = host or '0.0.0.0'
+        self.root = root
         if not watcher:
             watcher = Watcher()
         self.watcher = watcher
@@ -185,7 +191,12 @@ class Server(object):
             )
         return Application(handlers=handlers, debug=debug)
 
-    def serve(self, port=None, host=None, root=None, debug=True, open_url=False):
+    def serve(self,
+              port=None,
+              host=None,
+              root=None,
+              debug=True,
+              open_url=False):
         """Start serve the server with the given port.
 
         :param port: serve on this port, default is 5500
@@ -193,22 +204,20 @@ class Server(object):
         :param root: serve static on this root directory
         :param open_url: open system browser
         """
-        if root:
-            self.root = root
-        if port:
-            self.port = port
-        if host is None:
-            host = ''
+        port = port or self.port
+        host = host or self.host
+        root = root or self.root
 
-        self.application(debug=debug).listen(self.port, address=host)
+        host_port = "http://{}:{}".format(host, port)
+        self.application(debug=debug).listen(port, address=host)
         logging.getLogger().setLevel(logging.INFO)
-        print('Serving on 127.0.0.1:%s' % self.port)
-        
+        print('Serving on {}'.format(host_port))
+
         # Async open web browser after 5 sec timeout
         if open_url:
             def opener():
                 time.sleep(5)
-                webbrowser.open('http://127.0.0.1:%s' % self.port)
+                webbrowser.open(host_port)
             thread.start_new_thread(opener, ())
 
         try:
