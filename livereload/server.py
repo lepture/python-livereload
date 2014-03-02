@@ -203,7 +203,7 @@ class Server(object):
         self.application(debug=debug).listen(self.port, address=host)
         logging.getLogger().setLevel(logging.INFO)
         print('Serving on 127.0.0.1:%s' % self.port)
-        
+
         # Async open web browser after 5 sec timeout
         if open_url:
             def opener():
