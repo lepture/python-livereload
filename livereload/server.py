@@ -202,13 +202,15 @@ class Server(object):
 
         self.application(debug=debug).listen(self.port, address=host)
         logging.getLogger().setLevel(logging.INFO)
-        print('Serving on 127.0.0.1:%s' % self.port)
+
+        host = host or '127.0.0.1'
+        print('Serving on %s:%s' % (host, self.port))
 
         # Async open web browser after 5 sec timeout
         if open_url:
             def opener():
                 time.sleep(5)
-                webbrowser.open('http://127.0.0.1:%s' % self.port)
+                webbrowser.open('http://%s:%s' % (host, self.port))
             thread.start_new_thread(opener, ())
 
         try:
