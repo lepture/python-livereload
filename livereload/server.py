@@ -12,7 +12,7 @@ import os
 import logging
 from subprocess import Popen, PIPE
 import time
-import thread
+import threading
 import webbrowser
 
 from tornado import escape
@@ -211,7 +211,7 @@ class Server(object):
             def opener():
                 time.sleep(5)
                 webbrowser.open('http://%s:%s' % (host, self.port))
-            thread.start_new_thread(opener, ())
+            threading.Thread(target=opener).start()
 
         try:
             IOLoop.instance().start()
