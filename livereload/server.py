@@ -32,9 +32,11 @@ def shell(command, output=None, mode='w'):
 
     You can add a shell command::
 
-        server.watch('style.less', shell('lessc style.less', output='style.css'))
+        server.watch(
+            'style.less', shell('lessc style.less', output='style.css')
+        )
 
-    :param command: a shell command
+    :param command: a shell command, string or list
     :param output: output stdout to the given file
     :param mode: only works with output, mode ``w`` means write,
                  mode ``a`` means append
@@ -46,7 +48,10 @@ def shell(command, output=None, mode='w'):
         if folder and not os.path.isdir(folder):
             os.makedirs(folder)
 
-    cmd = command.split()
+    if isinstance(command, (list, tuple)):
+        cmd = command
+    else:
+        cmd = command.split()
 
     def run_shell():
         try:
