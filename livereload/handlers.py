@@ -149,7 +149,7 @@ class StaticHandler(RequestHandler):
 
     def filepath(self, url):
         url = url.lstrip('/')
-        url = os.path.join(self._root, url)
+        url = os.path.normpath(os.path.join(self._root, url))
 
         if url.endswith(os.sep):
             url += 'index.html'
