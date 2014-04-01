@@ -151,7 +151,7 @@ class StaticHandler(RequestHandler):
         url = url.lstrip('/')
         url = os.path.join(self._root, url)
 
-        if url.endswith('/'):
+        if url.endswith(os.sep) or url.endswith('/'):
             url += 'index.html'
         elif not os.path.exists(url) and not url.endswith('.html'):
             url += '.html'
@@ -180,7 +180,7 @@ class StaticHandler(RequestHandler):
         self.mime_type = mime_type
         self.set_header('Content-Type', mime_type)
 
-        with open(filepath, 'r') as f:
+        with open(filepath, 'rb') as f:
             data = f.read()
 
         hasher = hashlib.sha1()
