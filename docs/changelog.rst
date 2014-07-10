@@ -3,13 +3,33 @@ Changelog
 
 The full list of changes between each Python LiveReload release.
 
+Version 2.2.1
+-------------
+
+Released on Jul 10, 2014
+
+Fix for Python 3.x
+
+
+Version 2.2.0
+-------------
+
+Released on Mar 15, 2014
+
++ Add bin/livereload
++ Add inotify support
+
 Version 2.1.0
 -------------
+
+Released on Jan 26, 2014
 
 Add ForceReloadHandler.
 
 Version 2.0.0
 -------------
+
+Released on  Dec 30, 2013
 
 A new designed livereload server which has the power to serve a wsgi
 application.
@@ -26,7 +46,7 @@ Release on Aug 19th, 2013
 Version 1.0.0
 -------------
 
-Release on May 9th, 2013
+Released on May 9th, 2013
 
 + Redesign the compiler
 + Various bugfix
