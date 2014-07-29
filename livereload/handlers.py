@@ -29,6 +29,9 @@ class LiveReloadHandler(WebSocketHandler):
     def allow_draft76(self):
         return True
 
+    def check_origin(self, origin):
+        return True
+
     def on_close(self):
         if self in LiveReloadHandler.waiters:
             LiveReloadHandler.waiters.remove(self)
