@@ -209,7 +209,7 @@ class Server(object):
         logging.getLogger().setLevel(logging.INFO)
 
         host = host or '127.0.0.1'
-        print('Serving on %s:%s' % (host, self.port))
+        print('Serving on http://%s:%s' % (host, self.port))
 
         # Async open web browser after 5 sec timeout
         if open_url:
