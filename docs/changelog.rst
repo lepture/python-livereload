@@ -3,6 +3,14 @@ Changelog
 
 The full list of changes between each Python LiveReload release.
 
+Version 2.2.2
+-------------
+
+Released on Sep 10, 2014
+
+Fix for tornado 4.
+
+
 Version 2.2.1
 -------------
 
