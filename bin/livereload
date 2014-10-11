@@ -31,6 +31,7 @@ def main():
 
     # Create a new application
     server = Server()
+    server.watcher.watch(args.directory)
     server.serve(host=args.host, port=args.port, root=args.directory)
 
 if __name__ == '__main__':
