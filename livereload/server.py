@@ -142,7 +142,6 @@ class Server(object):
     """
     def __init__(self, app=None, watcher=None):
         self.app = app
-        self.port = 5500
         self.root = None
         if not watcher:
             watcher = Watcher()
@@ -172,52 +171,67 @@ class Server(object):
 
         self.watcher.watch(filepath, func, delay)
 
-    def application(self, debug=True):
+    def application(self, port, host, liveport=None, debug=True):
         LiveReloadHandler.watcher = self.watcher
-        handlers = [
+
+        if liveport is None:
+            liveport = port
+
+        live_handlers = [
             (r'/livereload', LiveReloadHandler),
             (r'/forcereload', ForceReloadHandler),
-            (r'/livereload.js', LiveReloadJSHandler, dict(port=self.port)),
+        ]
+
+        web_handlers = [
+            (r'/livereload.js', LiveReloadJSHandler, dict(port=liveport)),
         ]
 
         if self.app:
             self.app = WSGIWrapper(self.app)
-            handlers.append(
+            web_handlers.append(
                 (r'.*', FallbackHandler, dict(fallback=self.app))
             )
         else:
-            handlers.append(
+            web_handlers.append(
                 (r'(.*)', StaticHandler, dict(root=self.root or '.')),
             )
-        return Application(handlers=handlers, debug=debug)
 
-    def serve(self, port=None, host=None, root=None, debug=True,
+        if liveport == port:
+            handlers = []
+            handlers.extend(live_handlers)
+            handlers.extend(web_handlers)
+            web = Application(handlers=handlers, debug=debug)
+            return web.listen(port, address=host)
+
+        web = Application(handlers=web_handlers, debug=debug)
+        web.listen(port, address=host)
+        live = Application(handlers=live_handlers, debug=False)
+        live.listen(liveport, address=host)
+
+    def serve(self, port=5500, liveport=None, host=None, root=None, debug=True,
               open_url=False, reload_delay=2):
         """Start serve the server with the given port.
 
         :param port: serve on this port, default is 5500
+        :param liveport: live reload on this port
         :param host: serve on this hostname, default is 0.0.0.0
         :param root: serve static on this root directory
         :param open_url: open system browser
         """
-        if root:
-            self.root = root
-        if port:
-            self.port = port
         if host is None:
             host = ''
 
-        self.application(debug=debug).listen(self.port, address=host)
+        self.application(port, host, liveport=liveport, debug=debug)
         logging.getLogger().setLevel(logging.INFO)
 
         host = host or '127.0.0.1'
-        print('Serving on http://%s:%s' % (host, self.port))
+        print('Serving on http://%s:%s' % (host, port))
 
         # Async open web browser after 5 sec timeout
         if open_url:
             def opener():
                 time.sleep(5)
-                webbrowser.open('http://%s:%s' % (host, self.port))
+                webbrowser.open('http://%s:%s' % (host, port))
             threading.Thread(target=opener).start()
 
         try:

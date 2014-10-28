@@ -961,6 +961,7 @@ __livereload.LiveReload = LiveReload = (function() {
       console.error("LiveReload disabled because it could not find its own <SCRIPT> tag");
       return;
     }
+    this.options.port = {{port}};
     this.reloader = new Reloader(this.window, this.console, Timer);
     this.connector = new Connector(this.options, this.WebSocket, Timer, {
       connecting: function() {},
