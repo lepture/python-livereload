@@ -192,7 +192,7 @@ class Server(object):
         return Application(handlers=handlers, debug=debug)
 
     def serve(self, port=None, host=None, root=None, debug=True,
-              open_url=False):
+              open_url=False, reload_delay=2):
         """Start serve the server with the given port.
 
         :param port: serve on this port, default is 5500
@@ -221,6 +221,7 @@ class Server(object):
             threading.Thread(target=opener).start()
 
         try:
+            self.watcher._changes.append(('__livereload__', reload_delay))
             IOLoop.instance().start()
         except KeyboardInterrupt:
             print('Shutting down...')

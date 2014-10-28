@@ -19,6 +19,9 @@ class Watcher(object):
         self._tasks = {}
         self._mtimes = {}
 
+        # setting changes
+        self._changes = []
+
         # filepath that is changed
         self.filepath = None
         self._start = time.time()
@@ -44,6 +47,9 @@ class Watcher(object):
 
     def examine(self):
         """Check if there are changes, if true, run the given task."""
+        if self._changes:
+            return self._changes.pop()
+
         # clean filepath
         self.filepath = None
         delays = set()
@@ -52,7 +58,12 @@ class Watcher(object):
                 func, delay = self._tasks[path]
                 func and func()
                 delays.add(delay)
-        return self.filepath, max(delays)
+
+        if delays:
+            delay = max(delays)
+        else:
+            delay = None
+        return self.filepath, delay
 
     def is_changed(self, path):
         if os.path.isfile(path):

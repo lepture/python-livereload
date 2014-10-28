@@ -49,12 +49,17 @@ class LiveReloadHandler(WebSocketHandler):
         filepath, delay = self.watcher.examine()
         if not filepath:
             return
-        logging.info('File %s changed', filepath)
+        reload_time = 3
 
-        if time.time() - self._last_reload_time < 3:
+        if delay:
+            reload_time = max(3 - delay, 1)
+        if filepath == '__livereload__':
+            reload_time = 0
+
+        if time.time() - self._last_reload_time < reload_time:
             # if you changed lot of files in one time
             # it will refresh too many times
-            logging.info('ignore this reload action')
+            logging.info('Ignore: %s', filepath)
             return
         if delay:
             loop = ioloop.IOLoop.current()
@@ -63,7 +68,11 @@ class LiveReloadHandler(WebSocketHandler):
             self.watch_tasks()
 
     def watch_tasks(self):
-        logging.info('Reload %s waiters', len(self.waiters))
+        logging.info(
+            'Reload %s waiters: %s',
+            len(self.waiters),
+            self.watcher.filepath,
+        )
 
         msg = {
             'command': 'reload',
