@@ -148,7 +148,7 @@ class Server(object):
             watcher = Watcher()
         self.watcher = watcher
 
-    def watch(self, filepath, func=None):
+    def watch(self, filepath, func=None, delay=None):
         """Add the given filepath for watcher list.
 
         Once you have intialized a server, watch file changes before
@@ -165,11 +165,12 @@ class Server(object):
         :param func: the function to be called, it can be a string of
                      shell command, or any callable object without
                      parameters
+        :param delay: delay a certain seconds to send the reload message
         """
         if isinstance(func, text_types):
             func = shell(func)
 
-        self.watcher.watch(filepath, func)
+        self.watcher.watch(filepath, func, delay)
 
     def application(self, debug=True):
         LiveReloadHandler.watcher = self.watcher
@@ -190,7 +191,8 @@ class Server(object):
             )
         return Application(handlers=handlers, debug=debug)
 
-    def serve(self, port=None, host=None, root=None, debug=True, open_url=False):
+    def serve(self, port=None, host=None, root=None, debug=True,
+              open_url=False):
         """Start serve the server with the given port.
 
         :param port: serve on this port, default is 5500
