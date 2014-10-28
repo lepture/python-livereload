@@ -79,7 +79,7 @@ server.watch
 ``server.watch`` can watch a filepath, a directory and a glob pattern::
 
     server.watch('path/to/file.txt')
-    server.watch('directory/path/')
+    server.watch('directory/path/', delay=5)
     server.watch('glob/*.pattern')
 
 You can also use other library (for example: formic) for more powerful

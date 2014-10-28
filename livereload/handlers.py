@@ -46,7 +46,7 @@ class LiveReloadHandler(WebSocketHandler):
             logging.error('Error sending message', exc_info=True)
 
     def poll_tasks(self):
-        filepath = self.watcher.examine()
+        filepath = self.watcher.examine(ioloop.IOLoop.current())
         if not filepath:
             return
         logging.info('File %s changed', filepath)

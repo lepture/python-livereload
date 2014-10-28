@@ -28,25 +28,37 @@ class Watcher(object):
         _, ext = os.path.splitext(filename)
         return ext in ['.pyc', '.pyo', '.o', '.swp']
 
-    def watch(self, path, func=None):
-        """Add a task to watcher."""
-        self._tasks[path] = func
+    def watch(self, path, func=None, delay=None):
+        """Add a task to watcher.
+
+        :param path: a filepath or directory path or glob pattern
+        :param func: the function to be executed when file changed
+        :param delay: delay the execution at a certain seconds
+        """
+        self._tasks[path] = (func, delay)
 
     def start(self, callback):
-        """Start the watcher running, calling callback when changes are observed. If this returns False,
-        regular polling will be used."""
+        """Start the watcher running, calling callback when changes are
+        observed. If this returns False, regular polling will be used."""
         return False
 
-    def examine(self):
+    def examine(self, ioloop=None):
         """Check if there are changes, if true, run the given task."""
         # clean filepath
         self.filepath = None
         for path in self._tasks:
             if self.is_changed(path):
-                func = self._tasks[path]
-                # run function
-                func and func()
+                func, delay = self._tasks[path]
+                self.run_task(func, delay, ioloop)
         return self.filepath
+
+    def run_task(func, delay=None, ioloop=None):
+        if not func:
+            return
+        if delay and ioloop:
+            ioloop.call_later(delay, func)
+        else:
+            func()
 
     def is_changed(self, path):
         if os.path.isfile(path):
