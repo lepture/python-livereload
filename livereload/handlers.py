@@ -47,7 +47,7 @@ class LiveReloadHandler(WebSocketHandler):
 
     def poll_tasks(self):
         filepath, delay = self.watcher.examine()
-        if not filepath:
+        if not filepath or delay == 'forever':
             return
         reload_time = 3
 
