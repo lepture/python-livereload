@@ -46,19 +46,23 @@ class LiveReloadHandler(WebSocketHandler):
             logging.error('Error sending message', exc_info=True)
 
     def poll_tasks(self):
-        filepath = self.watcher.examine(ioloop.IOLoop.current())
+        filepath, delay = self.watcher.examine()
         if not filepath:
             return
         logging.info('File %s changed', filepath)
-        self.watch_tasks()
 
-    def watch_tasks(self):
         if time.time() - self._last_reload_time < 3:
             # if you changed lot of files in one time
             # it will refresh too many times
             logging.info('ignore this reload action')
             return
+        if delay:
+            loop = ioloop.IOLoop.current()
+            loop.call_later(delay, self.watch_tasks)
+        else:
+            self.watch_tasks()
 
+    def watch_tasks(self):
         logging.info('Reload %s waiters', len(self.waiters))
 
         msg = {

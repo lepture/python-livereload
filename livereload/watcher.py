@@ -28,7 +28,7 @@ class Watcher(object):
         _, ext = os.path.splitext(filename)
         return ext in ['.pyc', '.pyo', '.o', '.swp']
 
-    def watch(self, path, func=None, delay=None):
+    def watch(self, path, func=None, delay=0):
         """Add a task to watcher.
 
         :param path: a filepath or directory path or glob pattern
@@ -42,23 +42,17 @@ class Watcher(object):
         observed. If this returns False, regular polling will be used."""
         return False
 
-    def examine(self, ioloop=None):
+    def examine(self):
         """Check if there are changes, if true, run the given task."""
         # clean filepath
         self.filepath = None
+        delays = set()
         for path in self._tasks:
             if self.is_changed(path):
                 func, delay = self._tasks[path]
-                self.run_task(func, delay, ioloop)
-        return self.filepath
-
-    def run_task(func, delay=None, ioloop=None):
-        if not func:
-            return
-        if delay and ioloop:
-            ioloop.call_later(delay, func)
-        else:
-            func()
+                func and func()
+                delays.add(delay)
+        return self.filepath, max(delays)
 
     def is_changed(self, path):
         if os.path.isfile(path):
