@@ -3,6 +3,16 @@ Changelog
 
 The full list of changes between each Python LiveReload release.
 
+Version 2.3.0
+-------------
+
+Released on Oct 28, 2014
+
+1. Add '--host' argument to CLI
+2. Autoreload when python code changed
+3. Add delay parameter to watcher
+
+
 Version 2.2.2
 -------------
 
