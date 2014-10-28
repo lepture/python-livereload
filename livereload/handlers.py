@@ -161,7 +161,7 @@ class StaticHandler(RequestHandler):
         url = url.lstrip('/')
         url = os.path.join(self._root, url)
 
-        if url.endswith('/'):
+        if url.endswith('/') or url.endswith(os.sep):
             url += 'index.html'
         elif not os.path.exists(url) and not url.endswith('.html'):
             url += '.html'
