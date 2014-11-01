@@ -3,6 +3,15 @@ Changelog
 
 The full list of changes between each Python LiveReload release.
 
+Version 2.3.1
+-------------
+
+Released on Nov 1, 2014
+
+1. Add ``cwd`` parameter for ``shell``
+2. When ``delay`` is ``forever``, it will not trigger a livereload
+3. Support different ports for app and livereload.
+
 Version 2.3.0
 -------------
 
