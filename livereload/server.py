@@ -22,7 +22,7 @@ from tornado.web import Application, FallbackHandler
 from .handlers import LiveReloadHandler, LiveReloadJSHandler
 from .handlers import ForceReloadHandler, StaticHandler
 from .watcher import Watcher
-from ._compat import text_types
+from ._compat import text_types, PY3
 from tornado.log import enable_pretty_logging
 enable_pretty_logging()
 
@@ -66,9 +66,10 @@ def shell(command, output=None, mode='w', cwd=None):
             logging.error(stderr)
             return stderr
         #: stdout is bytes, decode for python3
-        code = stdout.decode()
+        if PY3:
+            stdout = stdout.decode()
         with open(output, mode) as f:
-            f.write(code)
+            f.write(stdout)
 
     return run_shell
 
