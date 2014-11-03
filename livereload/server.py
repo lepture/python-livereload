@@ -221,6 +221,8 @@ class Server(object):
         """
         if host is None:
             host = ''
+        if root is not None:
+            self.root = root
 
         self.application(port, host, liveport=liveport, debug=debug)
         logging.getLogger().setLevel(logging.INFO)
