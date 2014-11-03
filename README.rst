@@ -79,7 +79,7 @@ server.watch
 ``server.watch`` can watch a filepath, a directory and a glob pattern::
 
     server.watch('path/to/file.txt')
-    server.watch('directory/path/', delay=5)
+    server.watch('directory/path/')
     server.watch('glob/*.pattern')
 
 You can also use other library (for example: formic) for more powerful
@@ -87,3 +87,39 @@ file adding::
 
     for filepath in formic.FileSet(include="**.css"):
         server.watch(filepath, 'make css')
+
+You can delay a certain seconds to send the reload signal::
+
+    # delay 2 seconds for reloading
+    server.watch('path/to/file', delay=2)
+
+
+server.serve
+~~~~~~~~~~~~
+
+Setup a server with ``server.serve`` method. It can create a static server
+and a livereload server::
+
+    # use default settings
+    server.serve()
+
+    # livereload on another port
+    server.serve(liveport=35729)
+
+    # use custom host and port
+    server.serve(port=8080, host='localhost')
+
+
+shell
+~~~~~
+
+The powerful ``shell`` function will help you to execute shell commands. You
+can use it with ``server.watch``::
+
+    server.watch('style.less', shell('lessc style.less', output='style.css'))
+
+    # commands can be a list
+    server.watch('style.less', shell(['lessc', 'style.less'], output='style.css'))
+
+    # working with Makefile
+    server.watch('assets/*.styl', shell('make assets', cwd='assets'))
