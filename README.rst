@@ -123,3 +123,61 @@ can use it with ``server.watch``::
 
     # working with Makefile
     server.watch('assets/*.styl', shell('make assets', cwd='assets'))
+
+
+Frameworks Integration
+----------------------
+
+Livereload can work seamlessly with your favorite framework.
+
+Django
+~~~~~~
+
+Here is a little hint on Django. Change your ``manage.py`` file to::
+
+    #!/usr/bin/env python
+    import os
+    import sys
+
+    if __name__ == "__main__":
+        os.environ.setdefault("DJANGO_SETTINGS_MODULE", "hello.settings")
+
+        from django.core.management import execute_from_command_line
+
+        if 'livereload' in sys.argv:
+            from django.core.wsgi import get_wsgi_application
+            from livereload import Server
+            application = get_wsgi_application()
+            server = Server(application)
+
+            # Add your watch
+            # server.watch('path/to/file', 'your command')
+            server.serve()
+        else:
+            execute_from_command_line(sys.argv)
+
+When you execute ``./manage.py livereload``, it will start a livereload server.
+
+
+Flask
+~~~~~
+
+Wrap Flask with livereload is much simpler::
+
+    # app is a Flask object
+    app = create_app()
+
+    server = Server(app.wsgi_app)
+    # server.watch
+    server.serve()
+
+
+Bottle
+~~~~~~
+
+Wrap the ``Bottle`` app with livereload server::
+
+    app = Bottle()
+    server = Server(app)
+    # server.watch
+    server.serve()
