@@ -3,6 +3,15 @@ Changelog
 
 The full list of changes between each Python LiveReload release.
 
+Version 2.3.2
+-------------
+
+1. Fix root parameter in ``serve`` method via `#76`_.
+2. Fix shell unicode stdout error.
+3. More useful documentation.
+
+.. _`#76`: https://github.com/lepture/python-livereload/issues/76
+
 Version 2.3.1
 -------------
 
