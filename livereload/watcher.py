@@ -126,7 +126,7 @@ class INotifyWatcher(Watcher):
         self.notifier = None
         self.callback = None
 
-    def watch(self, path, func=None):
+    def watch(self, path, func=None, delay=None):
         import pyinotify
         flag = pyinotify.IN_CREATE | pyinotify.IN_DELETE | pyinotify.IN_MODIFY
         self.wm.add_watch(path, flag, rec=True, do_glob=True, auto_add=True)
