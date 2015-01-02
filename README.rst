@@ -87,3 +87,97 @@ file adding::
 
     for filepath in formic.FileSet(include="**.css"):
         server.watch(filepath, 'make css')
+
+You can delay a certain seconds to send the reload signal::
+
+    # delay 2 seconds for reloading
+    server.watch('path/to/file', delay=2)
+
+
+server.serve
+~~~~~~~~~~~~
+
+Setup a server with ``server.serve`` method. It can create a static server
+and a livereload server::
+
+    # use default settings
+    server.serve()
+
+    # livereload on another port
+    server.serve(liveport=35729)
+
+    # use custom host and port
+    server.serve(port=8080, host='localhost')
+
+
+shell
+~~~~~
+
+The powerful ``shell`` function will help you to execute shell commands. You
+can use it with ``server.watch``::
+
+    server.watch('style.less', shell('lessc style.less', output='style.css'))
+
+    # commands can be a list
+    server.watch('style.less', shell(['lessc', 'style.less'], output='style.css'))
+
+    # working with Makefile
+    server.watch('assets/*.styl', shell('make assets', cwd='assets'))
+
+
+Frameworks Integration
+----------------------
+
+Livereload can work seamlessly with your favorite framework.
+
+Django
+~~~~~~
+
+Here is a little hint on Django. Change your ``manage.py`` file to::
+
+    #!/usr/bin/env python
+    import os
+    import sys
+
+    if __name__ == "__main__":
+        os.environ.setdefault("DJANGO_SETTINGS_MODULE", "hello.settings")
+
+        from django.core.management import execute_from_command_line
+
+        if 'livereload' in sys.argv:
+            from django.core.wsgi import get_wsgi_application
+            from livereload import Server
+            application = get_wsgi_application()
+            server = Server(application)
+
+            # Add your watch
+            # server.watch('path/to/file', 'your command')
+            server.serve()
+        else:
+            execute_from_command_line(sys.argv)
+
+When you execute ``./manage.py livereload``, it will start a livereload server.
+
+
+Flask
+~~~~~
+
+Wrap Flask with livereload is much simpler::
+
+    # app is a Flask object
+    app = create_app()
+
+    server = Server(app.wsgi_app)
+    # server.watch
+    server.serve()
+
+
+Bottle
+~~~~~~
+
+Wrap the ``Bottle`` app with livereload server::
+
+    app = Bottle()
+    server = Server(app)
+    # server.watch
+    server.serve()

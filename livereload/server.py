@@ -22,19 +22,21 @@ from tornado.web import Application, FallbackHandler
 from .handlers import LiveReloadHandler, LiveReloadJSHandler
 from .handlers import ForceReloadHandler, StaticHandler
 from .watcher import Watcher
-from ._compat import text_types
+from ._compat import text_types, PY3
 from tornado.log import enable_pretty_logging
 enable_pretty_logging()
 
 
-def shell(command, output=None, mode='w'):
+def shell(command, output=None, mode='w', cwd=None):
     """Command shell command.
 
     You can add a shell command::
 
-        server.watch('style.less', shell('lessc style.less', output='style.css'))
+        server.watch(
+            'style.less', shell('lessc style.less', output='style.css')
+        )
 
-    :param command: a shell command
+    :param command: a shell command, string or list
     :param output: output stdout to the given file
     :param mode: only works with output, mode ``w`` means write,
                  mode ``a`` means append
@@ -46,11 +48,14 @@ def shell(command, output=None, mode='w'):
         if folder and not os.path.isdir(folder):
             os.makedirs(folder)
 
-    cmd = command.split()
+    if isinstance(command, (list, tuple)):
+        cmd = command
+    else:
+        cmd = command.split()
 
     def run_shell():
         try:
-            p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+            p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE, cwd=cwd)
         except OSError as e:
             logging.error(e)
             if e.errno == os.errno.ENOENT:  # file (command) not found
@@ -61,9 +66,10 @@ def shell(command, output=None, mode='w'):
             logging.error(stderr)
             return stderr
         #: stdout is bytes, decode for python3
-        code = stdout.decode()
+        if PY3:
+            stdout = stdout.decode()
         with open(output, mode) as f:
-            f.write(code)
+            f.write(stdout)
 
     return run_shell
 
@@ -137,13 +143,12 @@ class Server(object):
     """
     def __init__(self, app=None, watcher=None):
         self.app = app
-        self.port = 5500
         self.root = None
         if not watcher:
             watcher = Watcher()
         self.watcher = watcher
 
-    def watch(self, filepath, func=None):
+    def watch(self, filepath, func=None, delay=None):
         """Add the given filepath for watcher list.
 
         Once you have intialized a server, watch file changes before
@@ -160,60 +165,80 @@ class Server(object):
         :param func: the function to be called, it can be a string of
                      shell command, or any callable object without
                      parameters
+        :param delay: delay a certain seconds to send the reload message
         """
         if isinstance(func, text_types):
             func = shell(func)
 
-        self.watcher.watch(filepath, func)
+        self.watcher.watch(filepath, func, delay)
 
-    def application(self, debug=True):
+    def application(self, port, host, liveport=None, debug=True):
         LiveReloadHandler.watcher = self.watcher
-        handlers = [
+
+        if liveport is None:
+            liveport = port
+
+        live_handlers = [
             (r'/livereload', LiveReloadHandler),
             (r'/forcereload', ForceReloadHandler),
-            (r'/livereload.js', LiveReloadJSHandler, dict(port=self.port)),
+        ]
+
+        web_handlers = [
+            (r'/livereload.js', LiveReloadJSHandler, dict(port=liveport)),
         ]
 
         if self.app:
             self.app = WSGIWrapper(self.app)
-            handlers.append(
+            web_handlers.append(
                 (r'.*', FallbackHandler, dict(fallback=self.app))
             )
         else:
-            handlers.append(
+            web_handlers.append(
                 (r'(.*)', StaticHandler, dict(root=self.root or '.')),
             )
-        return Application(handlers=handlers, debug=debug)
 
-    def serve(self, port=None, host=None, root=None, debug=True, open_url=False):
+        if liveport == port:
+            handlers = []
+            handlers.extend(live_handlers)
+            handlers.extend(web_handlers)
+            web = Application(handlers=handlers, debug=debug)
+            return web.listen(port, address=host)
+
+        web = Application(handlers=web_handlers, debug=debug)
+        web.listen(port, address=host)
+        live = Application(handlers=live_handlers, debug=False)
+        live.listen(liveport, address=host)
+
+    def serve(self, port=5500, liveport=None, host=None, root=None, debug=True,
+              open_url=False, restart_delay=2):
         """Start serve the server with the given port.
 
         :param port: serve on this port, default is 5500
+        :param liveport: live reload on this port
         :param host: serve on this hostname, default is 0.0.0.0
         :param root: serve static on this root directory
         :param open_url: open system browser
         """
-        if root:
-            self.root = root
-        if port:
-            self.port = port
         if host is None:
             host = ''
+        if root is not None:
+            self.root = root
 
-        self.application(debug=debug).listen(self.port, address=host)
+        self.application(port, host, liveport=liveport, debug=debug)
         logging.getLogger().setLevel(logging.INFO)
 
-        host = host or '127.0.0.1'
-        print('Serving on %s:%s' % (host, self.port))
+        host = host or '0.0.0.0'
+        print('Serving on http://%s:%s' % (host, port))
 
         # Async open web browser after 5 sec timeout
         if open_url:
             def opener():
                 time.sleep(5)
-                webbrowser.open('http://%s:%s' % (host, self.port))
+                webbrowser.open('http://%s:%s' % (host, port))
             threading.Thread(target=opener).start()
 
         try:
+            self.watcher._changes.append(('__livereload__', restart_delay))
             IOLoop.instance().start()
         except KeyboardInterrupt:
             print('Shutting down...')

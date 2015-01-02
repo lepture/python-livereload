@@ -3,13 +3,69 @@ Changelog
 
 The full list of changes between each Python LiveReload release.
 
+Version 2.3.2
+-------------
+
+1. Fix root parameter in ``serve`` method via `#76`_.
+2. Fix shell unicode stdout error.
+3. More useful documentation.
+
+.. _`#76`: https://github.com/lepture/python-livereload/issues/76
+
+Version 2.3.1
+-------------
+
+Released on Nov 1, 2014
+
+1. Add ``cwd`` parameter for ``shell``
+2. When ``delay`` is ``forever``, it will not trigger a livereload
+3. Support different ports for app and livereload.
+
+Version 2.3.0
+-------------
+
+Released on Oct 28, 2014
+
+1. Add '--host' argument to CLI
+2. Autoreload when python code changed
+3. Add delay parameter to watcher
+
+
+Version 2.2.2
+-------------
+
+Released on Sep 10, 2014
+
+Fix for tornado 4.
+
+
+Version 2.2.1
+-------------
+
+Released on Jul 10, 2014
+
+Fix for Python 3.x
+
+
+Version 2.2.0
+-------------
+
+Released on Mar 15, 2014
+
++ Add bin/livereload
++ Add inotify support
+
 Version 2.1.0
 -------------
+
+Released on Jan 26, 2014
 
 Add ForceReloadHandler.
 
 Version 2.0.0
 -------------
+
+Released on  Dec 30, 2013
 
 A new designed livereload server which has the power to serve a wsgi
 application.
@@ -26,7 +82,7 @@ Release on Aug 19th, 2013
 Version 1.0.0
 -------------
 
-Release on May 9th, 2013
+Released on May 9th, 2013
 
 + Redesign the compiler
 + Various bugfix

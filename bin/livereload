@@ -9,6 +9,12 @@ def main():
     # Parse our arguments
     parser = argparse.ArgumentParser(description='Start a `livereload` server')
     parser.add_argument(
+        '--host',
+        help='Hostname to run `livereload` server on',
+        type=str,
+        default='127.0.0.1'
+    )
+    parser.add_argument(
         '-p', '--port',
         help='Port to run `livereload` server on',
         type=int,
@@ -25,7 +31,8 @@ def main():
 
     # Create a new application
     server = Server()
-    server.serve(port=args.port, root=args.directory)
+    server.watcher.watch(args.directory)
+    server.serve(host=args.host, port=args.port, root=args.directory)
 
 if __name__ == '__main__':
     main()

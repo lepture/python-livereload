@@ -29,6 +29,9 @@ class LiveReloadHandler(WebSocketHandler):
     def allow_draft76(self):
         return True
 
+    def check_origin(self, origin):
+        return True
+
     def on_close(self):
         if self in LiveReloadHandler.waiters:
             LiveReloadHandler.waiters.remove(self)
@@ -43,20 +46,33 @@ class LiveReloadHandler(WebSocketHandler):
             logging.error('Error sending message', exc_info=True)
 
     def poll_tasks(self):
-        filepath = self.watcher.examine()
-        if not filepath:
+        filepath, delay = self.watcher.examine()
+        if not filepath or delay == 'forever':
             return
-        logging.info('File %s changed', filepath)
-        self.watch_tasks()
+        reload_time = 3
 
-    def watch_tasks(self):
-        if time.time() - self._last_reload_time < 3:
+        if delay:
+            reload_time = max(3 - delay, 1)
+        if filepath == '__livereload__':
+            reload_time = 0
+
+        if time.time() - self._last_reload_time < reload_time:
             # if you changed lot of files in one time
             # it will refresh too many times
-            logging.info('ignore this reload action')
+            logging.info('Ignore: %s', filepath)
             return
+        if delay:
+            loop = ioloop.IOLoop.current()
+            loop.call_later(delay, self.watch_tasks)
+        else:
+            self.watch_tasks()
 
-        logging.info('Reload %s waiters', len(self.waiters))
+    def watch_tasks(self):
+        logging.info(
+            'Reload %s waiters: %s',
+            len(self.waiters),
+            self.watcher.filepath,
+        )
 
         msg = {
             'command': 'reload',
@@ -78,8 +94,6 @@ class LiveReloadHandler(WebSocketHandler):
         1. client send 'hello'
         2. server reply 'hello'
         3. client send 'info'
-
-        http://feedback.livereload.com/knowledgebase/articles/86174-livereload-protocol
         """
         message = ObjectDict(escape.json_decode(message))
         if message.command == 'hello':
@@ -87,10 +101,6 @@ class LiveReloadHandler(WebSocketHandler):
             handshake['command'] = 'hello'
             handshake['protocols'] = [
                 'http://livereload.com/protocols/official-7',
-                'http://livereload.com/protocols/official-8',
-                'http://livereload.com/protocols/official-9',
-                'http://livereload.com/protocols/2.x-origin-version-negotiation',
-                'http://livereload.com/protocols/2.x-remote-control'
             ]
             handshake['serverName'] = 'livereload-tornado'
             self.send_message(handshake)
@@ -151,7 +161,7 @@ class StaticHandler(RequestHandler):
         url = url.lstrip('/')
         url = os.path.join(self._root, url)
 
-        if url.endswith(os.sep) or url.endswith('/'):
+        if url.endswith('/') or url.endswith(os.sep):
             url += 'index.html'
         elif not os.path.exists(url) and not url.endswith('.html'):
             url += '.html'
