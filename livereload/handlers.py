@@ -196,10 +196,8 @@ class StaticHandler(RequestHandler):
             data = f.read()
 
         if mime_type.startswith('text'):
-            detected_result = chardet.detect(data)
-            if detected_result:
-                encoding = detected_result['encoding']
-            else:
+            encoding = chardet.detect(data)['encoding']
+            if not encoding:
                 encoding = locale.getpreferredencoding(False)
             data = data.decode(encoding)
 
