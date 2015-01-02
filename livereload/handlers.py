@@ -187,7 +187,7 @@ class StaticHandler(RequestHandler):
 
         mime_type, _ = mimetypes.guess_type(filepath)
         if not mime_type:
-            mime_type = 'text/html'
+            mime_type = 'application/octet-stream'
 
         self.mime_type = mime_type
         self.set_header('Content-Type', mime_type)
