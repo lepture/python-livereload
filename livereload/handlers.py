@@ -190,12 +190,8 @@ class StaticHandler(RequestHandler):
         self.mime_type = mime_type
         self.set_header('Content-Type', mime_type)
 
-        if mime_type.startswith('text'):
-            with open(filepath, 'r') as f:
-                data = f.read()
-        else:
-            with open(filepath, 'rb') as f:
-                data = f.read()
+        with open(filepath, 'rb') as f:
+            data = f.read()
 
         hasher = hashlib.sha1()
         hasher.update(to_bytes(data))
