@@ -27,8 +27,8 @@ from tornado.log import enable_pretty_logging
 enable_pretty_logging()
 
 
-def shell(command, output=None, mode='w', cwd=None, shell=False):
-    """Command shell command.
+def shell(cmd, output=None, mode='w', cwd=None, shell=False):
+    """Execute a shell command.
 
     You can add a shell command::
 
@@ -36,7 +36,7 @@ def shell(command, output=None, mode='w', cwd=None, shell=False):
             'style.less', shell('lessc style.less', output='style.css')
         )
 
-    :param command: a shell command, string or list
+    :param cmd: a shell command, string or list
     :param output: output stdout to the given file
     :param mode: only works with output, mode ``w`` means write,
                  mode ``a`` means append
@@ -51,10 +51,8 @@ def shell(command, output=None, mode='w', cwd=None, shell=False):
         if folder and not os.path.isdir(folder):
             os.makedirs(folder)
 
-    if isinstance(command, (list, tuple)):
-        cmd = command
-    else:
-        cmd = command.split()
+    if not isinstance(cmd, (list, tuple)) and not shell:
+        cmd = cmd.split()
 
     def run_shell():
         try:
