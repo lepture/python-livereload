@@ -27,7 +27,7 @@ from tornado.log import enable_pretty_logging
 enable_pretty_logging()
 
 
-def shell(command, output=None, mode='w', cwd=None):
+def shell(command, output=None, mode='w', cwd=None, shell=False):
     """Command shell command.
 
     You can add a shell command::
@@ -40,6 +40,9 @@ def shell(command, output=None, mode='w', cwd=None):
     :param output: output stdout to the given file
     :param mode: only works with output, mode ``w`` means write,
                  mode ``a`` means append
+    :param cwd: set working directory before command is executed.
+    :param shell: if true, on Unix the executable argument specifies a
+                  replacement shell for the default ``/bin/sh``.
     """
     if not output:
         output = os.devnull
@@ -55,7 +58,8 @@ def shell(command, output=None, mode='w', cwd=None):
 
     def run_shell():
         try:
-            p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE, cwd=cwd)
+            p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE, cwd=cwd,
+                      shell=shell)
         except OSError as e:
             logging.error(e)
             if e.errno == os.errno.ENOENT:  # file (command) not found
