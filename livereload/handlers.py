@@ -11,8 +11,10 @@
 import os
 import time
 import hashlib
+import locale
 import logging
 import mimetypes
+import chardet
 from tornado import ioloop
 from tornado import escape
 from tornado.websocket import WebSocketHandler
@@ -183,19 +185,21 @@ class StaticHandler(RequestHandler):
                 return
             return self.send_error(404)
 
-        mime_type, encoding = mimetypes.guess_type(filepath)
+        mime_type, _ = mimetypes.guess_type(filepath)
         if not mime_type:
-            mime_type = 'text/html'
+            mime_type = 'application/octet-stream'
 
         self.mime_type = mime_type
         self.set_header('Content-Type', mime_type)
 
+        with open(filepath, 'rb') as f:
+            data = f.read()
+
         if mime_type.startswith('text'):
-            with open(filepath, 'r') as f:
-                data = f.read()
-        else:
-            with open(filepath, 'rb') as f:
-                data = f.read()
+            encoding = chardet.detect(data)['encoding']
+            if not encoding:
+                encoding = locale.getpreferredencoding(False)
+            data = data.decode(encoding)
 
         hasher = hashlib.sha1()
         hasher.update(to_bytes(data))

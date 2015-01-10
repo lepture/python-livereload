@@ -30,6 +30,7 @@ setup(
         'bin/livereload',
     ],
     install_requires=[
+        'chardet',
         'tornado',
     ],
     license='BSD',
