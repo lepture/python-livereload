@@ -129,22 +129,12 @@ class WSGIWrapper(WSGIContainer):
         self._log(status_code, request)
 
 
-class Server(object):
-    """Livereload server interface.
+class BaseServer(object):
+    """Livreload server base class
 
-    Initialize a server and watch file changes::
-
-        server = Server(wsgi_app)
-        server.serve()
-
-    :param app: a wsgi application instance
-    :param watcher: A Watcher instance, you don't have to initialize
-                    it by yourself. Under Linux, you will want to install
-                    pyinotify and use INotifyWatcher() to avoid wasted
-                    CPU usage.
+    subclass and override get_web_handlers
     """
-    def __init__(self, app=None, watcher=None):
-        self.app = app
+    def __init__(self, watcher=None):
         self.root = None
         if not watcher:
             watcher = Watcher()
@@ -173,17 +163,6 @@ class Server(object):
             func = shell(func)
 
         self.watcher.watch(filepath, func, delay)
-
-    def get_web_handlers(self):
-
-        if self.app:
-            return [
-                (r'.*', FallbackHandler, {'fallback': WSGIWrapper(self.app)})
-            ]
-        else:
-            return [
-                (r'(.*)', StaticHandler, {'root': self.root or '.'}),
-            ]
 
     def application(self, port, host, liveport=None, debug=True):
         LiveReloadHandler.watcher = self.watcher
@@ -244,3 +223,38 @@ class Server(object):
             IOLoop.instance().start()
         except KeyboardInterrupt:
             print('Shutting down...')
+
+    def get_web_handlers(self):
+        raise NotImplementedError
+
+
+class Server(BaseServer):
+    """Livereload server interface.
+
+    Initialize a server and watch file changes::
+
+        server = Server(wsgi_app)
+        server.serve()
+
+    :param app: a wsgi application instance
+    :param watcher: A Watcher instance, you don't have to initialize
+                    it by yourself. Under Linux, you will want to install
+                    pyinotify and use INotifyWatcher() to avoid wasted
+                    CPU usage.
+    """
+    def __init__(self, app=None, watcher=None):
+        self.app = app
+        super(Server, self).__init__(watcher=watcher)
+
+    def get_web_handlers(self):
+
+        if self.app:
+            return [
+                (r'.*', FallbackHandler, {'fallback': WSGIWrapper(self.app)})
+            ]
+        else:
+            return [
+                (r'(.*)', StaticHandler, {'root': self.root or '.'}),
+            ]
+
+
