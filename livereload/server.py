@@ -174,9 +174,19 @@ class Server(object):
 
         self.watcher.watch(filepath, func, delay)
 
+    def get_web_handlers(self):
+
+        if self.app:
+            return [
+                (r'.*', FallbackHandler, {'fallback': WSGIWrapper(self.app)})
+            ]
+        else:
+            return [
+                (r'(.*)', StaticHandler, {'root': self.root or '.'}),
+            ]
+
     def application(self, port, host, liveport=None, debug=True):
         LiveReloadHandler.watcher = self.watcher
-
         if liveport is None:
             liveport = port
 
@@ -186,30 +196,20 @@ class Server(object):
         ]
 
         web_handlers = [
-            (r'/livereload.js', LiveReloadJSHandler, dict(port=liveport)),
-        ]
-
-        if self.app:
-            self.app = WSGIWrapper(self.app)
-            web_handlers.append(
-                (r'.*', FallbackHandler, dict(fallback=self.app))
-            )
-        else:
-            web_handlers.append(
-                (r'(.*)', StaticHandler, dict(root=self.root or '.')),
-            )
+            (r'/livereload.js', LiveReloadJSHandler, {'port': liveport}),
+        ] + self.get_web_handlers()
 
         if liveport == port:
             handlers = []
             handlers.extend(live_handlers)
             handlers.extend(web_handlers)
             web = Application(handlers=handlers, debug=debug)
-            return web.listen(port, address=host)
-
-        web = Application(handlers=web_handlers, debug=debug)
-        web.listen(port, address=host)
-        live = Application(handlers=live_handlers, debug=False)
-        live.listen(liveport, address=host)
+            web.listen(port, address=host)
+        else:
+            web = Application(handlers=web_handlers, debug=debug)
+            web.listen(port, address=host)
+            live = Application(handlers=live_handlers, debug=False)
+            live.listen(liveport, address=host)
 
     def serve(self, port=5500, liveport=None, host=None, root=None, debug=True,
               open_url=False, restart_delay=2):
