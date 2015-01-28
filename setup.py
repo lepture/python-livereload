@@ -26,9 +26,11 @@ setup(
     packages=['livereload'],
     description='Python LiveReload is an awesome tool for web developers',
     long_description=fread('README.rst'),
-    scripts=[
-        'bin/livereload',
-    ],
+    entry_points={
+        'console_scripts': [
+            'livereload = livereload.cli:main',
+        ]
+    },
     install_requires=[
         'tornado',
     ],
