@@ -13,12 +13,14 @@ import time
 import hashlib
 import logging
 import mimetypes
+from pkg_resources import resource_string
 from tornado import ioloop
 from tornado import escape
 from tornado.websocket import WebSocketHandler
 from tornado.web import RequestHandler
 from tornado.util import ObjectDict
 from ._compat import to_bytes
+
 
 
 class LiveReloadHandler(WebSocketHandler):
@@ -97,12 +99,13 @@ class LiveReloadHandler(WebSocketHandler):
         """
         message = ObjectDict(escape.json_decode(message))
         if message.command == 'hello':
-            handshake = {}
-            handshake['command'] = 'hello'
-            handshake['protocols'] = [
-                'http://livereload.com/protocols/official-7',
-            ]
-            handshake['serverName'] = 'livereload-tornado'
+            handshake = {
+                'command': 'hello',
+                'protocols': [
+                    'http://livereload.com/protocols/official-7',
+                ],
+                'serverName': 'livereload-tornado',
+            }
             self.send_message(handshake)
 
         if message.command == 'info' and 'url' in message:
@@ -121,18 +124,10 @@ class LiveReloadHandler(WebSocketHandler):
 
 
 class LiveReloadJSHandler(RequestHandler):
-    def initialize(self, port):
-        self._port = port
 
     def get(self):
-        js = os.path.join(
-            os.path.abspath(os.path.dirname(__file__)), 'livereload.js',
-        )
         self.set_header('Content-Type', 'application/javascript')
-        with open(js, 'r') as f:
-            content = f.read()
-            content = content.replace('{{port}}', str(self._port))
-            self.write(content)
+        self.write(resource_string(__name__, 'livereload.js'))
 
 
 class ForceReloadHandler(RequestHandler):
@@ -190,12 +185,8 @@ class StaticHandler(RequestHandler):
         self.mime_type = mime_type
         self.set_header('Content-Type', mime_type)
 
-        if mime_type.startswith('text'):
-            with open(filepath, 'r') as f:
-                data = f.read()
-        else:
-            with open(filepath, 'rb') as f:
-                data = f.read()
+        with open(filepath, 'rb') as f:
+            data = f.read()
 
         hasher = hashlib.sha1()
         hasher.update(to_bytes(data))
@@ -204,8 +195,8 @@ class StaticHandler(RequestHandler):
         ua = self.request.headers.get('User-Agent', 'bot').lower()
         if mime_type == 'text/html' and 'msie' not in ua:
             data = data.replace(
-                '</head>',
-                '<script src="/livereload.js"></script></head>'
+                b'</head>',
+                b'<script src="/livereload.js"></script></head>'
             )
         self.write(data)
 
