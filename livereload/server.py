@@ -216,11 +216,9 @@ class Server(BaseServer):
 
         if self.app:
             return [
-                (r'.*', WSGIContainer, {'fallback': WSGIWrapper(self.app)})
+                (r'.*', WSGIContainer, {'fallback': WSGIContainer(self.app)})
             ]
         else:
             return [
                 (r'(.*)', StaticHandler, {'root': self.root or '.'}),
             ]
-
-
