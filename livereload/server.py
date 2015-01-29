@@ -15,12 +15,11 @@ import time
 import threading
 import webbrowser
 
-from tornado import escape
 from tornado.wsgi import WSGIContainer
 from tornado.ioloop import IOLoop
-from tornado.web import Application, FallbackHandler, OutputTransform
+from tornado.web import Application, StaticFileHandler, OutputTransform
 from .handlers import LiveReloadHandler, LiveReloadJSHandler
-from .handlers import ForceReloadHandler, StaticHandler
+from .handlers import ForceReloadHandler
 from .watcher import Watcher
 from ._compat import text_types, PY3
 from tornado.log import enable_pretty_logging
@@ -166,15 +165,13 @@ class BaseServer(object):
         :param root: serve static on this root directory
         :param open_url: open system browser
         """
-        if host is None:
-            host = ''
+        host = host or '0.0.0.0'
         if root is not None:
             self.root = root
 
         self.application(port, host, liveport=liveport, debug=debug)
         logging.getLogger().setLevel(logging.INFO)
 
-        host = host or '0.0.0.0'
         print('Serving on http://%s:%s' % (host, port))
 
         # Async open web browser after 5 sec timeout
@@ -220,5 +217,8 @@ class Server(BaseServer):
             ]
         else:
             return [
-                (r'(.*)', StaticHandler, {'root': self.root or '.'}),
+                (r'/(.*)', StaticFileHandler, {
+                    'path': self.root or '.',
+                    'default_filename': 'index.html',
+                }),
             ]
