@@ -15,16 +15,17 @@ import time
 import threading
 import webbrowser
 
-from tornado import escape
 from tornado.wsgi import WSGIContainer
 from tornado.ioloop import IOLoop
-from tornado.web import Application, FallbackHandler
+from tornado import web
 from .handlers import LiveReloadHandler, LiveReloadJSHandler
-from .handlers import ForceReloadHandler, StaticHandler
+from .handlers import ForceReloadHandler
 from .watcher import Watcher
 from ._compat import text_types, PY3
 from tornado.log import enable_pretty_logging
 enable_pretty_logging()
+
+HEAD_END = b'</head>'
 
 
 def shell(cmd, output=None, mode='w', cwd=None, shell=False):
@@ -76,75 +77,25 @@ def shell(cmd, output=None, mode='w', cwd=None, shell=False):
     return run_shell
 
 
-class WSGIWrapper(WSGIContainer):
-    """Insert livereload scripts into response body."""
+class LiveScriptInjector(web.OutputTransform):
+    def __init__(self, request):
+        super(LiveScriptInjector, self).__init__(request)
 
-    def __call__(self, request):
-        data = {}
-        response = []
-
-        def start_response(status, response_headers, exc_info=None):
-            data["status"] = status
-            data["headers"] = response_headers
-            return response.append
-        app_response = self.wsgi_application(
-            WSGIContainer.environ(request), start_response)
-        try:
-            response.extend(app_response)
-            body = b"".join(response)
-        finally:
-            if hasattr(app_response, "close"):
-                app_response.close()
-        if not data:
-            raise Exception("WSGI app did not call start_response")
-
-        status_code = int(data["status"].split()[0])
-        headers = data["headers"]
-        header_set = set(k.lower() for (k, v) in headers)
-        body = escape.utf8(body)
-        body = body.replace(
-            b'</head>',
-            b'<script src="/livereload.js"></script></head>'
-        )
-
-        if status_code != 304:
-            if "content-length" not in header_set:
-                headers.append(("Content-Length", str(len(body))))
-            if "content-type" not in header_set:
-                headers.append(("Content-Type", "text/html; charset=UTF-8"))
-        if "server" not in header_set:
-            headers.append(("Server", "livereload-tornado"))
-
-        parts = [escape.utf8("HTTP/1.1 " + data["status"] + "\r\n")]
-        for key, value in headers:
-            if key.lower() == 'content-length':
-                value = str(len(body))
-            parts.append(
-                escape.utf8(key) + b": " + escape.utf8(value) + b"\r\n"
-            )
-        parts.append(b"\r\n")
-        parts.append(body)
-        request.write(b"".join(parts))
-        request.finish()
-        self._log(status_code, request)
+    def transform_first_chunk(self, status_code, headers, chunk, finishing):
+        if HEAD_END in chunk:
+            chunk = chunk.replace(HEAD_END, self.script + HEAD_END)
+            if 'Content-Length' in headers:
+                headers['Content-Length'] = str(
+                    int(headers['Content-Length']) + len(self.script))
+        return status_code, headers, chunk
 
 
-class Server(object):
-    """Livereload server interface.
+class BaseServer(object):
+    """Livreload server base class
 
-    Initialize a server and watch file changes::
-
-        server = Server(wsgi_app)
-        server.serve()
-
-    :param app: a wsgi application instance
-    :param watcher: A Watcher instance, you don't have to initialize
-                    it by yourself. Under Linux, you will want to install
-                    pyinotify and use INotifyWatcher() to avoid wasted
-                    CPU usage.
+    subclass and override get_web_handlers
     """
-    def __init__(self, app=None, watcher=None):
-        self.app = app
+    def __init__(self, watcher=None):
         self.root = None
         if not watcher:
             watcher = Watcher()
@@ -176,40 +127,32 @@ class Server(object):
 
     def application(self, port, host, liveport=None, debug=True):
         LiveReloadHandler.watcher = self.watcher
-
         if liveport is None:
             liveport = port
 
         live_handlers = [
             (r'/livereload', LiveReloadHandler),
             (r'/forcereload', ForceReloadHandler),
+            (r'/livereload.js', LiveReloadJSHandler)
         ]
+        web_handlers = self.get_web_handlers()
 
-        web_handlers = [
-            (r'/livereload.js', LiveReloadJSHandler, dict(port=liveport)),
-        ]
-
-        if self.app:
-            self.app = WSGIWrapper(self.app)
-            web_handlers.append(
-                (r'.*', FallbackHandler, dict(fallback=self.app))
-            )
-        else:
-            web_handlers.append(
-                (r'(.*)', StaticHandler, dict(root=self.root or '.')),
-            )
+        class ConfiguredTransform(LiveScriptInjector):
+            script = (
+                '<script src="http://{host}:{port}/livereload.js"></script>'
+            ).format(host=host, port=liveport)
 
         if liveport == port:
-            handlers = []
-            handlers.extend(live_handlers)
-            handlers.extend(web_handlers)
-            web = Application(handlers=handlers, debug=debug)
-            return web.listen(port, address=host)
-
-        web = Application(handlers=web_handlers, debug=debug)
-        web.listen(port, address=host)
-        live = Application(handlers=live_handlers, debug=False)
-        live.listen(liveport, address=host)
+            handlers = live_handlers + web_handlers
+            app = web.Application(handlers=handlers, debug=debug)
+            app.add_transform(ConfiguredTransform)
+            app.listen(port, address=host)
+        else:
+            app = web.Application(handlers=web_handlers, debug=debug)
+            app.add_transform(ConfiguredTransform)
+            app.listen(port, address=host)
+            live = web.Application(handlers=live_handlers, debug=False)
+            live.listen(liveport, address=host)
 
     def serve(self, port=5500, liveport=None, host=None, root=None, debug=True,
               open_url=False, restart_delay=2):
@@ -221,15 +164,13 @@ class Server(object):
         :param root: serve static on this root directory
         :param open_url: open system browser
         """
-        if host is None:
-            host = ''
+        host = host or '0.0.0.0'
         if root is not None:
             self.root = root
 
         self.application(port, host, liveport=liveport, debug=debug)
         logging.getLogger().setLevel(logging.INFO)
 
-        host = host or '0.0.0.0'
         print('Serving on http://%s:%s' % (host, port))
 
         # Async open web browser after 5 sec timeout
@@ -244,3 +185,40 @@ class Server(object):
             IOLoop.instance().start()
         except KeyboardInterrupt:
             print('Shutting down...')
+
+    def get_web_handlers(self):
+        raise NotImplementedError
+
+
+class Server(BaseServer):
+    """Livereload server interface.
+
+    Initialize a server and watch file changes::
+
+        server = Server(wsgi_app)
+        server.serve()
+
+    :param app: a wsgi application instance
+    :param watcher: A Watcher instance, you don't have to initialize
+                    it by yourself. Under Linux, you will want to install
+                    pyinotify and use INotifyWatcher() to avoid wasted
+                    CPU usage.
+    """
+    def __init__(self, app=None, watcher=None):
+        self.app = app
+        super(Server, self).__init__(watcher=watcher)
+
+    def get_web_handlers(self):
+
+        if self.app:
+            return [
+                (r'.*', web.FallbackHandler, {
+                    'fallback': WSGIContainer(self.app)})
+            ]
+        else:
+            return [
+                (r'/(.*)', web.StaticFileHandler, {
+                    'path': self.root or '.',
+                    'default_filename': 'index.html',
+                }),
+            ]
