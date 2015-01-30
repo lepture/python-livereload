@@ -17,7 +17,7 @@ import webbrowser
 
 from tornado.wsgi import WSGIContainer
 from tornado.ioloop import IOLoop
-from tornado.web import Application, StaticFileHandler, OutputTransform
+from tornado import web
 from .handlers import LiveReloadHandler, LiveReloadJSHandler
 from .handlers import ForceReloadHandler
 from .watcher import Watcher
@@ -77,7 +77,7 @@ def shell(cmd, output=None, mode='w', cwd=None, shell=False):
     return run_shell
 
 
-class LiveScriptInjector(OutputTransform):
+class LiveScriptInjector(web.OutputTransform):
     def __init__(self, request):
         super(LiveScriptInjector, self).__init__(request)
 
@@ -144,15 +144,14 @@ class BaseServer(object):
 
         if liveport == port:
             handlers = live_handlers + web_handlers
-            web = Application(handlers=handlers, debug=debug)
-            web.add_transform(ConfiguredTransform)
-            web.listen(port, address=host)
+            app = web.Application(handlers=handlers, debug=debug)
+            app.add_transform(ConfiguredTransform)
+            app.listen(port, address=host)
         else:
-            web = Application(handlers=web_handlers, debug=debug)
-            web.add_transform(ConfiguredTransform)
-
-            web.listen(port, address=host)
-            live = Application(handlers=live_handlers, debug=False)
+            app = web.Application(handlers=web_handlers, debug=debug)
+            app.add_transform(ConfiguredTransform)
+            app.listen(port, address=host)
+            live = web.Application(handlers=live_handlers, debug=False)
             live.listen(liveport, address=host)
 
     def serve(self, port=5500, liveport=None, host=None, root=None, debug=True,
@@ -213,11 +212,12 @@ class Server(BaseServer):
 
         if self.app:
             return [
-                (r'.*', WSGIContainer, {'fallback': WSGIContainer(self.app)})
+                (r'.*', web.FallbackHandler, {
+                    'fallback': WSGIContainer(self.app)})
             ]
         else:
             return [
-                (r'/(.*)', StaticFileHandler, {
+                (r'/(.*)', web.StaticFileHandler, {
                     'path': self.root or '.',
                     'default_filename': 'index.html',
                 }),
