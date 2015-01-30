@@ -140,7 +140,7 @@ class BaseServer(object):
         class ConfiguredTransform(LiveScriptInjector):
             script = (
                 '<script src="http://{host}:{port}/livereload.js"></script>'
-            ).format(host=host, port=liveport)
+            ).format(host=host, port=liveport).encode('ascii')
 
         if liveport == port:
             handlers = live_handlers + web_handlers

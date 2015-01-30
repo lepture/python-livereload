@@ -12,7 +12,7 @@ def fread(filepath):
 
 def version():
     content = fread('livereload/__init__.py')
-    pattern = r"__version__ = '([0-9\.]*)'"
+    pattern = r"__version__ = '([0-9\.dev]*)'"
     m = re.findall(pattern, content)
     return m[0]
 
