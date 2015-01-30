@@ -23,8 +23,8 @@ parser.add_argument(
     nargs='?'
 )
 
-def main(argv=None):
 
+def main(argv=None):
     args = parser.parse_args()
 
     # Create a new application
