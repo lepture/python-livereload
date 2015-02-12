@@ -21,7 +21,7 @@ from tornado import web
 from .handlers import LiveReloadHandler, LiveReloadJSHandler
 from .handlers import ForceReloadHandler
 from .watcher import Watcher
-from ._compat import text_types, PY3
+from six import string_types, PY3
 from tornado.log import enable_pretty_logging
 enable_pretty_logging()
 
@@ -120,7 +120,7 @@ class BaseServer(object):
                      parameters
         :param delay: delay a certain seconds to send the reload message
         """
-        if isinstance(func, text_types):
+        if isinstance(func, string_types):
             func = shell(func)
 
         self.watcher.watch(filepath, func, delay)

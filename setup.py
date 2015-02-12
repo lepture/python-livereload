@@ -33,6 +33,7 @@ setup(
     },
     install_requires=[
         'tornado',
+        'six',
     ],
     license='BSD',
     include_package_data=True,
