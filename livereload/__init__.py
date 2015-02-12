@@ -7,7 +7,7 @@
     :copyright: (c) 2013 by Hsiaoming Yang
 """
 
-__version__ = '2.3.3.dev1'
+__version__ = '2.4'
 __author__ = 'Hsiaoming Yang <me@lepture.com>'
 __homepage__ = 'https://github.com/lepture/python-livereload'
 
