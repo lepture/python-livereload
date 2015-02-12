@@ -14,6 +14,7 @@ from subprocess import Popen, PIPE
 import time
 import threading
 import webbrowser
+import shlex
 
 from tornado.wsgi import WSGIContainer
 from tornado.ioloop import IOLoop
@@ -53,7 +54,7 @@ def shell(cmd, output=None, mode='w', cwd=None, shell=False):
             os.makedirs(folder)
 
     if not isinstance(cmd, (list, tuple)) and not shell:
-        cmd = cmd.split()
+        cmd = shlex.split(cmd)
 
     def run_shell():
         try:
