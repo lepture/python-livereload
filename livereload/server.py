@@ -125,10 +125,12 @@ class BaseServer(object):
 
         self.watcher.watch(filepath, func, delay)
 
-    def application(self, port, host, liveport=None, debug=True):
+    def application(self, port, host, liveport=None, debug=None):
         LiveReloadHandler.watcher = self.watcher
         if liveport is None:
             liveport = port
+        if debug is None:
+            debug = bool(self.app)
 
         live_handlers = [
             (r'/livereload', LiveReloadHandler),
@@ -154,7 +156,7 @@ class BaseServer(object):
             live = web.Application(handlers=live_handlers, debug=False)
             live.listen(liveport, address=host)
 
-    def serve(self, port=5500, liveport=None, host=None, root=None, debug=True,
+    def serve(self, port=5500, liveport=None, host=None, root=None, debug=None,
               open_url=False, restart_delay=2):
         """Start serve the server with the given port.
 
@@ -162,6 +164,9 @@ class BaseServer(object):
         :param liveport: live reload on this port
         :param host: serve on this hostname, default is 0.0.0.0
         :param root: serve static on this root directory
+        :param debug: set debug mode, which autoreloads the app on code changes
+                      via Tornado (and causes polling). Defaults to True when
+                      ``self.app`` is set, otherwise False.
         :param open_url: open system browser
         """
         host = host or '0.0.0.0'
