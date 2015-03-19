@@ -168,10 +168,10 @@ class BaseServer(object):
         if root is not None:
             self.root = root
 
+        print('Serving on http://%s:%s' % (host, port))
+
         self.application(port, host, liveport=liveport, debug=debug)
         logging.getLogger().setLevel(logging.INFO)
-
-        print('Serving on http://%s:%s' % (host, port))
 
         # Async open web browser after 5 sec timeout
         if open_url:
