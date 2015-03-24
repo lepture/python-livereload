@@ -36,7 +36,9 @@ class Watcher(object):
 
         :param path: a filepath or directory path or glob pattern
         :param func: the function to be executed when file changed
-        :param delay: delay the execution at a certain seconds
+        :param delay: Delay sending the reload message. Use 'forever' to
+                      not send it. This is useful to compile sass files to
+                      css, but reload on changed css files then only.
         """
         self._tasks[path] = (func, delay)
 

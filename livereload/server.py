@@ -118,7 +118,9 @@ class BaseServer(object):
         :param func: the function to be called, it can be a string of
                      shell command, or any callable object without
                      parameters
-        :param delay: delay a certain seconds to send the reload message
+        :param delay: Delay sending the reload message. Use 'forever' to
+                      not send it. This is useful to compile sass files to
+                      css, but reload on changed css files then only.
         """
         if isinstance(func, text_types):
             func = shell(func)
