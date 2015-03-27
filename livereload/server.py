@@ -14,6 +14,7 @@ from subprocess import Popen, PIPE
 import time
 import threading
 import webbrowser
+import shlex
 
 from tornado.wsgi import WSGIContainer
 from tornado.ioloop import IOLoop
@@ -21,7 +22,7 @@ from tornado import web
 from .handlers import LiveReloadHandler, LiveReloadJSHandler
 from .handlers import ForceReloadHandler
 from .watcher import Watcher
-from ._compat import text_types, PY3
+from six import string_types, PY3
 from tornado.log import enable_pretty_logging
 enable_pretty_logging()
 
@@ -53,7 +54,7 @@ def shell(cmd, output=None, mode='w', cwd=None, shell=False):
             os.makedirs(folder)
 
     if not isinstance(cmd, (list, tuple)) and not shell:
-        cmd = cmd.split()
+        cmd = shlex.split(cmd)
 
     def run_shell():
         try:
@@ -122,7 +123,7 @@ class BaseServer(object):
                       not send it. This is useful to compile sass files to
                       css, but reload on changed css files then only.
         """
-        if isinstance(func, text_types):
+        if isinstance(func, string_types):
             func = shell(func)
 
         self.watcher.watch(filepath, func, delay)
@@ -142,7 +143,7 @@ class BaseServer(object):
         class ConfiguredTransform(LiveScriptInjector):
             script = (
                 '<script src="http://{host}:{port}/livereload.js"></script>'
-            ).format(host=host, port=liveport)
+            ).format(host=host, port=liveport).encode('ascii')
 
         if liveport == port:
             handlers = live_handlers + web_handlers
