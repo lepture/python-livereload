@@ -18,6 +18,7 @@ from tornado.websocket import WebSocketHandler
 from tornado.web import RequestHandler
 from tornado.util import ObjectDict
 
+logger = logging.getLogger(__name__)
 
 class LiveReloadHandler(WebSocketHandler):
     waiters = set()
@@ -41,7 +42,7 @@ class LiveReloadHandler(WebSocketHandler):
         try:
             self.write_message(message)
         except:
-            logging.error('Error sending message', exc_info=True)
+            logger.error('Error sending message', exc_info=True)
 
     def poll_tasks(self):
         filepath, delay = self.watcher.examine()
@@ -57,7 +58,7 @@ class LiveReloadHandler(WebSocketHandler):
         if time.time() - self._last_reload_time < reload_time:
             # if you changed lot of files in one time
             # it will refresh too many times
-            logging.info('Ignore: %s', filepath)
+            logger.info('Ignore: %s', filepath)
             return
         if delay:
             loop = ioloop.IOLoop.current()
@@ -66,7 +67,7 @@ class LiveReloadHandler(WebSocketHandler):
             self.watch_tasks()
 
     def watch_tasks(self):
-        logging.info(
+        logger.info(
             'Reload %s waiters: %s',
             len(self.waiters),
             self.watcher.filepath,
@@ -83,7 +84,7 @@ class LiveReloadHandler(WebSocketHandler):
             try:
                 waiter.write_message(msg)
             except:
-                logging.error('Error sending message', exc_info=True)
+                logger.error('Error sending message', exc_info=True)
                 LiveReloadHandler.waiters.remove(waiter)
 
     def on_message(self, message):
@@ -105,16 +106,16 @@ class LiveReloadHandler(WebSocketHandler):
             self.send_message(handshake)
 
         if message.command == 'info' and 'url' in message:
-            logging.info('Browser Connected: %s' % message.url)
+            logger.info('Browser Connected: %s' % message.url)
             LiveReloadHandler.waiters.add(self)
 
             if not LiveReloadHandler._last_reload_time:
                 if not self.watcher._tasks:
-                    logging.info('Watch current working directory')
+                    logger.info('Watch current working directory')
                     self.watcher.watch(os.getcwd())
 
                 LiveReloadHandler._last_reload_time = time.time()
-                logging.info('Start watching changes')
+                logger.info('Start watching changes')
                 if not self.watcher.start(self.poll_tasks):
                     ioloop.PeriodicCallback(self.poll_tasks, 800).start()
 
@@ -138,7 +139,7 @@ class ForceReloadHandler(RequestHandler):
             try:
                 waiter.write_message(msg)
             except:
-                logging.error('Error sending message', exc_info=True)
+                logger.error('Error sending message', exc_info=True)
                 LiveReloadHandler.waiters.remove(waiter)
         self.write('ok')
 
