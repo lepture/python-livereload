@@ -24,7 +24,9 @@ from .handlers import ForceReloadHandler
 from .watcher import Watcher
 from six import string_types, PY3
 from tornado.log import enable_pretty_logging
-enable_pretty_logging()
+
+logger = logging.getLogger('livereload')
+enable_pretty_logging(logger=logger)
 
 HEAD_END = b'</head>'
 
@@ -61,13 +63,13 @@ def shell(cmd, output=None, mode='w', cwd=None, shell=False):
             p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE, cwd=cwd,
                       shell=shell)
         except OSError as e:
-            logging.error(e)
+            logger.error(e)
             if e.errno == os.errno.ENOENT:  # file (command) not found
-                logging.error("maybe you haven't installed %s", cmd[0])
+                logger.error("maybe you haven't installed %s", cmd[0])
             return e
         stdout, stderr = p.communicate()
         if stderr:
-            logging.error(stderr)
+            logger.error(stderr)
             return stderr
         #: stdout is bytes, decode for python3
         if PY3:
@@ -174,7 +176,7 @@ class BaseServer(object):
         print('Serving on http://%s:%s' % (host, port))
 
         self.application(port, host, liveport=liveport, debug=debug)
-        logging.getLogger().setLevel(logging.INFO)
+        logger.setLevel(logging.INFO)
 
         # Async open web browser after 5 sec timeout
         if open_url:
