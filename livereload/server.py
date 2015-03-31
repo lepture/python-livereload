@@ -25,7 +25,7 @@ from .watcher import Watcher
 from six import string_types, PY3
 from tornado.log import enable_pretty_logging
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('livereload')
 enable_pretty_logging(logger=logger)
 
 HEAD_END = b'</head>'

@@ -18,7 +18,7 @@ from tornado.websocket import WebSocketHandler
 from tornado.web import RequestHandler
 from tornado.util import ObjectDict
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('livereload')
 
 class LiveReloadHandler(WebSocketHandler):
     waiters = set()
