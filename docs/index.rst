@@ -7,6 +7,7 @@ API
 
 .. autoclass:: Server
    :members:
+   :inherited-members:
 
 .. autofunction:: shell
 
