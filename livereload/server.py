@@ -134,8 +134,8 @@ class BaseServer(object):
         LiveReloadHandler.watcher = self.watcher
         if liveport is None:
             liveport = port
-        if debug is None:
-            debug = bool(self.app)
+        if debug is None and self.app:
+            debug = True
 
         live_handlers = [
             (r'/livereload', LiveReloadHandler),
