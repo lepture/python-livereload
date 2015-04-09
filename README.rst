@@ -45,6 +45,21 @@ By default, it will listen to port 35729, the common port for `LiveReload browse
 
 .. _`livereload browser extensions`: http://feedback.livereload.com/knowledgebase/articles/86242-how-do-i-install-and-use-the-browser-extensions-
 
+Older versions of Python LiveReload used a ``Guardfile`` to describe optional additional rules for files to watch and build commands to run on changes.  This conflicted with other tools that used the same file for their configuration and is no longer supported since Python LiveReload version 2.0.0.  Instead of a ``Guardfile`` you can now write a Python script using very similar syntax and run it instead of the command line application.
+
+Script example: Sphinx
+----------------------
+
+Here's a simple example script that rebuilds Sphinx documentation ::
+
+    #!/usr/bin/env python
+    from livereload import Server, shell
+    server = Server()
+    server.watch('docs/*.rst', shell('make html', cwd='docs'))
+    server.serve(root='docs/_build/html')
+
+Run it, then open http://localhost:5500/ and you can see the documentation changes in real time.
+
 Developer Guide
 ---------------
 
@@ -109,6 +124,9 @@ and a livereload server::
     # use custom host and port
     server.serve(port=8080, host='localhost')
 
+    # open the web browser on startup
+    server.serve(open_url=True, debug=False)
+
 
 shell
 ~~~~~
@@ -116,6 +134,7 @@ shell
 The powerful ``shell`` function will help you to execute shell commands. You
 can use it with ``server.watch``::
 
+    # you can redirect command output to a file
     server.watch('style.less', shell('lessc style.less', output='style.css'))
 
     # commands can be a list
