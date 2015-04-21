@@ -5,7 +5,7 @@
 
     HTTP and WebSocket handlers for livereload.
 
-    :copyright: (c) 2013 by Hsiaoming Yang
+    :copyright: (c) 2013 - 2015 by Hsiaoming Yang
 """
 
 import os
@@ -19,6 +19,7 @@ from tornado.web import RequestHandler
 from tornado.util import ObjectDict
 
 logger = logging.getLogger('livereload')
+
 
 class LiveReloadHandler(WebSocketHandler):
     waiters = set()
@@ -124,7 +125,7 @@ class LiveReloadJSHandler(RequestHandler):
 
     def get(self):
         self.set_header('Content-Type', 'application/javascript')
-        self.write(resource_string(__name__, 'livereload.js'))
+        self.write(resource_string(__name__, 'vendors/livereload.js'))
 
 
 class ForceReloadHandler(RequestHandler):
