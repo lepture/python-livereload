@@ -17,10 +17,9 @@ parser.add_argument(
 )
 parser.add_argument(
     'directory',
-    help='Directory to watch for changes',
+    help='Directories to watch for changes',
     type=str,
-    default='.',
-    nargs='?'
+    nargs='*'
 )
 
 
@@ -29,5 +28,8 @@ def main(argv=None):
 
     # Create a new application
     server = Server()
-    server.watcher.watch(args.directory)
+    if not args.directory:
+        args.directory = ['.']
+    for d in args.directory:
+        server.watcher.watch(d)
     server.serve(host=args.host, port=args.port, root=args.directory)
