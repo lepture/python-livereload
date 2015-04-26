@@ -9,16 +9,17 @@
 """
 
 import os
-import logging
-from subprocess import Popen, PIPE
 import time
+import shlex
+import logging
 import threading
 import webbrowser
-import shlex
+from subprocess import Popen, PIPE
 
 from tornado.wsgi import WSGIContainer
 from tornado.ioloop import IOLoop
 from tornado import web
+from tornado import escape
 from .handlers import LiveReloadHandler, LiveReloadJSHandler
 from .handlers import ForceReloadHandler
 from .watcher import Watcher
@@ -88,9 +89,39 @@ class LiveScriptInjector(web.OutputTransform):
         if HEAD_END in chunk:
             chunk = chunk.replace(HEAD_END, self.script + HEAD_END)
             if 'Content-Length' in headers:
-                headers['Content-Length'] = str(
-                    int(headers['Content-Length']) + len(self.script))
+                length = int(headers['Content-Length']) + len(self.script)
+                headers['Content-Length'] = str(length)
         return status_code, headers, chunk
+
+
+class LiveScriptMiddleware(object):
+    def __init__(self, wsgi_app, script=''):
+        self.wsgi_app = wsgi_app
+        self.script = script
+
+    def __call__(self, environ, start_response):
+        ct = environ.get('CONTENT_TYPE')
+        if not ct.startswith('text/html'):
+            return self.wsgi_app(environ, start_response)
+
+        status = environ.get('HTTP_STATUS_CODE')
+        if status == 304:
+            return self.wsgi_app(environ, start_response)
+
+        responses = []
+        for text in self.wsgi_app(environ, start_response):
+            responses.append(text)
+
+        body = b"".join(responses)
+        body = escape.utf8(body)
+        if HEAD_END not in body:
+            return [body]
+
+        body = body.replace(HEAD_END, self.script + HEAD_END)
+        length = environ.get('CONTENT_LENGTH')
+        if length:
+            environ['CONTENT_LENGTH'] = str(int(length) + len(self.script))
+        return [body]
 
 
 class BaseServer(object):
@@ -151,12 +182,18 @@ class BaseServer(object):
 
         if liveport == port:
             handlers = live_handlers + web_handlers
-            app = web.Application(handlers=handlers, debug=debug)
-            app.add_transform(ConfiguredTransform)
+            app = web.Application(
+                handlers=handlers,
+                debug=debug,
+                transforms=[ConfiguredTransform]
+            )
             app.listen(port, address=host)
         else:
-            app = web.Application(handlers=web_handlers, debug=debug)
-            app.add_transform(ConfiguredTransform)
+            app = web.Application(
+                handlers=web_handlers,
+                debug=debug,
+                transforms=[ConfiguredTransform]
+            )
             app.listen(port, address=host)
             live = web.Application(handlers=live_handlers, debug=False)
             live.listen(liveport, address=host)

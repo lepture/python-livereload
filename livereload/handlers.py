@@ -143,4 +143,3 @@ class ForceReloadHandler(RequestHandler):
                 logger.error('Error sending message', exc_info=True)
                 LiveReloadHandler.waiters.remove(waiter)
         self.write('ok')
-
