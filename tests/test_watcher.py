@@ -3,17 +3,21 @@
 import os
 import time
 import shutil
+import unittest
 from livereload.watcher import Watcher
 
 tmpdir = os.path.join(os.path.dirname(__file__), 'tmp')
 
 
-class TestWatcher(object):
+class TestWatcher(unittest.TestCase):
 
     def setUp(self):
         if os.path.isdir(tmpdir):
             shutil.rmtree(tmpdir)
         os.mkdir(tmpdir)
+
+    def tearDown(self):
+        shutil.rmtree(tmpdir)
 
     def test_watch_dir(self):
         os.mkdir(os.path.join(tmpdir, '.git'))
@@ -25,6 +29,9 @@ class TestWatcher(object):
         watcher.watch(tmpdir)
         assert watcher.is_changed(tmpdir) is False
 
+        # sleep 1 second so that mtime will be different
+        time.sleep(1)
+
         with open(os.path.join(tmpdir, 'foo'), 'w') as f:
             f.write('')
 
@@ -34,6 +41,9 @@ class TestWatcher(object):
     def test_watch_file(self):
         watcher = Watcher()
         watcher.count = 0
+
+        # sleep 1 second so that mtime will be different
+        time.sleep(1)
 
         filepath = os.path.join(tmpdir, 'foo')
         with open(filepath, 'w') as f:
@@ -51,22 +61,24 @@ class TestWatcher(object):
         with open(filepath, 'w') as f:
             f.write('')
 
-        assert watcher.examine() == os.path.abspath(filepath)
+        rv = watcher.examine()
+        assert rv[0] == os.path.abspath(filepath)
         assert watcher.count == 1
 
     def test_watch_glob(self):
         watcher = Watcher()
         watcher.watch(tmpdir + '/*')
-        assert watcher.examine() is None
+        assert watcher.examine() == (None, None)
 
         with open(os.path.join(tmpdir, 'foo.pyc'), 'w') as f:
             f.write('')
 
-        assert watcher.examine() is None
+        assert watcher.examine() == (None, None)
 
         filepath = os.path.join(tmpdir, 'foo')
 
         with open(filepath, 'w') as f:
             f.write('')
 
-        assert watcher.examine() == os.path.abspath(filepath)
+        rv = watcher.examine()
+        assert rv[0] == os.path.abspath(filepath)
