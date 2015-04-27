@@ -50,7 +50,9 @@ Older versions of Python LiveReload used a ``Guardfile`` to describe optional ad
 Script example: Sphinx
 ----------------------
 
-Here's a simple example script that rebuilds Sphinx documentation ::
+Here's a simple example script that rebuilds Sphinx documentation:
+
+.. code:: python
 
     #!/usr/bin/env python
     from livereload import Server, shell
@@ -64,7 +66,9 @@ Developer Guide
 ---------------
 
 The new livereload server is designed for developers. It can power a
-wsgi application now::
+wsgi application now:
+
+.. code:: python
 
     from livereload import Server, shell
 
@@ -152,7 +156,9 @@ Livereload can work seamlessly with your favorite framework.
 Django
 ~~~~~~
 
-Here is a little hint on Django. Change your ``manage.py`` file to::
+Here is a little hint on Django. Change your ``manage.py`` file to:
+
+.. code:: python
 
     #!/usr/bin/env python
     import os
@@ -181,7 +187,9 @@ When you execute ``./manage.py livereload``, it will start a livereload server.
 Flask
 ~~~~~
 
-Wrap Flask with livereload is much simpler::
+Wrap Flask with livereload is much simpler:
+
+.. code:: python
 
     # app is a Flask object
     app = create_app()
@@ -194,7 +202,9 @@ Wrap Flask with livereload is much simpler::
 Bottle
 ~~~~~~
 
-Wrap the ``Bottle`` app with livereload server::
+Wrap the ``Bottle`` app with livereload server:
+
+.. code:: python
 
     app = Bottle()
     server = Server(app)
