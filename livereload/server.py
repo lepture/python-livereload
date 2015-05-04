@@ -210,9 +210,15 @@ class Server(object):
             (r'/livereload.js', LiveReloadJSHandler)
         ]
 
+        if ':' in host:
+            # IPv6
+            host_url = '[{0}]'.format(host)
+        else:
+            host_url = host
+
         live_script = (
             '<script src="http://{host}:{port}/livereload.js"></script>'
-        ).format(host=host, port=liveport)
+        ).format(host=host_url, port=liveport)
 
         web_handlers = self.get_web_handlers(live_script)
 
@@ -262,10 +268,17 @@ class Server(object):
         :param open_url: open system browser
         """
         host = host or '0.0.0.0'
+        
+        if ':' in host:
+            # IPv6
+            host_url = '[{0}]'.format(host)
+        else:
+            host_url = host
+        
         if root is not None:
             self.root = root
 
-        print('Serving on http://%s:%s' % (host, port))
+        print('Serving on http://%s:%s' % (host_url, port))
 
         self.application(port, host, liveport=liveport, debug=debug)
         logger.setLevel(logging.INFO)
@@ -274,7 +287,7 @@ class Server(object):
         if open_url:
             def opener():
                 time.sleep(5)
-                webbrowser.open('http://%s:%s' % (host, port))
+                webbrowser.open('http://%s:%s' % (host_url, port))
             threading.Thread(target=opener).start()
 
         try:
