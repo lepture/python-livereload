@@ -168,7 +168,8 @@ class Server(object):
 
         self.app = app
         if not watcher:
-            watcher = get_watcher_class()
+            watcher_cls = get_watcher_class()
+            watcher = watcher_cls()
         self.watcher = watcher
 
     def watch(self, filepath, func=None, delay=None):
