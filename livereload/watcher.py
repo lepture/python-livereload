@@ -11,6 +11,10 @@
 import os
 import glob
 import time
+try:
+    import pyinotify
+except ImportError:
+    pyinotify = None
 
 
 class Watcher(object):
@@ -123,13 +127,11 @@ class INotifyWatcher(Watcher):
     def __init__(self):
         Watcher.__init__(self)
 
-        import pyinotify
         self.wm = pyinotify.WatchManager()
         self.notifier = None
         self.callback = None
 
     def watch(self, path, func=None, delay=None):
-        import pyinotify
         flag = pyinotify.IN_CREATE | pyinotify.IN_DELETE | pyinotify.IN_MODIFY
         self.wm.add_watch(path, flag, rec=True, do_glob=True, auto_add=True)
         Watcher.watch(self, path, func, delay)
@@ -141,7 +143,6 @@ class INotifyWatcher(Watcher):
         if not self.notifier:
             self.callback = callback
 
-            import pyinotify
             from tornado import ioloop
             self.notifier = pyinotify.TornadoAsyncNotifier(
                 self.wm, ioloop.IOLoop.instance(),
@@ -149,3 +150,9 @@ class INotifyWatcher(Watcher):
             )
             callback()
         return True
+
+
+def get_watcher_class():
+    if pyinotify is None:
+        return Watcher
+    return INotifyWatcher

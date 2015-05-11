@@ -23,7 +23,7 @@ from tornado import escape
 from tornado import httputil
 from .handlers import LiveReloadHandler, LiveReloadJSHandler
 from .handlers import ForceReloadHandler
-from .watcher import Watcher
+from .watcher import get_watcher_class
 from six import string_types, PY3
 
 logger = logging.getLogger('livereload')
@@ -168,7 +168,7 @@ class Server(object):
 
         self.app = app
         if not watcher:
-            watcher = Watcher()
+            watcher = get_watcher_class()
         self.watcher = watcher
 
     def watch(self, filepath, func=None, delay=None):
