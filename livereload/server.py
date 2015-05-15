@@ -212,7 +212,7 @@ class Server(object):
         ]
 
         live_script = (
-            '<script src="http://{host}:{port}/livereload.js"></script>'
+            b'<script src="http://{host}:{port}/livereload.js"></script>'
         ).format(host=host, port=liveport)
 
         web_handlers = self.get_web_handlers(live_script)
