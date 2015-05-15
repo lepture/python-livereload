@@ -216,9 +216,9 @@ class Server(object):
             (r'/livereload.js', LiveReloadJSHandler)
         ]
 
-        live_script = (
-            b'<script src="http://{host}:{port}/livereload.js"></script>'
-        ).format(host=host, port=liveport)
+        live_script = escape.utf8((
+            '<script src="http://{host}:{port}/livereload.js"></script>'
+        ).format(host=host, port=liveport))
 
         web_handlers = self.get_web_handlers(live_script)
 
