@@ -149,6 +149,11 @@ class LiveScriptContainer(WSGIContainer):
         self._log(status_code, request)
 
 
+class StaticFileHandler(web.StaticFileHandler):
+    def should_return_304(self):
+        return False
+
+
 class Server(object):
     """Livereload server interface.
 
@@ -243,7 +248,7 @@ class Server(object):
             fallback = LiveScriptContainer(self.app, script)
             return [(r'.*', web.FallbackHandler, {'fallback': fallback})]
         return [
-            (r'/(.*)', web.StaticFileHandler, {
+            (r'/(.*)', StaticFileHandler, {
                 'path': self.root or '.',
                 'default_filename': 'index.html',
             }),
