@@ -255,14 +255,14 @@ class Server(object):
 
         :param port: serve on this port, default is 5500
         :param liveport: live reload on this port
-        :param host: serve on this hostname, default is 0.0.0.0
+        :param host: serve on this hostname, default is 127.0.0.1
         :param root: serve static on this root directory
         :param debug: set debug mode, which autoreloads the app on code changes
                       via Tornado (and causes polling). Defaults to True when
                       ``self.app`` is set, otherwise False.
         :param open_url: open system browser
         """
-        host = host or '0.0.0.0'
+        host = host or '127.0.0.1'
         if root is not None:
             self.root = root
 
