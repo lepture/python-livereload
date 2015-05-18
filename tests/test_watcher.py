@@ -82,3 +82,13 @@ class TestWatcher(unittest.TestCase):
 
         rv = watcher.examine()
         assert rv[0] == os.path.abspath(filepath)
+
+    def test_watch_ignore(self):
+        watcher = Watcher()
+        watcher.watch(tmpdir + '/*', ignore=lambda o: o.endswith('.ignore'))
+        assert watcher.examine() == (None, None)
+
+        with open(os.path.join(tmpdir, 'foo.ignore'), 'w') as f:
+            f.write('')
+
+        assert watcher.examine() == (None, None)
