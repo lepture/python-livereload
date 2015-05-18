@@ -70,7 +70,9 @@ class Watcher(object):
             if self.is_changed(path, item['ignore']):
                 func = item['func']
                 func and func()
-                delays.add(item['delay'])
+                delay = item['delay']
+                if delay and isinstance(delay, int):
+                    delays.add(delay)
 
         if delays:
             delay = max(delays)
