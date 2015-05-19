@@ -4,7 +4,9 @@ import os
 import time
 import shutil
 import unittest
-from livereload.watcher import Watcher
+from livereload.watcher import get_watcher_class
+
+Watcher = get_watcher_class()
 
 tmpdir = os.path.join(os.path.dirname(__file__), 'tmp')
 
