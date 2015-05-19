@@ -272,11 +272,10 @@ class Server(object):
         if root is not None:
             self.root = root
 
-        print('Serving on http://%s:%s' % (host, port))
+        self._setup_logging()
+        logger.info('Serving on http://%s:%s' % (host, port))
 
         self.application(port, host, liveport=liveport, debug=debug)
-
-        self._setup_logging()
 
         # Async open web browser after 5 sec timeout
         if open_url:
@@ -289,7 +288,7 @@ class Server(object):
             self.watcher._changes.append(('__livereload__', restart_delay))
             IOLoop.instance().start()
         except KeyboardInterrupt:
-            print('Shutting down...')
+            logger.info('Shutting down...')
 
     def _setup_logging(self):
         logger.setLevel(logging.INFO)
