@@ -21,6 +21,7 @@ from tornado.ioloop import IOLoop
 from tornado import web
 from tornado import escape
 from tornado import httputil
+from tornado.log import LogFormatter
 from .handlers import LiveReloadHandler, LiveReloadJSHandler
 from .handlers import ForceReloadHandler
 from .watcher import get_watcher_class
@@ -274,7 +275,8 @@ class Server(object):
         print('Serving on http://%s:%s' % (host, port))
 
         self.application(port, host, liveport=liveport, debug=debug)
-        logger.setLevel(logging.INFO)
+
+        self._setup_logging()
 
         # Async open web browser after 5 sec timeout
         if open_url:
@@ -288,3 +290,13 @@ class Server(object):
             IOLoop.instance().start()
         except KeyboardInterrupt:
             print('Shutting down...')
+
+    def _setup_logging(self):
+        logger.setLevel(logging.INFO)
+
+        channel = logging.StreamHandler()
+        channel.setFormatter(LogFormatter())
+        logger.addHandler(channel)
+
+        # need a tornado logging handler to prevent IOLoop._setup_logging
+        logging.getLogger('tornado').addHandler(channel)
