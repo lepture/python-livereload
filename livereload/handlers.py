@@ -12,10 +12,10 @@ import os
 import time
 import logging
 from pkg_resources import resource_string
+from tornado import web
 from tornado import ioloop
 from tornado import escape
 from tornado.websocket import WebSocketHandler
-from tornado.web import RequestHandler
 from tornado.util import ObjectDict
 
 logger = logging.getLogger('livereload')
@@ -121,14 +121,14 @@ class LiveReloadHandler(WebSocketHandler):
                     ioloop.PeriodicCallback(self.poll_tasks, 800).start()
 
 
-class LiveReloadJSHandler(RequestHandler):
+class LiveReloadJSHandler(web.RequestHandler):
 
     def get(self):
         self.set_header('Content-Type', 'application/javascript')
         self.write(resource_string(__name__, 'vendors/livereload.js'))
 
 
-class ForceReloadHandler(RequestHandler):
+class ForceReloadHandler(web.RequestHandler):
     def get(self):
         msg = {
             'command': 'reload',
@@ -143,3 +143,8 @@ class ForceReloadHandler(RequestHandler):
                 logger.error('Error sending message', exc_info=True)
                 LiveReloadHandler.waiters.remove(waiter)
         self.write('ok')
+
+
+class StaticFileHandler(web.StaticFileHandler):
+    def should_return_304(self):
+        return False

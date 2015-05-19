@@ -23,7 +23,7 @@ from tornado import escape
 from tornado import httputil
 from tornado.log import LogFormatter
 from .handlers import LiveReloadHandler, LiveReloadJSHandler
-from .handlers import ForceReloadHandler
+from .handlers import ForceReloadHandler, StaticFileHandler
 from .watcher import get_watcher_class
 from six import string_types, PY3
 
@@ -148,11 +148,6 @@ class LiveScriptContainer(WSGIContainer):
         request.connection.write_headers(start_line, header_obj, chunk=body)
         request.connection.finish()
         self._log(status_code, request)
-
-
-class StaticFileHandler(web.StaticFileHandler):
-    def should_return_304(self):
-        return False
 
 
 class Server(object):
