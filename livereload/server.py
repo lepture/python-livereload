@@ -262,6 +262,7 @@ class Server(object):
                       via Tornado (and causes polling). Defaults to True when
                       ``self.app`` is set, otherwise False.
         :param open_url: open system browser
+        :param restart_delay: delay before reload, default is 2 seconds
         """
         host = host or '127.0.0.1'
         if root is not None:
