@@ -251,7 +251,7 @@ class Server(object):
         ]
 
     def serve(self, port=5500, liveport=None, host=None, root=None, debug=None,
-              open_url=False, restart_delay=2, start_delay=5):
+              open_url_delay=None, restart_delay=2):
         """Start serve the server with the given port.
 
         :param port: serve on this port, default is 5500
@@ -275,9 +275,9 @@ class Server(object):
         self.application(port, host, liveport=liveport, debug=debug)
 
         # Async open web browser after start_delay sec timeout
-        if open_url:
+        if open_url_delay is not None:
             def opener():
-                time.sleep(start_delay)
+                time.sleep(open_url_delay)
                 webbrowser.open('http://%s:%s' % (host, port))
             threading.Thread(target=opener).start()
 
