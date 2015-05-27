@@ -45,9 +45,25 @@ class LiveReloadHandler(WebSocketHandler):
         except:
             logger.error('Error sending message', exc_info=True)
 
-    def poll_tasks(self):
-        filepath, delay = self.watcher.examine()
-        if not filepath or delay == 'forever':
+    @classmethod
+    def start_tasks(cls):
+        if cls._last_reload_time:
+            return
+
+        if not cls.watcher._tasks:
+            logger.info('Watch current working directory')
+            cls.watcher.watch(os.getcwd())
+
+        cls._last_reload_time = time.time()
+        logger.info('Start watching changes')
+        if not cls.watcher.start(cls.poll_tasks):
+            logger.info('Start detecting changes')
+            ioloop.PeriodicCallback(cls.poll_tasks, 800).start()
+
+    @classmethod
+    def poll_tasks(cls):
+        filepath, delay = cls.watcher.examine()
+        if not filepath or delay == 'forever' or not cls.waiters:
             return
         reload_time = 3
 
@@ -56,16 +72,16 @@ class LiveReloadHandler(WebSocketHandler):
         if filepath == '__livereload__':
             reload_time = 0
 
-        if time.time() - self._last_reload_time < reload_time:
+        if time.time() - cls._last_reload_time < reload_time:
             # if you changed lot of files in one time
             # it will refresh too many times
             logger.info('Ignore: %s', filepath)
             return
         if delay:
             loop = ioloop.IOLoop.current()
-            loop.call_later(delay, self.reload_waiters)
+            loop.call_later(delay, cls.reload_waiters)
         else:
-            self.reload_waiters()
+            cls.reload_waiters()
 
     @classmethod
     def reload_waiters(cls, path=None):
@@ -114,16 +130,6 @@ class LiveReloadHandler(WebSocketHandler):
         if message.command == 'info' and 'url' in message:
             logger.info('Browser Connected: %s' % message.url)
             LiveReloadHandler.waiters.add(self)
-
-            if not LiveReloadHandler._last_reload_time:
-                if not self.watcher._tasks:
-                    logger.info('Watch current working directory')
-                    self.watcher.watch(os.getcwd())
-
-                LiveReloadHandler._last_reload_time = time.time()
-                logger.info('Start watching changes')
-                if not self.watcher.start(self.poll_tasks):
-                    ioloop.PeriodicCallback(self.poll_tasks, 800).start()
 
 
 class LiveReloadJSHandler(web.RequestHandler):

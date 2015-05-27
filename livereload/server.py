@@ -281,6 +281,7 @@ class Server(object):
 
         try:
             self.watcher._changes.append(('__livereload__', restart_delay))
+            LiveReloadHandler.start_tasks()
             IOLoop.instance().start()
         except KeyboardInterrupt:
             logger.info('Shutting down...')
