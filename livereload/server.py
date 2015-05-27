@@ -251,7 +251,7 @@ class Server(object):
         ]
 
     def serve(self, port=5500, liveport=None, host=None, root=None, debug=None,
-              open_url=False, restart_delay=2):
+              open_url=False, restart_delay=2, open_url_delay=None):
         """Start serve the server with the given port.
 
         :param port: serve on this port, default is 5500
@@ -261,7 +261,7 @@ class Server(object):
         :param debug: set debug mode, which autoreloads the app on code changes
                       via Tornado (and causes polling). Defaults to True when
                       ``self.app`` is set, otherwise False.
-        :param open_url: open system browser
+        :param open_url_delay: open webbrowser after the delay seconds
         """
         host = host or '127.0.0.1'
         if root is not None:
@@ -273,9 +273,13 @@ class Server(object):
         self.application(port, host, liveport=liveport, debug=debug)
 
         # Async open web browser after 5 sec timeout
-        if open_url:
+        if open_url or open_url_delay:
+            if open_url:
+                logger.warn('Use `open_url_delay` instead of `open_url`')
+            sleep = open_url_delay or 5
+
             def opener():
-                time.sleep(5)
+                time.sleep(sleep)
                 webbrowser.open('http://%s:%s' % (host, port))
             threading.Thread(target=opener).start()
 
