@@ -63,30 +63,35 @@ class LiveReloadHandler(WebSocketHandler):
             return
         if delay:
             loop = ioloop.IOLoop.current()
-            loop.call_later(delay, self.watch_tasks)
+            loop.call_later(delay, self.reload_waiters)
         else:
-            self.watch_tasks()
+            self.reload_waiters()
 
-    def watch_tasks(self):
+    @classmethod
+    def reload_waiters(cls, path=None):
         logger.info(
             'Reload %s waiters: %s',
-            len(self.waiters),
-            self.watcher.filepath,
+            len(cls.waiters),
+            cls.watcher.filepath,
         )
+
+        if path is None:
+            path = cls.watcher.filepath or '*'
 
         msg = {
             'command': 'reload',
-            'path': self.watcher.filepath or '*',
-            'liveCSS': True
+            'path': path,
+            'liveCSS': True,
+            'liveImg': True,
         }
 
-        self._last_reload_time = time.time()
-        for waiter in LiveReloadHandler.waiters:
+        cls._last_reload_time = time.time()
+        for waiter in cls.waiters:
             try:
                 waiter.write_message(msg)
             except:
                 logger.error('Error sending message', exc_info=True)
-                LiveReloadHandler.waiters.remove(waiter)
+                cls.waiters.remove(waiter)
 
     def on_message(self, message):
         """Handshake with livereload.js
@@ -130,18 +135,8 @@ class LiveReloadJSHandler(web.RequestHandler):
 
 class ForceReloadHandler(web.RequestHandler):
     def get(self):
-        msg = {
-            'command': 'reload',
-            'path': self.get_argument('path', default=None) or '*',
-            'liveCSS': True,
-            'liveImg': True
-        }
-        for waiter in LiveReloadHandler.waiters:
-            try:
-                waiter.write_message(msg)
-            except:
-                logger.error('Error sending message', exc_info=True)
-                LiveReloadHandler.waiters.remove(waiter)
+        path = self.get_argument('path', default=None) or '*'
+        LiveReloadHandler.reload_waiters(path)
         self.write('ok')
 
 
