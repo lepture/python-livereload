@@ -4,7 +4,8 @@
 
     A python version of livereload.
 
-    :copyright: (c) 2013 by Hsiaoming Yang
+    :copyright: (c) 2013 - 2015 by Hsiaoming Yang
+    :license: BSD, see LICENSE for more details.
 """
 
 __version__ = '2.4.0'

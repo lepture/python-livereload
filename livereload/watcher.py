@@ -6,6 +6,7 @@
     A file watch management for LiveReload Server.
 
     :copyright: (c) 2013 - 2015 by Hsiaoming Yang
+    :license: BSD, see LICENSE for more details.
 """
 
 import os
