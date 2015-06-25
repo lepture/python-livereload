@@ -9,13 +9,17 @@
     :license: BSD, see LICENSE for more details.
 """
 
-import os
 import glob
+import logging
+import os
 import time
+
 try:
     import pyinotify
 except ImportError:
     pyinotify = None
+
+logger = logging.getLogger('livereload')
 
 
 class Watcher(object):
@@ -70,10 +74,13 @@ class Watcher(object):
             item = self._tasks[path]
             if self.is_changed(path, item['ignore']):
                 func = item['func']
-                func and func()
                 delay = item['delay']
                 if delay and isinstance(delay, int):
                     delays.add(delay)
+                if func:
+                    logger.info("Running task: {} (delay: {})".format(
+                        func.repr_str, delay))
+                    func()
 
         if delays:
             delay = max(delays)

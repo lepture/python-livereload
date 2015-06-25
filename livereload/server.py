@@ -196,7 +196,11 @@ class Server(object):
                       css, but reload on changed css files then only.
         """
         if isinstance(func, string_types):
+            cmd = func
             func = shell(func)
+            func.repr_str = "shell: {}".format(cmd)
+        elif func:
+            func.repr_str = str(func)
 
         self.watcher.watch(filepath, func, delay)
 
