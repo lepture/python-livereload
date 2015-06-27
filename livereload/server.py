@@ -213,9 +213,16 @@ class Server(object):
             (r'/livereload.js', LiveReloadJSHandler)
         ]
 
+        # The livereload.js snippet.
+        # Uses JavaScript to dynamically inject the client's hostname.
+        # This allows for serving on 0.0.0.0.
         live_script = escape.utf8((
-            '<script src="http://{host}:{port}/livereload.js"></script>'
-        ).format(host=host, port=liveport))
+            '<script type="text/javascript">'
+            'document.write("<script src=''http://"'
+            ' + window.location.hostname + ":{port}/livereload.js''>'
+            ' </"+"script>");'
+            '</script>'
+        ).format(port=liveport))
 
         web_handlers = self.get_web_handlers(live_script)
 
