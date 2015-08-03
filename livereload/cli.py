@@ -22,6 +22,12 @@ parser.add_argument(
     default='.',
     nargs='?'
 )
+parser.add_argument(
+    '-w', '--wait',
+    help='Time delay in seconds before reloading',
+    type=int,
+    default=0
+)
 
 
 def main(argv=None):
@@ -29,5 +35,5 @@ def main(argv=None):
 
     # Create a new application
     server = Server()
-    server.watcher.watch(args.directory)
+    server.watcher.watch(args.directory, delay=args.wait)
     server.serve(host=args.host, port=args.port, root=args.directory)
