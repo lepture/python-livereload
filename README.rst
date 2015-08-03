@@ -32,7 +32,7 @@ Python LiveReload provides a command line utility, ``livereload``, for starting 
 By default, it will listen to port 35729, the common port for `LiveReload browser extensions`_. ::
 
     $ livereload --help
-    usage: livereload [-h] [-p PORT] [directory]
+    usage: livereload [-h] [-p PORT] [-w WAIT] [directory]
 
     Start a `livereload` server
 
@@ -42,6 +42,7 @@ By default, it will listen to port 35729, the common port for `LiveReload browse
     optional arguments:
       -h, --help            show this help message and exit
       -p PORT, --port PORT  Port to run `livereload` server on
+      -w WAIT, --wait WAIT  Time delay before reloading
 
 .. _`livereload browser extensions`: http://feedback.livereload.com/knowledgebase/articles/86242-how-do-i-install-and-use-the-browser-extensions-
 
