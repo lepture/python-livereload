@@ -100,6 +100,7 @@ html_theme = 'flask_small'
 # documentation.
 html_theme_options = {
     'index_logo': None,
+    'github_fork': 'lepture/python-livereload',
 }
 
 # Add any paths that contain custom themes here, relative to this directory.
