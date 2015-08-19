@@ -157,32 +157,14 @@ Livereload can work seamlessly with your favorite framework.
 Django
 ~~~~~~
 
-Here is a little hint on Django. Change your ``manage.py`` file to:
+For Django there is a management command included.
 
-.. code:: python
+To use simply
 
-    #!/usr/bin/env python
-    import os
-    import sys
+- add 'livereload' to your INSTALLED_APPS in ``settings.py`` and
+- then run ``./manage.py livereload``.
 
-    if __name__ == "__main__":
-        os.environ.setdefault("DJANGO_SETTINGS_MODULE", "hello.settings")
-
-        from django.core.management import execute_from_command_line
-
-        if 'livereload' in sys.argv:
-            from django.core.wsgi import get_wsgi_application
-            from livereload import Server
-            application = get_wsgi_application()
-            server = Server(application)
-
-            # Add your watch
-            # server.watch('path/to/file', 'your command')
-            server.serve()
-        else:
-            execute_from_command_line(sys.argv)
-
-When you execute ``./manage.py livereload``, it will start a livereload server.
+For available options like host and ports please refer to ``./manage.py livereload -h``.
 
 
 Flask
