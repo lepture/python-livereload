@@ -161,7 +161,7 @@ For Django there is a management command included.
 
 To use simply
 
-- add 'livereload' to your INSTALLED_APPS in ``settings.py`` and
+- add 'livereload' to your ``INSTALLED_APPS`` and
 - then run ``./manage.py livereload``.
 
 For available options like host and ports please refer to ``./manage.py livereload -h``.
