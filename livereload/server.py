@@ -174,7 +174,7 @@ class Server(object):
             watcher = watcher_cls()
         self.watcher = watcher
 
-    def watch(self, filepath, func=None, delay=None):
+    def watch(self, filepath, func=None, delay=None, ignore=None):
         """Add the given filepath for watcher list.
 
         Once you have intialized a server, watch file changes before
@@ -198,7 +198,7 @@ class Server(object):
         if isinstance(func, string_types):
             func = shell(func)
 
-        self.watcher.watch(filepath, func, delay)
+        self.watcher.watch(filepath, func, delay, ignore)
 
     def application(self, port, host, liveport=None, debug=None):
         LiveReloadHandler.watcher = self.watcher
