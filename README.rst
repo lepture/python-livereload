@@ -166,6 +166,7 @@ To use simply
 
 For available options like host and ports please refer to ``./manage.py livereload -h``.
 
+To automagically serve static files like the native ``runserver`` command you have to use `dj-static <https://github.com/kennethreitz/dj-static>`_. (follow the simple instructions there).
 
 Flask
 ~~~~~
