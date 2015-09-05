@@ -23,7 +23,7 @@ setup(
     author='Hsiaoming Yang',
     author_email='me@lepture.com',
     url='https://github.com/lepture/python-livereload',
-    packages=['livereload'],
+    packages=['livereload', 'livereload.management.commands'],
     description='Python LiveReload is an awesome tool for web developers',
     long_description=fread('README.rst'),
     entry_points={
