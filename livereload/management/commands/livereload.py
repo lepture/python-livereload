@@ -1,3 +1,4 @@
+import os
 import re
 from django.core.management.base import BaseCommand, CommandError
 from django.core.management.commands.runserver import naiveip_re
@@ -35,6 +36,8 @@ class Command(BaseCommand):
         application = get_internal_wsgi_application()
         server = Server(application)
 
-        server.watch('.')
+        for file in os.listdir('.'):
+            if file[0] != '.' and file[:2] != '__' and os.path.isdir(file):
+                server.watch(file)
 
         server.serve(host=addr, port=port, liveport=options['liveport'])
