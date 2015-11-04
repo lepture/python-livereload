@@ -174,7 +174,7 @@ class Server(object):
             watcher = watcher_cls()
         self.watcher = watcher
 
-    def watch(self, filepath, func=None, delay=None):
+    def watch(self, filepath, func=None, delay=None, ignore=None):
         """Add the given filepath for watcher list.
 
         Once you have intialized a server, watch file changes before
@@ -194,11 +194,13 @@ class Server(object):
         :param delay: Delay sending the reload message. Use 'forever' to
                       not send it. This is useful to compile sass files to
                       css, but reload on changed css files then only.
+        :param ignore: A function return True to ignore a certain pattern of
+                       filepath.
         """
         if isinstance(func, string_types):
             func = shell(func)
 
-        self.watcher.watch(filepath, func, delay)
+        self.watcher.watch(filepath, func, delay, ignore=ignore)
 
     def application(self, port, host, liveport=None, debug=None):
         LiveReloadHandler.watcher = self.watcher
