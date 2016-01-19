@@ -3,6 +3,15 @@ Changelog
 
 The full list of changes between each Python LiveReload release.
 
+Version 2.4.1
+-------------
+
+Released on Jan 19, 2016
+
+1. Allow other hostname with JS script location.hostname
+2. Expose delay parameter in command line tool
+3. Server.watch accept ignore parameter
+
 Version 2.4.0
 -------------
 
