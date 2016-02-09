@@ -167,6 +167,7 @@ class Server(object):
     """
     def __init__(self, app=None, watcher=None):
         self.root = None
+        self.default_extension = None
 
         self.app = app
         if not watcher:
@@ -257,11 +258,12 @@ class Server(object):
             (r'/(.*)', StaticFileHandler, {
                 'path': self.root or '.',
                 'default_filename': 'index.html',
+                'default_extension': self.default_extension,
             }),
         ]
 
     def serve(self, port=5500, liveport=None, host=None, root=None, debug=None,
-              open_url=False, restart_delay=2, open_url_delay=None):
+              open_url=False, restart_delay=2, open_url_delay=None, default_extension=None):
         """Start serve the server with the given port.
 
         :param port: serve on this port, default is 5500
@@ -272,10 +274,15 @@ class Server(object):
                       via Tornado (and causes polling). Defaults to True when
                       ``self.app`` is set, otherwise False.
         :param open_url_delay: open webbrowser after the delay seconds
+        :param default_extension: serve extensionless files with this extension
+                      (set to ``".html"`` and ``foo/bar`` returns the file
+                      ``foo/bar.html``). Default is None (disabled).
         """
         host = host or '127.0.0.1'
         if root is not None:
             self.root = root
+
+        self.default_extension = default_extension
 
         self._setup_logging()
         logger.info('Serving on http://%s:%s' % (host, port))
