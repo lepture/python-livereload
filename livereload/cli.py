@@ -28,7 +28,12 @@ parser.add_argument(
     type=int,
     default=0
 )
-
+parser.add_argument(
+    '-e', '--extension',
+    help='Default extension for extensionless files',
+    type=str,
+    default=None,
+)
 
 def main(argv=None):
     args = parser.parse_args()
@@ -36,4 +41,4 @@ def main(argv=None):
     # Create a new application
     server = Server()
     server.watcher.watch(args.directory, delay=args.wait)
-    server.serve(host=args.host, port=args.port, root=args.directory)
+    server.serve(host=args.host, port=args.port, root=args.directory, default_extension=args.extension)

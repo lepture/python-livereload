@@ -150,3 +150,24 @@ class ForceReloadHandler(web.RequestHandler):
 class StaticFileHandler(web.StaticFileHandler):
     def should_return_304(self):
         return False
+
+    def initialize(self, path, default_filename=None, default_extension=None):
+        super(StaticFileHandler, self).initialize(path, default_filename)
+        self.default_extension = default_extension
+
+    def validate_absolute_path(self, root, absolute_path):
+        """
+        Validate and return the absolute path.
+        
+        Same behavior as parent StaticFileHandler class, except that 
+        if the file is not found and does not have a file extension, 
+        then ``default_extension`` is appended to the filename is it
+        is set and such a file exists.
+        """
+        if (self.default_extension is not None
+                and not os.path.exists(absolute_path)
+                and os.path.splitext(absolute_path)[1] == ''
+                and os.path.exists(absolute_path + self.default_extension)):
+            # Append self.default_extension to extensionless file name.
+            absolute_path += self.default_extension
+        return super(StaticFileHandler, self).validate_absolute_path(root, absolute_path)
