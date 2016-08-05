@@ -202,8 +202,9 @@ class Server(object):
 
         self.watcher.watch(filepath, func, delay, ignore=ignore)
 
-    def application(self, port, host, liveport=None, debug=None):
+    def application(self, port, host, liveport=None, debug=None, live_css=True):
         LiveReloadHandler.watcher = self.watcher
+        LiveReloadHandler.live_css = live_css
         if liveport is None:
             liveport = port
         if debug is None and self.app:
@@ -261,7 +262,7 @@ class Server(object):
         ]
 
     def serve(self, port=5500, liveport=None, host=None, root=None, debug=None,
-              open_url=False, restart_delay=2, open_url_delay=None):
+              open_url=False, restart_delay=2, open_url_delay=None, live_css=True):
         """Start serve the server with the given port.
 
         :param port: serve on this port, default is 5500
@@ -272,6 +273,7 @@ class Server(object):
                       via Tornado (and causes polling). Defaults to True when
                       ``self.app`` is set, otherwise False.
         :param open_url_delay: open webbrowser after the delay seconds
+        :param live_css: whether to use live css or force reload on css. Defaults to True
         """
         host = host or '127.0.0.1'
         if root is not None:
@@ -280,7 +282,7 @@ class Server(object):
         self._setup_logging()
         logger.info('Serving on http://%s:%s' % (host, port))
 
-        self.application(port, host, liveport=liveport, debug=debug)
+        self.application(port, host, liveport=liveport, debug=debug, live_css=live_css)
 
         # Async open web browser after 5 sec timeout
         if open_url or open_url_delay:

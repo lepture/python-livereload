@@ -25,6 +25,7 @@ logger = logging.getLogger('livereload')
 class LiveReloadHandler(WebSocketHandler):
     waiters = set()
     watcher = None
+    live_css = None
     _last_reload_time = None
 
     def allow_draft76(self):
@@ -98,7 +99,7 @@ class LiveReloadHandler(WebSocketHandler):
         msg = {
             'command': 'reload',
             'path': path,
-            'liveCSS': True,
+            'liveCSS': cls.live_css,
             'liveImg': True,
         }
 
