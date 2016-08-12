@@ -131,7 +131,7 @@ class LiveScriptContainer(WSGIContainer):
 
         if status_code != 304:
             if "content-type" not in header_set:
-                headers.append(("Content-Type", "text/html; charset=UTF-8"))
+                headers.append(("Content-Type", "application/octet-stream; charset=UTF-8"))
             if "content-length" not in header_set:
                 headers.append(("Content-Length", str(len(body))))
 
