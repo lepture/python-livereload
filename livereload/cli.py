@@ -25,8 +25,8 @@ parser.add_argument(
 parser.add_argument(
     '-w', '--wait',
     help='Time delay in seconds before reloading',
-    type=int,
-    default=0
+    type=float,
+    default=0.0
 )
 
 
