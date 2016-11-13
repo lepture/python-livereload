@@ -72,7 +72,7 @@ class Watcher(object):
                 func = item['func']
                 func and func()
                 delay = item['delay']
-                if delay and isinstance(delay, int):
+                if delay and isinstance(delay, float):
                     delays.add(delay)
 
         if delays:
