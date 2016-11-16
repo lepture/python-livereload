@@ -3,6 +3,15 @@ Changelog
 
 The full list of changes between each Python LiveReload release.
 
+Version 2.5.0
+-------------
+
+Released on Nov 16, 2016
+
+1. wait parameter can be float via Todd Wolfson
+2. Option to disable liveCSS via Yunchi Luo
+3. Django management command via Marc-Stefan Cassola
+
 Version 2.4.1
 -------------
 
@@ -135,15 +144,11 @@ Released on Jun 20th, 2012
 + Static Server support index
 + Dynamic watch directory changes
 
-.. _ver0.6:
-
 Version 0.6
 ------------
 Release on Jun 18th, 2012
 
 + Add static server, 127.0.0.1:35729
-
-.. _ver0.5:
 
 Version 0.5
 -----------
@@ -151,15 +156,11 @@ Release on Jun 18th, 2012
 
 + support for python3
 
-.. _ver0.4:
-
 Version 0.4
 -----------
 Release on May 8th, 2012
 
 + bugfix for notify (sorry)
-
-.. _ver0.3:
 
 Version 0.3
 -----------
