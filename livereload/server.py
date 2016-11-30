@@ -143,7 +143,7 @@ class LiveScriptContainer(WSGIContainer):
         )
         header_obj = httputil.HTTPHeaders()
         for key, value in headers:
-            if key == 'Content-Length':
+            if key.lower() == 'content-length':
                 value = str(len(body))
             header_obj.add(key, value)
         request.connection.write_headers(start_line, header_obj, chunk=body)
