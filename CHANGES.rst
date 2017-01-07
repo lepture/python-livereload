@@ -3,6 +3,16 @@ Changelog
 
 The full list of changes between each Python LiveReload release.
 
+Version 2.5.1
+-------------
+
+Release on Jan 7, 2017
+
+Happy New Year.
+
+1. Fix Content-Type detection
+2. Ensure current version of pyinotify is installed before using
+
 Version 2.5.0
 -------------
 
