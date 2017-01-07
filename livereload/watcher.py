@@ -166,6 +166,6 @@ class INotifyWatcher(Watcher):
 
 
 def get_watcher_class():
-    if pyinotify is None:
+    if pyinotify is None or not hasattr(pyinotify, 'TornadoAsyncNotifier'):
         return Watcher
     return INotifyWatcher
