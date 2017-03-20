@@ -221,7 +221,7 @@ class Server(object):
         # This allows for serving on 0.0.0.0.
         live_script = escape.utf8((
             '<script type="text/javascript">'
-            'document.write("<script src=''http://"'
+            'document.write("<script src=''//"'
             ' + window.location.hostname + ":{port}/livereload.js''>'
             ' </"+"script>");'
             '</script>'
