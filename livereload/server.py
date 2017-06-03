@@ -200,7 +200,10 @@ class Server(object):
         if isinstance(func, string_types):
             func = shell(func)
 
-        self.watcher.watch(filepath, func, delay, ignore=ignore)
+        kargs = {}
+        if ignore is not None: kargs['ignore'] = ignore 
+        
+        self.watcher.watch(filepath, func, delay, **kargs)
 
     def application(self, port, host, liveport=None, debug=None, live_css=True):
         LiveReloadHandler.watcher = self.watcher
