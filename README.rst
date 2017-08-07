@@ -129,7 +129,7 @@ and a livereload server::
     # use custom host and port
     server.serve(port=8080, host='localhost')
 
-    # open the web browser on startup
+    # open the web browser on startup, based on $BROWSER environment variable
     server.serve(open_url=True, debug=False)
 
 
