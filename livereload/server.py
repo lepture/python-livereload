@@ -19,6 +19,7 @@ from subprocess import Popen, PIPE
 
 from tornado.wsgi import WSGIContainer
 from tornado.ioloop import IOLoop
+from tornado.autoreload import add_reload_hook
 from tornado import web
 from tornado import escape
 from tornado import httputil
@@ -298,6 +299,7 @@ class Server(object):
         try:
             self.watcher._changes.append(('__livereload__', restart_delay))
             LiveReloadHandler.start_tasks()
+            add_reload_hook(lambda: IOLoop.instance().close(all_fds=True))
             IOLoop.instance().start()
         except KeyboardInterrupt:
             logger.info('Shutting down...')
