@@ -220,13 +220,17 @@ class Server(object):
         # The livereload.js snippet.
         # Uses JavaScript to dynamically inject the client's hostname.
         # This allows for serving on 0.0.0.0.
+        live_reload_path = ":{port}/livereload.js?port={port}".format(port=liveport)
+        if liveport == 80 or liveport == 443:
+            live_reload_path = "/livereload.js?port={port}".format(port=liveport)
+
         live_script = escape.utf8((
             '<script type="text/javascript">'
             'document.write("<script src=''//"'
-            ' + window.location.hostname + ":{port}/livereload.js?port={port}''>'
+            ' + window.location.hostname + "{path}''>'
             ' </"+"script>");'
             '</script>'
-        ).format(port=liveport))
+        ).format(path=live_reload_path))
 
         web_handlers = self.get_web_handlers(live_script)
 
