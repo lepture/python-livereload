@@ -223,7 +223,7 @@ class Server(object):
         live_script = escape.utf8((
             '<script type="text/javascript">'
             'document.write("<script src=''//"'
-            ' + window.location.hostname + ":{port}/livereload.js''>'
+            ' + window.location.hostname + ":{port}/livereload.js?port={port}''>'
             ' </"+"script>");'
             '</script>'
         ).format(port=liveport))
