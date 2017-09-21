@@ -188,7 +188,7 @@ class Server(object):
             server.serve()
 
         :param filepath: files to be watched, it can be a filepath,
-                         a directory, or a glob pattern
+                         a directory, or a glob2 pattern
         :param func: the function to be called, it can be a string of
                      shell command, or any callable object without
                      parameters

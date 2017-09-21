@@ -32,6 +32,7 @@ setup(
         ]
     },
     install_requires=[
+        'glob2',
         'tornado',
         'six',
     ],

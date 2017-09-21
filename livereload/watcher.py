@@ -10,7 +10,7 @@
 """
 
 import os
-import glob
+import glob2
 import time
 try:
     import pyinotify
@@ -39,7 +39,7 @@ class Watcher(object):
     def watch(self, path, func=None, delay=0, ignore=None):
         """Add a task to watcher.
 
-        :param path: a filepath or directory path or glob pattern
+        :param path: a filepath or directory path or glob2 pattern
         :param func: the function to be executed when file changed
         :param delay: Delay sending the reload message. Use 'forever' to
                       not send it. This is useful to compile sass files to
@@ -130,7 +130,7 @@ class Watcher(object):
         return False
 
     def is_glob_changed(self, path, ignore=None):
-        for f in glob.glob(path):
+        for f in glob2.glob(path):
             if self.is_file_changed(f, ignore):
                 return True
         return False

@@ -96,11 +96,11 @@ The ``Server`` class accepts parameters:
 server.watch
 ~~~~~~~~~~~~
 
-``server.watch`` can watch a filepath, a directory and a glob pattern::
+``server.watch`` can watch a filepath, a directory and a glob2 pattern::
 
     server.watch('path/to/file.txt')
     server.watch('directory/path/')
-    server.watch('glob/*.pattern')
+    server.watch('glob2/*.pattern')
 
 You can also use other library (for example: formic) for more powerful
 file adding::
