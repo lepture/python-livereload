@@ -199,7 +199,11 @@ class Server(object):
                        filepath.
         """
         if isinstance(func, string_types):
+            cmd = func
             func = shell(func)
+            func.repr_str = "shell: {}".format(cmd)
+        elif func:
+            func.repr_str = str(func)
 
         self.watcher.watch(filepath, func, delay, ignore=ignore)
 
