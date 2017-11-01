@@ -1,4 +1,7 @@
 import argparse
+
+import tornado.log
+
 from livereload.server import Server
 
 
@@ -17,10 +20,15 @@ parser.add_argument(
 )
 parser.add_argument(
     'directory',
-    help='Directory to watch for changes',
+    help='Directory to serve files from',
     type=str,
     default='.',
     nargs='?'
+)
+parser.add_argument(
+    '-t', '--target',
+    help='File or directory to watch for changes',
+    type=str,
 )
 parser.add_argument(
     '-w', '--wait',
@@ -28,12 +36,26 @@ parser.add_argument(
     type=float,
     default=0.0
 )
+parser.add_argument(
+    '-o', '--open-url-delay',
+    help='If set, triggers browser opening <D> seconds after starting',
+    type=float
+)
+parser.add_argument(
+    '-d', '--debug',
+    help='Enable Tornado pretty logging',
+    action='store_true'
+)
 
 
 def main(argv=None):
     args = parser.parse_args()
 
+    if args.debug:
+        tornado.log.enable_pretty_logging()
+
     # Create a new application
     server = Server()
-    server.watcher.watch(args.directory, delay=args.wait)
-    server.serve(host=args.host, port=args.port, root=args.directory)
+    server.watcher.watch(args.target or args.directory, delay=args.wait)
+    server.serve(host=args.host, port=args.port, root=args.directory,
+                 open_url_delay=args.open_url_delay)
