@@ -194,6 +194,10 @@ Wrap the ``Bottle`` app with livereload server:
 
 .. code:: python
 
+    # Without this line templates won't auto reload because of caching.
+    # http://bottlepy.org/docs/dev/tutorial.html#templates
+    bottle.debug(True)
+
     app = Bottle()
     server = Server(app)
     # server.watch
