@@ -35,6 +35,16 @@ class Watcher(object):
         self.filepath = None
         self._start = time.time()
 
+        #list of ignored dirs
+        self.ignored_dirs = ['.git', '.hg', '.svn', '.cvs']
+
+    def ignore_dirs(self, *args):
+        self.ignored_dirs.extend(args)
+
+    def remove_dirs_from_ignore(self, *args):
+        for a in args:
+            self.ignored_dirs.remove(a)
+
     def ignore(self, filename):
         """Ignore a given filename or not."""
         _, ext = os.path.splitext(filename)
@@ -122,14 +132,9 @@ class Watcher(object):
 
     def is_folder_changed(self, path, ignore=None):
         for root, dirs, files in os.walk(path, followlinks=True):
-            if '.git' in dirs:
-                dirs.remove('.git')
-            if '.hg' in dirs:
-                dirs.remove('.hg')
-            if '.svn' in dirs:
-                dirs.remove('.svn')
-            if '.cvs' in dirs:
-                dirs.remove('.cvs')
+            for d in self.ignored_dirs:
+                if d in dirs:
+                    dirs.remove(d)
 
             for f in files:
                 if self.is_file_changed(os.path.join(root, f), ignore):
