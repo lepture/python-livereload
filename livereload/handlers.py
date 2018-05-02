@@ -5,14 +5,13 @@
 
     HTTP and WebSocket handlers for livereload.
 
-    :copyright: (c) 2013 - 2015 by Hsiaoming Yang
+    :copyright: (c) 2013 by Hsiaoming Yang
     :license: BSD, see LICENSE for more details.
 """
 
 import os
 import time
 import logging
-from pkg_resources import resource_string
 from tornado import web
 from tornado import ioloop
 from tornado import escape
@@ -138,7 +137,10 @@ class LiveReloadJSHandler(web.RequestHandler):
 
     def get(self):
         self.set_header('Content-Type', 'application/javascript')
-        self.write(resource_string(__name__, 'vendors/livereload.js'))
+        root = os.path.abspath(os.path.dirname(__file__))
+        js_file = os.path.join(root, 'vendors/livereload.js')
+        with open(js_file, 'rb') as f:
+            self.write(f.read())
 
 
 class ForceReloadHandler(web.RequestHandler):
