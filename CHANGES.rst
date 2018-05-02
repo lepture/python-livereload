@@ -3,6 +3,15 @@ Changelog
 
 The full list of changes between each Python LiveReload release.
 
+Version 2.5.2
+-------------
+
+Released on May 2, 2018
+
+1. Fix tornado 4.5+ not closing connection
+2. Add ignore dirs
+3. Fix bugs
+
 Version 2.5.1
 -------------
 
