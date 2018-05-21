@@ -3,13 +3,7 @@ LiveReload
 
 This is a brand new LiveReload in version 2.0.0.
 
-.. image:: https://img.shields.io/pypi/dm/livereload.svg
-   :target: https://pypi.python.org/pypi/livereload
-   :alt: Downloads
-.. image:: https://img.shields.io/pypi/v/livereload.svg
-   :target: https://pypi.python.org/pypi/livereload
-   :alt: Version
-
+`Download on PyPi <https://pypi.python.org/pypi/livereload>`_
 
 Installation
 ------------
