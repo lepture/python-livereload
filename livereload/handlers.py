@@ -103,7 +103,7 @@ class LiveReloadHandler(WebSocketHandler):
         }
 
         cls._last_reload_time = time.time()
-        for waiter in cls.waiters:
+        for waiter in cls.waiters.copy():
             try:
                 waiter.write_message(msg)
             except:
