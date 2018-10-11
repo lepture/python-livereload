@@ -124,7 +124,7 @@ and a livereload server::
     server.serve(port=8080, host='localhost')
 
     # open the web browser on startup, based on $BROWSER environment variable
-    server.serve(open_url=True, debug=False)
+    server.serve(open_url_delay=5, debug=False)
 
 
 shell
