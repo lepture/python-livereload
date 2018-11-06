@@ -13,6 +13,7 @@ import glob
 import logging
 import os
 import time
+from typing import Optional
 
 try:
     import pyinotify
@@ -82,7 +83,8 @@ class Watcher(object):
         delays = set()
         for path in self._tasks:
             item = self._tasks[path]
-            if self.is_changed(path, item['ignore']):
+            path = self.is_changed(path, item['ignore'])
+            if path:
                 func = item['func']
                 delay = item['delay']
                 if delay and isinstance(delay, float):
@@ -90,7 +92,7 @@ class Watcher(object):
                 if func:
                     logger.info("Running task: {} (delay: {})".format(
                         func.repr_str, delay))
-                    func()
+                    func(path)
 
         if delays:
             delay = max(delays)
@@ -98,39 +100,41 @@ class Watcher(object):
             delay = None
         return self.filepath, delay
 
-    def is_changed(self, path, ignore=None):
+    def is_changed(self, path, ignore=None) -> Optional[str]:
         if os.path.isfile(path):
             return self.is_file_changed(path, ignore)
         elif os.path.isdir(path):
             return self.is_folder_changed(path, ignore)
         return self.is_glob_changed(path, ignore)
 
-    def is_file_changed(self, path, ignore=None):
+    def is_file_changed(self, path, ignore=None) -> Optional[str]:
         if not os.path.isfile(path):
-            return False
+            return None
 
         if self.ignore(path):
-            return False
+            return None
 
         if ignore and ignore(path):
-            return False
+            return None
 
         mtime = os.path.getmtime(path)
 
         if path not in self._mtimes:
             self._mtimes[path] = mtime
             self.filepath = path
-            return mtime > self._start
+            if mtime > self._start:
+                return path
+            return None
 
         if self._mtimes[path] != mtime:
             self._mtimes[path] = mtime
             self.filepath = path
-            return True
+            return path
 
         self._mtimes[path] = mtime
-        return False
+        return None
 
-    def is_folder_changed(self, path, ignore=None):
+    def is_folder_changed(self, path, ignore=None) -> Optional[str]:
         for root, dirs, files in os.walk(path, followlinks=True):
             for d in self.ignored_dirs:
                 if d in dirs:
@@ -138,14 +142,14 @@ class Watcher(object):
 
             for f in files:
                 if self.is_file_changed(os.path.join(root, f), ignore):
-                    return True
-        return False
+                    return f
+        return None
 
-    def is_glob_changed(self, path, ignore=None):
+    def is_glob_changed(self, path, ignore=None) -> Optional[str]:
         for f in glob.glob(path):
             if self.is_file_changed(f, ignore):
-                return True
-        return False
+                return f
+        return None
 
 
 class INotifyWatcher(Watcher):
