@@ -89,7 +89,7 @@ class Watcher(object):
                     delays.add(delay)
                 if func:
                     logger.info("Running task: {} (delay: {})".format(
-                        func.repr_str, delay))
+                        func.repr_str if hasattr(func, 'repr_str') else str(func), delay))
                     func()
 
         if delays:
