@@ -19,6 +19,13 @@ parser.add_argument(
     default=35729
 )
 parser.add_argument(
+    '--port-override',
+    dest='override_port',
+    help='Port at which `livereload` appears to the client',
+    type=int,
+    default=None
+)
+parser.add_argument(
     'directory',
     help='Directory to serve files from',
     type=str,
@@ -58,4 +65,5 @@ def main(argv=None):
     server = Server()
     server.watcher.watch(args.target or args.directory, delay=args.wait)
     server.serve(host=args.host, port=args.port, root=args.directory,
-                 open_url_delay=args.open_url_delay)
+                 open_url_delay=args.open_url_delay,
+                 override_port=args.override_port)

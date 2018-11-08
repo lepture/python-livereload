@@ -207,11 +207,13 @@ class Server(object):
 
         self.watcher.watch(filepath, func, delay, ignore=ignore)
 
-    def application(self, port, host, liveport=None, debug=None, live_css=True):
+    def application(self, port, host, liveport=None, debug=None, live_css=True,
+                    override_port=None):
         LiveReloadHandler.watcher = self.watcher
         LiveReloadHandler.live_css = live_css
         if liveport is None:
             liveport = port
+        client_port = override_port or liveport or port
         if debug is None and self.app:
             debug = True
 
@@ -224,9 +226,9 @@ class Server(object):
         # The livereload.js snippet.
         # Uses JavaScript to dynamically inject the client's hostname.
         # This allows for serving on 0.0.0.0.
-        live_reload_path = ":{port}/livereload.js?port={port}".format(port=liveport)
-        if liveport == 80 or liveport == 443:
-            live_reload_path = "/livereload.js?port={port}".format(port=liveport)
+        live_reload_path = ":{port}/livereload.js?port={port}".format(port=client_port)
+        if client_port == 80 or client_port == 443:
+            live_reload_path = "/livereload.js?port={port}".format(port=client_port)
 
         live_script = escape.utf8((
             '<script type="text/javascript">'
@@ -271,7 +273,8 @@ class Server(object):
         ]
 
     def serve(self, port=5500, liveport=None, host=None, root=None, debug=None,
-              open_url=False, restart_delay=2, open_url_delay=None, live_css=True):
+              open_url=False, restart_delay=2, open_url_delay=None, live_css=True,
+              override_port=None):
         """Start serve the server with the given port.
 
         :param port: serve on this port, default is 5500
@@ -283,6 +286,7 @@ class Server(object):
                       ``self.app`` is set, otherwise False.
         :param open_url_delay: open webbrowser after the delay seconds
         :param live_css: whether to use live css or force reload on css. Defaults to True
+        :param override_port: serving port is different from client-side
         """
         host = host or '127.0.0.1'
         if root is not None:
@@ -291,7 +295,8 @@ class Server(object):
         self._setup_logging()
         logger.info('Serving on http://%s:%s' % (host, port))
 
-        self.application(port, host, liveport=liveport, debug=debug, live_css=live_css)
+        self.application(port, host, liveport=liveport, debug=debug, live_css=live_css,
+            override_port=override_port)
 
         # Async open web browser after 5 sec timeout
         if open_url or open_url_delay:
