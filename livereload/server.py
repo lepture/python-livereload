@@ -207,7 +207,8 @@ class Server(object):
 
         self.watcher.watch(filepath, func, delay, ignore=ignore)
 
-    def application(self, port, host, liveport=None, debug=None, live_css=True):
+    def application(self, port, host, liveport=None, debug=None, live_css=True,
+                    override_endpoint_client=False):
         LiveReloadHandler.watcher = self.watcher
         LiveReloadHandler.live_css = live_css
         if liveport is None:
@@ -224,17 +225,27 @@ class Server(object):
         # The livereload.js snippet.
         # Uses JavaScript to dynamically inject the client's hostname.
         # This allows for serving on 0.0.0.0.
+
         live_reload_path = ":{port}/livereload.js?port={port}".format(port=liveport)
         if liveport == 80 or liveport == 443:
             live_reload_path = "/livereload.js?port={port}".format(port=liveport)
 
+        src_script = ' + window.location.hostname + "{path}">'.format(path=live_reload_path)
+
+        if override_endpoint_client:
+            src_script = (
+                ' + window.location.host + "/livereload.js?port="'
+                ' + window.location.port + "'
+                '>'
+            )
+
         live_script = escape.utf8((
             '<script type="text/javascript">'
             'document.write("<script src=''//"'
-            ' + window.location.hostname + "{path}''>'
+            '{src_script}'
             ' </"+"script>");'
             '</script>'
-        ).format(path=live_reload_path))
+        ).format(src_script=src_script))
 
         web_handlers = self.get_web_handlers(live_script)
 
@@ -271,7 +282,8 @@ class Server(object):
         ]
 
     def serve(self, port=5500, liveport=None, host=None, root=None, debug=None,
-              open_url=False, restart_delay=2, open_url_delay=None, live_css=True):
+              open_url=False, restart_delay=2, open_url_delay=None, live_css=True,
+              override_endpoint_client=False):
         """Start serve the server with the given port.
 
         :param port: serve on this port, default is 5500
@@ -291,7 +303,8 @@ class Server(object):
         self._setup_logging()
         logger.info('Serving on http://%s:%s' % (host, port))
 
-        self.application(port, host, liveport=liveport, debug=debug, live_css=live_css)
+        self.application(port, host, liveport=liveport, debug=debug, live_css=live_css,
+                         override_endpoint_client=override_endpoint_client)
 
         # Async open web browser after 5 sec timeout
         if open_url or open_url_delay:
