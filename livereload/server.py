@@ -213,6 +213,9 @@ class Server(object):
         LiveReloadHandler.live_css = live_css
         if liveport is None:
             liveport = port
+        else:
+            override_endpoint_client = False
+
         if debug is None and self.app:
             debug = True
 
@@ -226,24 +229,21 @@ class Server(object):
         # Uses JavaScript to dynamically inject the client's hostname.
         # This allows for serving on 0.0.0.0.
 
-        live_reload_path = ":{port}/livereload.js?port={port}".format(port=liveport)
-        if liveport == 80 or liveport == 443:
-            live_reload_path = "/livereload.js?port={port}".format(port=liveport)
-
-        src_script = ' + window.location.hostname + "{path}">'.format(path=live_reload_path)
-
         if override_endpoint_client:
-            src_script = (
-                ' + window.location.host + "/livereload.js?port="'
-                ' + window.location.port + "'
-                '>'
-            )
+            acquire_port = '" + window.location.port + "'
+            live_reload_path = '" + window.location.hostname + ":{port}/livereload.js?port={port}'.format(port=acquire_port)
+        elif liveport == 80 or liveport == 443:
+            live_reload_path = "/livereload.js?port={port}".format(port=liveport)
+        else:
+            live_reload_path = '" + window.location.hostname + ":{port}/livereload.js?port={port}'.format(port=liveport)
+
+        src_script = '{path}'.format(path=live_reload_path)
 
         live_script = escape.utf8((
             '<script type="text/javascript">'
-            'document.write("<script src=''//"'
+            'document.write("<script src=\'//'
             '{src_script}'
-            ' </"+"script>");'
+            '\'> </"+"script>");'
             '</script>'
         ).format(src_script=src_script))
 
