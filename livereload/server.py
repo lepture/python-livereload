@@ -132,7 +132,10 @@ class LiveScriptContainer(WSGIContainer):
 
         if status_code != 304:
             if "content-type" not in header_set:
-                headers.append(("Content-Type", "application/octet-stream; charset=UTF-8"))
+                headers.append((
+                    "Content-Type",
+                    "application/octet-stream; charset=UTF-8"
+                ))
             if "content-length" not in header_set:
                 headers.append(("Content-Length", str(len(body))))
 
@@ -207,11 +210,10 @@ class Server(object):
 
         self.watcher.watch(filepath, func, delay, ignore=ignore)
 
-    def application(self, port, host, liveport=None, debug=None, live_css=True):
+    def application(self, port, host, liveport=None, debug=None,
+                    live_css=True):
         LiveReloadHandler.watcher = self.watcher
         LiveReloadHandler.live_css = live_css
-        if liveport is None:
-            liveport = port
         if debug is None and self.app:
             debug = True
 
@@ -224,24 +226,26 @@ class Server(object):
         # The livereload.js snippet.
         # Uses JavaScript to dynamically inject the client's hostname.
         # This allows for serving on 0.0.0.0.
-        live_reload_path = ":{port}/livereload.js?port={port}".format(port=liveport)
-        if liveport == 80 or liveport == 443:
-            live_reload_path = "/livereload.js?port={port}".format(port=liveport)
-
-        live_script = escape.utf8((
-            '<script type="text/javascript">'
-            'document.write("<script src=''//"'
-            ' + window.location.hostname + "{path}''>'
-            ' </"+"script>");'
-            '</script>'
-        ).format(path=live_reload_path))
+        live_script = (
+            '<script type="text/javascript">(function(){'
+            'var s=document.createElement("script");'
+            'var port=%s;'
+            's.src="//"+window.location.hostname+":"+port'
+            '+ "/livereload.js?port=" + port;'
+            'document.head.appendChild(s);'
+            '})();</script>'
+        )
+        if liveport:
+            live_script = escape.utf8(live_script % liveport)
+        else:
+            live_script = escape.utf8(live_script % 'window.location.port')
 
         web_handlers = self.get_web_handlers(live_script)
 
         class ConfiguredTransform(LiveScriptInjector):
             script = live_script
 
-        if liveport == port:
+        if not liveport:
             handlers = live_handlers + web_handlers
             app = web.Application(
                 handlers=handlers,
@@ -271,7 +275,8 @@ class Server(object):
         ]
 
     def serve(self, port=5500, liveport=None, host=None, root=None, debug=None,
-              open_url=False, restart_delay=2, open_url_delay=None, live_css=True):
+              open_url=False, restart_delay=2, open_url_delay=None,
+              live_css=True):
         """Start serve the server with the given port.
 
         :param port: serve on this port, default is 5500
@@ -282,7 +287,8 @@ class Server(object):
                       via Tornado (and causes polling). Defaults to True when
                       ``self.app`` is set, otherwise False.
         :param open_url_delay: open webbrowser after the delay seconds
-        :param live_css: whether to use live css or force reload on css. Defaults to True
+        :param live_css: whether to use live css or force reload on css.
+                         Defaults to True
         """
         host = host or '127.0.0.1'
         if root is not None:
@@ -291,7 +297,8 @@ class Server(object):
         self._setup_logging()
         logger.info('Serving on http://%s:%s' % (host, port))
 
-        self.application(port, host, liveport=liveport, debug=debug, live_css=live_css)
+        self.application(
+            port, host, liveport=liveport, debug=debug, live_css=live_css)
 
         # Async open web browser after 5 sec timeout
         if open_url or open_url_delay:
