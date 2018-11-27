@@ -211,7 +211,7 @@ class Server(object):
         self.watcher.watch(filepath, func, delay, ignore=ignore)
 
     def application(self, port, host, liveport=None, debug=None,
-                    live_css=True):
+                    live_css=True, cache_control=StaticFileHandler.CC_AUTO):
         LiveReloadHandler.watcher = self.watcher
         LiveReloadHandler.live_css = live_css
         if debug is None and self.app:
@@ -240,7 +240,7 @@ class Server(object):
         else:
             live_script = escape.utf8(live_script % 'window.location.port')
 
-        web_handlers = self.get_web_handlers(live_script)
+        web_handlers = self.get_web_handlers(live_script, cache_control)
 
         class ConfiguredTransform(LiveScriptInjector):
             script = live_script
@@ -263,7 +263,7 @@ class Server(object):
             live = web.Application(handlers=live_handlers, debug=False)
             live.listen(liveport, address=host)
 
-    def get_web_handlers(self, script):
+    def get_web_handlers(self, script, cache_control=StaticFileHandler.CC_AUTO):
         if self.app:
             fallback = LiveScriptContainer(self.app, script)
             return [(r'.*', web.FallbackHandler, {'fallback': fallback})]
@@ -271,12 +271,13 @@ class Server(object):
             (r'/(.*)', StaticFileHandler, {
                 'path': self.root or '.',
                 'default_filename': 'index.html',
+                'cache_control': cache_control
             }),
         ]
 
     def serve(self, port=5500, liveport=None, host=None, root=None, debug=None,
               open_url=False, restart_delay=2, open_url_delay=None,
-              live_css=True):
+              live_css=True, cache_control=StaticFileHandler.CC_AUTO):
         """Start serve the server with the given port.
 
         :param port: serve on this port, default is 5500
@@ -289,6 +290,7 @@ class Server(object):
         :param open_url_delay: open webbrowser after the delay seconds
         :param live_css: whether to use live css or force reload on css.
                          Defaults to True
+        :param cache_control: see .handlers.StaticFileHandler , defaults to 'auto'
         """
         host = host or '127.0.0.1'
         if root is not None:
@@ -298,7 +300,7 @@ class Server(object):
         logger.info('Serving on http://%s:%s' % (host, port))
 
         self.application(
-            port, host, liveport=liveport, debug=debug, live_css=live_css)
+            port, host, liveport=liveport, debug=debug, live_css=live_css, cache_control=cache_control)
 
         # Async open web browser after 5 sec timeout
         if open_url or open_url_delay:

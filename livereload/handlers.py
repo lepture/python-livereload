@@ -151,5 +151,47 @@ class ForceReloadHandler(web.RequestHandler):
 
 
 class StaticFileHandler(web.StaticFileHandler):
+    """Override of tornado.web.StaticFileHandler, adding cache control features
+
+    Additional Initialization Parameters:
+        cache_control   A string containing the cache control options requested.
+                        Valid examples : "auto" ; "no-304, no-etag" ; "no-cache" ; "  no-cache no-304"
+
+    Cache Control Options:
+        none            Disable all cache control options
+        auto            Enable default cache control options : "no-304"
+        full            Enable all cache control options
+        no-304          Server will never return a HTTP 304
+        no-etag         Server will not provide an ETag in the response headers
+        no-cache        Server explicitly adds `Cache-Control` headers specifying `no-cache` for the browser
+    """
+
+    CC_NONE, CC_AUTO, CC_FULL = 'none', 'auto', 'full'
+
+    _cc_no_304 = 'no-304'
+    _cc_no_etag = 'no-etag'
+    _cc_no_cache = 'no-cache'
+
+    _CC_REPLACE_AUTO = _cc_no_304
+    _CC_REPLACE_FULL = ", ".join([_cc_no_304, _cc_no_etag, _cc_no_cache])
+    
+    def initialize(self, path, default_filename=None, cache_control=CC_AUTO):
+        super(StaticFileHandler, self).initialize(path, default_filename)
+
+        cache_control = cache_control.replace(self.CC_AUTO, self._CC_REPLACE_AUTO)
+        cache_control = cache_control.replace(self.CC_FULL, self._CC_REPLACE_FULL)
+
+        self._cc_no_304 = self._cc_no_304 in cache_control
+        self._cc_no_etag = self._cc_no_etag in cache_control
+        self._cc_no_cache = self._cc_no_cache in cache_control
+
     def should_return_304(self):
-        return False
+        return False if self._cc_no_304 else super(StaticFileHandler, self).should_return_304()
+
+    def compute_etag(self):
+        return None if self._cc_no_etag else super(StaticFileHandler, self).compute_etag()
+
+    def set_extra_headers(self, path):
+        if self._cc_no_cache:
+            self.set_header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+
