@@ -35,7 +35,7 @@ class Watcher(object):
         self.filepath = None
         self._start = time.time()
 
-        #list of ignored dirs
+        # list of ignored dirs
         self.ignored_dirs = ['.git', '.hg', '.svn', '.cvs']
 
     def ignore_dirs(self, *args):
@@ -88,8 +88,11 @@ class Watcher(object):
                 if delay and isinstance(delay, float):
                     delays.add(delay)
                 if func:
-                    logger.info("Running task: {} (delay: {})".format(
-                        func.repr_str, delay))
+                    name = getattr(func, 'name', None)
+                    if not name:
+                        name = getattr(func, '__name__', 'anonymous')
+                    logger.info(
+                        "Running task: {} (delay: {})".format(name, delay))
                     func()
 
         if delays:

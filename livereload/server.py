@@ -204,9 +204,7 @@ class Server(object):
         if isinstance(func, string_types):
             cmd = func
             func = shell(func)
-            func.repr_str = "shell: {}".format(cmd)
-        elif func:
-            func.repr_str = str(func)
+            func.name = "shell: {}".format(cmd)
 
         self.watcher.watch(filepath, func, delay, ignore=ignore)
 
