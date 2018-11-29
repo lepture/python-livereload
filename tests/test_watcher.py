@@ -53,6 +53,8 @@ class TestWatcher(unittest.TestCase):
 
         def add_count():
             watcher.count += 1
+            
+        add_count.repr_str = "add_count test task"
 
         watcher.watch(filepath, add_count)
         assert watcher.is_changed(filepath)
