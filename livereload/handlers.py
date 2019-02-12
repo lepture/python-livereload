@@ -8,13 +8,16 @@
     :copyright: (c) 2013 by Hsiaoming Yang
     :license: BSD, see LICENSE for more details.
 """
-
+import datetime
+import hashlib
 import os
+import stat
 import time
 import logging
 from tornado import web
 from tornado import ioloop
 from tornado import escape
+from tornado.log import gen_log
 from tornado.websocket import WebSocketHandler
 from tornado.util import ObjectDict
 
@@ -133,6 +136,80 @@ class LiveReloadHandler(WebSocketHandler):
             LiveReloadHandler.waiters.add(self)
 
 
+class MtimeStaticFileHandler(web.StaticFileHandler):
+    _static_mtimes = {}  # type: typing.Dict
+
+    @classmethod
+    def get_content_modified_time(cls, abspath):
+        """Returns the time that ``abspath`` was last modified.
+
+        May be overridden in subclasses.  Should return a `~datetime.datetime`
+        object or None.
+        """
+        stat_result = os.stat(abspath)
+        modified = datetime.datetime.utcfromtimestamp(
+            stat_result[stat.ST_MTIME])
+        return modified
+
+    @classmethod
+    def get_content_version(cls, abspath):
+        """Returns a version string for the resource at the given path.
+
+        This class method may be overridden by subclasses.  The
+        default implementation is a hash of the file's contents.
+
+        .. versionadded:: 3.1
+        """
+        data = cls.get_content(abspath)
+        hasher = hashlib.md5()
+
+        mtime_data = format(cls.get_content_modified_time(abspath), "%Y-%m-%d %H:%M:%S")
+
+        hasher.update(mtime_data.encode())
+
+        if isinstance(data, bytes):
+            hasher.update(data)
+        else:
+            for chunk in data:
+                hasher.update(chunk)
+        return hasher.hexdigest()
+
+    @classmethod
+    def _get_cached_version(cls, abs_path):
+        def _load_version(abs_path):
+            try:
+                hsh = cls.get_content_version(abs_path)
+                mtm = cls.get_content_modified_time(abs_path)
+
+                return mtm, hsh
+            except Exception:
+                gen_log.error("Could not open static file %r", abs_path)
+                return None, None
+
+        with cls._lock:
+            hashes = cls._static_hashes
+            mtimes = cls._static_mtimes
+
+            if abs_path not in hashes:
+                mtm, hsh = _load_version(abs_path)
+
+                hashes[abs_path] = mtm
+                mtimes[abs_path] = hsh
+            else:
+                hsh = hashes.get(abs_path)
+                mtm = mtimes.get(abs_path)
+
+                if mtm != cls.get_content_modified_time(abs_path):
+                    mtm, hsh = _load_version(abs_path)
+
+                    hashes[abs_path] = mtm
+                    mtimes[abs_path] = hsh
+
+            if hsh:
+                return hsh
+        return None
+
+
 class LiveReloadJSHandler(web.RequestHandler):
 
     def get(self):
@@ -150,6 +227,6 @@ class ForceReloadHandler(web.RequestHandler):
         self.write('ok')
 
 
-class StaticFileHandler(web.StaticFileHandler):
+class StaticFileHandler(MtimeStaticFileHandler):
     def should_return_304(self):
         return False
