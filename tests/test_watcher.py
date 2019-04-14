@@ -34,11 +34,16 @@ class TestWatcher(unittest.TestCase):
         # sleep 1 second so that mtime will be different
         time.sleep(1)
 
-        with open(os.path.join(tmpdir, 'foo'), 'w') as f:
+        filepath = os.path.join(tmpdir, 'foo')
+
+        with open(filepath, 'w') as f:
             f.write('')
 
         assert watcher.is_changed(tmpdir)
         assert watcher.is_changed(tmpdir) is False
+
+        os.remove(filepath)
+        assert watcher.is_changed(tmpdir)
 
     def test_watch_file(self):
         watcher = Watcher()
@@ -63,9 +68,13 @@ class TestWatcher(unittest.TestCase):
         with open(filepath, 'w') as f:
             f.write('')
 
-        rv = watcher.examine()
-        assert rv[0] == os.path.abspath(filepath)
+        abs_filepath = os.path.abspath(filepath)
+        assert watcher.examine() == (abs_filepath, None)
         assert watcher.count == 1
+
+        os.remove(filepath)
+        assert watcher.examine() == (abs_filepath, None)
+        assert watcher.count == 2
 
     def test_watch_glob(self):
         watcher = Watcher()
@@ -82,8 +91,11 @@ class TestWatcher(unittest.TestCase):
         with open(filepath, 'w') as f:
             f.write('')
 
-        rv = watcher.examine()
-        assert rv[0] == os.path.abspath(filepath)
+        abs_filepath = os.path.abspath(filepath)
+        assert watcher.examine() == (abs_filepath, None)
+
+        os.remove(filepath)
+        assert watcher.examine() == (abs_filepath, None)
 
     def test_watch_ignore(self):
         watcher = Watcher()
