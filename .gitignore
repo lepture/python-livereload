@@ -17,10 +17,13 @@ build
 
 pip-log.txt
 
+.vscode
 .idea
 .coverage
 .tox
 .env/
+venv/
+.envrc
 
 docs/_build
 example/style.css
