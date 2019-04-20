@@ -106,3 +106,28 @@ class TestWatcher(unittest.TestCase):
             f.write('')
 
         assert watcher.examine() == (None, None)
+
+    def test_watch_multiple_dirs(self):
+        first_dir = os.path.join(tmpdir, 'first')
+        second_dir = os.path.join(tmpdir, 'second')
+
+        watcher = Watcher()
+
+        os.mkdir(first_dir)
+        watcher.watch(first_dir)
+        assert watcher.examine() == (None, None)
+
+        first_path = os.path.join(first_dir, 'foo')
+        with open(first_path, 'w') as f:
+            f.write('')
+        assert watcher.examine() == (first_path, None)
+
+        os.mkdir(second_dir)
+        watcher.watch(second_dir)
+        # TODO: Failing, because of is_changed implementation
+        assert watcher.examine() == (None, None)
+
+        second_path = os.path.join(second_dir, 'foo')
+        with open(second_path, 'w') as f:
+            f.write('')
+        assert watcher.examine() == (second_path, None)

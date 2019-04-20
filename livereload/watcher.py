@@ -122,6 +122,8 @@ class Watcher(object):
         if not changed:
             changed = self.is_file_removed()
 
+        # TODO: This causes constant reloading with multiple _tasks,
+        # because it discards filepaths outside of current path
         self._mtimes = self._new_mtimes
         return changed
 
