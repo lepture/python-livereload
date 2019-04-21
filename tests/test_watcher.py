@@ -32,6 +32,7 @@ class TestWatcher(unittest.TestCase):
         assert watcher.is_changed(tmpdir) is False
 
         # sleep 1 second so that mtime will be different
+        # TODO: This doesn't seem necessary; test passes without it
         time.sleep(1)
 
         filepath = os.path.join(tmpdir, 'foo')
@@ -44,12 +45,14 @@ class TestWatcher(unittest.TestCase):
 
         os.remove(filepath)
         assert watcher.is_changed(tmpdir)
+        assert watcher.is_changed(tmpdir) is False
 
     def test_watch_file(self):
         watcher = Watcher()
         watcher.count = 0
 
         # sleep 1 second so that mtime will be different
+        # TODO: This doesn't seem necessary; test passes without it
         time.sleep(1)
 
         filepath = os.path.join(tmpdir, 'foo')
@@ -61,8 +64,10 @@ class TestWatcher(unittest.TestCase):
 
         watcher.watch(filepath, add_count)
         assert watcher.is_changed(filepath)
+        assert watcher.is_changed(filepath) is False
 
         # sleep 1 second so that mtime will be different
+        # TODO: This doesn't seem necessary; test passes without it
         time.sleep(1)
 
         with open(filepath, 'w') as f:
@@ -70,10 +75,12 @@ class TestWatcher(unittest.TestCase):
 
         abs_filepath = os.path.abspath(filepath)
         assert watcher.examine() == (abs_filepath, None)
+        assert watcher.examine() == (None, None)
         assert watcher.count == 1
 
         os.remove(filepath)
         assert watcher.examine() == (abs_filepath, None)
+        assert watcher.examine() == (None, None)
         assert watcher.count == 2
 
     def test_watch_glob(self):
@@ -93,9 +100,11 @@ class TestWatcher(unittest.TestCase):
 
         abs_filepath = os.path.abspath(filepath)
         assert watcher.examine() == (abs_filepath, None)
+        assert watcher.examine() == (None, None)
 
         os.remove(filepath)
         assert watcher.examine() == (abs_filepath, None)
+        assert watcher.examine() == (None, None)
 
     def test_watch_ignore(self):
         watcher = Watcher()
@@ -121,13 +130,23 @@ class TestWatcher(unittest.TestCase):
         with open(first_path, 'w') as f:
             f.write('')
         assert watcher.examine() == (first_path, None)
+        assert watcher.examine() == (None, None)
 
         os.mkdir(second_dir)
         watcher.watch(second_dir)
-        # TODO: Failing, because of is_changed implementation
         assert watcher.examine() == (None, None)
 
-        second_path = os.path.join(second_dir, 'foo')
+        second_path = os.path.join(second_dir, 'bar')
         with open(second_path, 'w') as f:
             f.write('')
         assert watcher.examine() == (second_path, None)
+        assert watcher.examine() == (None, None)
+
+        with open(first_path, 'a') as f:
+            f.write('foo')
+        assert watcher.examine() == (first_path, None)
+        assert watcher.examine() == (None, None)
+
+        os.remove(second_path)
+        assert watcher.examine() == (second_path, None)
+        assert watcher.examine() == (None, None)

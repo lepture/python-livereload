@@ -23,12 +23,13 @@ logger = logging.getLogger('livereload')
 
 
 class Watcher(object):
-    """A file watcher registery."""
+    """A file watcher registry."""
     def __init__(self):
         self._tasks = {}
 
-        # modification time of filepaths, before and after checking for changes
-        self._mtimes = {}
+        # modification time of filepaths for each task,
+        # before and after checking for changes
+        self._task_mtimes = {}
         self._new_mtimes = {}
 
         # setting changes
@@ -68,6 +69,7 @@ class Watcher(object):
             'func': func,
             'delay': delay,
             'ignore': ignore,
+            'mtimes': {},
         }
 
     def start(self, callback):
@@ -76,7 +78,10 @@ class Watcher(object):
         return False
 
     def examine(self):
-        """Check if there are changes, if true, run the given task."""
+        """Check if there are changes. If so, run the given task.
+
+        Returns a tuple of modified filepath and reload delay.
+        """
         if self._changes:
             return self._changes.pop()
 
@@ -85,6 +90,7 @@ class Watcher(object):
         delays = set()
         for path in self._tasks:
             item = self._tasks[path]
+            self._task_mtimes = item['mtimes']
             if self.is_changed(path, item['ignore']):
                 func = item['func']
                 delay = item['delay']
@@ -107,7 +113,7 @@ class Watcher(object):
     def is_changed(self, path, ignore=None):
         """Check if any filepaths have been added, modified, or removed.
 
-        Updates filepath modification times in self._mtimes.
+        Updates filepath modification times in self._task_mtimes.
         """
         self._new_mtimes = {}
         changed = False
@@ -122,28 +128,30 @@ class Watcher(object):
         if not changed:
             changed = self.is_file_removed()
 
-        # TODO: This causes constant reloading with multiple _tasks,
-        # because it discards filepaths outside of current path
-        self._mtimes = self._new_mtimes
+        self._task_mtimes.update(self._new_mtimes)
         return changed
 
     def is_file_removed(self):
         """Check if any filepaths have been removed since last check.
 
+        Deletes removed paths from self._task_mtimes.
         Sets self.filepath to one of the removed paths.
         """
-        removed_paths = set(self._mtimes) - set(self._new_mtimes)
-        if removed_paths:
-            # self.filepath seems purely informational, so showing one 
+        removed_paths = set(self._task_mtimes) - set(self._new_mtimes)
+        if not removed_paths:
+            return False
+
+        for path in removed_paths:
+            self._task_mtimes.pop(path)
+            # self.filepath seems purely informational, so setting one
             # of several removed files seems sufficient
-            self.filepath = removed_paths.pop()
-            return True
-        return False
+            self.filepath = path
+        return True
 
     def is_file_changed(self, path, ignore=None):
         """Check if filepath has been added or modified since last check.
 
-        Updates filepath modification times in self._new_mtimes. 
+        Updates filepath modification times in self._new_mtimes.
         Sets self.filepath to changed path.
         """
         if not os.path.isfile(path):
@@ -157,12 +165,12 @@ class Watcher(object):
 
         mtime = os.path.getmtime(path)
 
-        if path not in self._mtimes:
+        if path not in self._task_mtimes:
             self._new_mtimes[path] = mtime
             self.filepath = path
             return mtime > self._start
 
-        if self._mtimes[path] != mtime:
+        if self._task_mtimes[path] != mtime:
             self._new_mtimes[path] = mtime
             self.filepath = path
             return True
