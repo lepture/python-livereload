@@ -21,6 +21,7 @@ pip-log.txt
 .coverage
 .tox
 .env/
+venv/
 
 docs/_build
 example/style.css
