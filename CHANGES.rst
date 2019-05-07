@@ -3,6 +3,13 @@ Changelog
 
 The full list of changes between each Python LiveReload release.
 
+Version 2.6.1
+-------------
+
+Released on May 7, 2019
+
+1. Fixed bugs
+
 Version 2.6.0
 -------------
 
