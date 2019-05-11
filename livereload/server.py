@@ -236,7 +236,7 @@ class Server(object):
         if liveport:
             live_script = escape.utf8(live_script % liveport)
         else:
-            live_script = escape.utf8(live_script % 'window.location.port')
+            live_script = escape.utf8(live_script % "(window.location.port || (window.location.protocol == 'https:' ? 443: 80))")
 
         web_handlers = self.get_web_handlers(live_script)
 
