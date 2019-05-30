@@ -508,6 +508,9 @@
             }
           }
         }
+	if (options.port == 0) {                    
+          options.port = 80;                        
+        }
         return options;
       }
     }
