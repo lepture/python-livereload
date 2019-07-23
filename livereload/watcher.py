@@ -13,6 +13,7 @@ import glob
 import logging
 import os
 import time
+import sys
 
 try:
     import pyinotify
@@ -192,7 +193,11 @@ class Watcher(object):
 
     def is_glob_changed(self, path, ignore=None):
         """Check if glob path has any changed filepaths."""
-        for f in glob.glob(path):
+        if sys.version_info[0] >=3 and sys.version_info[1] >=5:
+            files = glob.glob(path, recursive=True)
+        else:
+            files = glob.glob(path)
+        for f in files:
             if self.is_file_changed(f, ignore):
                 return True
         return False
