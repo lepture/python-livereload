@@ -14,6 +14,7 @@ import logging
 import os
 import time
 import sys
+from inspect import signature
 
 try:
     import pyinotify
@@ -92,7 +93,8 @@ class Watcher(object):
         for path in self._tasks:
             item = self._tasks[path]
             self._task_mtimes = item['mtimes']
-            if self.is_changed(path, item['ignore']):
+            changed = self.is_changed(path, item['ignore'])
+            if changed:
                 func = item['func']
                 delay = item['delay']
                 if delay and isinstance(delay, float):
@@ -103,7 +105,10 @@ class Watcher(object):
                         name = getattr(func, '__name__', 'anonymous')
                     logger.info(
                         "Running task: {} (delay: {})".format(name, delay))
-                    func()
+                    if len(signature(func).parameters) > 0 and isinstance(changed, list):
+                        func(changed)
+                    else:
+                        func()
 
         if delays:
             delay = max(delays)
@@ -124,7 +129,7 @@ class Watcher(object):
         elif os.path.isdir(path):
             changed = self.is_folder_changed(path, ignore)
         else:
-            changed = self.is_glob_changed(path, ignore)
+            changed = self.get_changed_glob_files(path, ignore)
 
         if not changed:
             changed = self.is_file_removed()
@@ -191,16 +196,14 @@ class Watcher(object):
                     return True
         return False
 
-    def is_glob_changed(self, path, ignore=None):
+    def get_changed_glob_files(self, path, ignore=None):
         """Check if glob path has any changed filepaths."""
         if sys.version_info[0] >=3 and sys.version_info[1] >=5:
             files = glob.glob(path, recursive=True)
         else:
             files = glob.glob(path)
-        for f in files:
-            if self.is_file_changed(f, ignore):
-                return True
-        return False
+        changed_files = [f for f in files if self.is_file_changed(f, ignore)]
+        return changed_files
 
 
 class INotifyWatcher(Watcher):
