@@ -301,11 +301,10 @@ class Server(object):
         # Async open web browser after 5 sec timeout
         if open_url:
             logger.error('Use `open_url_delay` instead of `open_url`')
-        if open_url_delay:
-            sleep = open_url_delay or 5
+        if open_url_delay is not None:
 
             def opener():
-                time.sleep(sleep)
+                time.sleep(open_url_delay)
                 webbrowser.open('http://%s:%s' % (host, port))
             threading.Thread(target=opener).start()
 
