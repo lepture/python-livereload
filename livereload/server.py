@@ -34,6 +34,14 @@ logger = logging.getLogger('livereload')
 HEAD_END = b'</head>'
 
 
+def set_header(fn, name, value):
+    """Helper Function to Add HTTP headers to the server"""
+    def set_default_headers(self, *args, **kwargs):
+        fn(self, *args, **kwargs)
+        self.set_header(name, value)
+    return set_default_headers
+
+
 def shell(cmd, output=None, mode='w', cwd=None, shell=False):
     """Execute a shell command.
 
@@ -177,6 +185,25 @@ class Server(object):
             watcher_cls = get_watcher_class()
             watcher = watcher_cls()
         self.watcher = watcher
+        self.SFH = StaticFileHandler
+
+    def setHeader(self, name, value):
+        """Add or override HTTP headers at the at the beginning of the 
+           request.
+
+        Once you have intialized a server, you can add one or more 
+        headers before starting the server::
+
+            server.setHeader('Access-Control-Allow-Origin', '*')
+            server.setHeader('Access-Control-Allow-Methods', '*')
+            server.serve()
+
+        :param name: The name of the header field to be defined.
+        :param value: The value of the header field to be defined.
+        """
+        StaticFileHandler.set_default_headers = set_header(
+                StaticFileHandler.set_default_headers, name, value)
+        self.SFH = StaticFileHandler
 
     def watch(self, filepath, func=None, delay=None, ignore=None):
         """Add the given filepath for watcher list.
@@ -266,7 +293,7 @@ class Server(object):
             fallback = LiveScriptContainer(self.app, script)
             return [(r'.*', web.FallbackHandler, {'fallback': fallback})]
         return [
-            (r'/(.*)', StaticFileHandler, {
+            (r'/(.*)', self.SFH, {
                 'path': self.root or '.',
                 'default_filename': 'index.html',
             }),
