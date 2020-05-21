@@ -29,6 +29,13 @@ from .handlers import ForceReloadHandler, StaticFileHandler
 from .watcher import get_watcher_class
 from six import string_types, PY3
 
+import sys
+if sys.version_info.major >= 3 and sys.version_info.minor >= 7 \
+        or sys.version_info.major == 2:
+    import errno
+else:
+    from os import errno
+
 logger = logging.getLogger('livereload')
 
 HEAD_END = b'</head>'
@@ -67,7 +74,7 @@ def shell(cmd, output=None, mode='w', cwd=None, shell=False):
                       shell=shell)
         except OSError as e:
             logger.error(e)
-            if e.errno == os.errno.ENOENT:  # file (command) not found
+            if e.errno == errno.ENOENT:  # file (command) not found
                 logger.error("maybe you haven't installed %s", cmd[0])
             return e
         stdout, stderr = p.communicate()
