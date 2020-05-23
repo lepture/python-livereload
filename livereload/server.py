@@ -30,8 +30,7 @@ from .watcher import get_watcher_class
 from six import string_types, PY3
 
 import sys
-if sys.version_info.major >= 3 and sys.version_info.minor >= 7 \
-        or sys.version_info.major == 2:
+if sys.version_info >= (3, 7) or sys.version_info.major == 2:
     import errno
 else:
     from os import errno
