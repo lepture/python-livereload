@@ -107,6 +107,15 @@ You can delay a certain seconds to send the reload signal::
     # delay 2 seconds for reloading
     server.watch('path/to/file', delay=2)
 
+server.setHeader
+~~~~~~~~~~~~~~~~
+
+```server.setHeader``` can be used to add one or more headers to the HTTP 
+response::
+
+    server.setHeader('Access-Control-Allow-Origin', '*')
+    server.setHeader('Access-Control-Allow-Methods', '*')
+
 
 server.serve
 ~~~~~~~~~~~~
