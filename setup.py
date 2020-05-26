@@ -32,7 +32,8 @@ setup(
         ]
     },
     install_requires=[
-        'tornado',
+        'tornado;python_version>"2.7"',
+        'tornado==5.1.1;python_version=="2.7"',
         'six',
     ],
     license='BSD',
