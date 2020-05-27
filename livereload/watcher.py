@@ -14,7 +14,11 @@ import logging
 import os
 import time
 import sys
-from inspect import signature
+
+if sys.version_info.major < 3:
+    import inspect
+else:
+    from inspect import signature
 
 try:
     import pyinotify
@@ -105,7 +109,11 @@ class Watcher(object):
                         name = getattr(func, '__name__', 'anonymous')
                     logger.info(
                         "Running task: {} (delay: {})".format(name, delay))
-                    if len(signature(func).parameters) > 0 and isinstance(changed, list):
+                    if sys.version_info.major < 3:
+                        sig_len = len(inspect.getargspec(func)[0])
+                    else:
+                        sig_len = len(signature(func).parameters)
+                    if sig_len > 0 and isinstance(changed, list):
                         func(changed)
                     else:
                         func()
