@@ -3,6 +3,18 @@ Changelog
 
 The full list of changes between each Python LiveReload release.
 
+Version 2.6.2
+-------------
+
+Released on June 6, 2020
+
+1. Support for Python 2.8
+2. Enable adding custom headers to response.
+3. Updates for Python 2.7 support.
+4. Support for use with a reverse proxy.
+5. Other bug fixes.
+
+
 Version 2.6.1
 -------------
 
