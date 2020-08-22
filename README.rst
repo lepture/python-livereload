@@ -135,6 +135,9 @@ and a livereload server::
     # open the web browser on startup, based on $BROWSER environment variable
     server.serve(open_url_delay=5, debug=False)
 
+    # set a custom default file to open
+    server.serve(default_filename='example.html')
+
 
 shell
 ~~~~~

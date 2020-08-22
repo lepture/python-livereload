@@ -3,6 +3,14 @@ Changelog
 
 The full list of changes between each Python LiveReload release.
 
+Version 2.6.3
+-------------
+
+Released on August 22, 2020
+
+1. Support for custom default filenames.
+
+
 Version 2.6.2
 -------------
 
