@@ -1,27 +1,22 @@
 LiveReload
 ==========
 
-This is a brand new LiveReload in version 2.0.0.
-
-`Download on PyPi <https://pypi.python.org/pypi/livereload>`_
+Reload webpages on changes, without hitting refresh in your browser.
 
 Installation
 ------------
 
-Python LiveReload is designed for web developers who know Python.
+python-livereload is for web developers who know Python, and is available on
+`PyPI <https://pypi.python.org/pypi/livereload>`_.
 
-Install Python LiveReload with pip::
+Install with pip::
 
     $ pip install livereload
-
-If you don't have pip installed, try easy_install::
-
-    $ easy_install livereload
 
 Command Line Interface
 ----------------------
 
-Python LiveReload provides a command line utility, ``livereload``, for starting a server in a directory.
+python-livereload provides a command line utility, ``livereload``, for starting a server in a directory.
 
 By default, it will listen to port 35729, the common port for `LiveReload browser extensions`_. ::
 
@@ -40,7 +35,7 @@ By default, it will listen to port 35729, the common port for `LiveReload browse
 
 .. _`livereload browser extensions`: http://feedback.livereload.com/knowledgebase/articles/86242-how-do-i-install-and-use-the-browser-extensions-
 
-Older versions of Python LiveReload used a ``Guardfile`` to describe optional additional rules for files to watch and build commands to run on changes.  This conflicted with other tools that used the same file for their configuration and is no longer supported since Python LiveReload version 2.0.0.  Instead of a ``Guardfile`` you can now write a Python script using very similar syntax and run it instead of the command line application.
+Older versions of python-livereload used a ``Guardfile`` to describe optional additional rules for files to watch and build commands to run on changes.  This conflicted with other tools that used the same file for their configuration and is no longer supported since python-livereload 2.0.0.  Instead of a ``Guardfile`` you can now write a Python script using very similar syntax and run it instead of the command line application.
 
 Developer Guide
 ---------------
