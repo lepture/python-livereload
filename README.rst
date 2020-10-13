@@ -42,21 +42,6 @@ By default, it will listen to port 35729, the common port for `LiveReload browse
 
 Older versions of Python LiveReload used a ``Guardfile`` to describe optional additional rules for files to watch and build commands to run on changes.  This conflicted with other tools that used the same file for their configuration and is no longer supported since Python LiveReload version 2.0.0.  Instead of a ``Guardfile`` you can now write a Python script using very similar syntax and run it instead of the command line application.
 
-Script example: Sphinx
-----------------------
-
-Here's a simple example script that rebuilds Sphinx documentation:
-
-.. code:: python
-
-    #!/usr/bin/env python
-    from livereload import Server, shell
-    server = Server()
-    server.watch('docs/*.rst', shell('make html', cwd='docs'))
-    server.serve(root='docs/_build/html')
-
-Run it, then open http://localhost:5500/ and you can see the documentation changes in real time.
-
 Developer Guide
 ---------------
 
