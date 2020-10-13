@@ -9,7 +9,7 @@ Installation
 python-livereload is for web developers who know Python, and is available on
 `PyPI <https://pypi.python.org/pypi/livereload>`_.
 
-Install with pip::
+::
 
     $ pip install livereload
 
