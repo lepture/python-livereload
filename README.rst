@@ -189,6 +189,21 @@ Wrap the ``Bottle`` app with livereload server:
     # server.watch
     server.serve()
 
+
+pyinotify
+---------
+
+If `pyinotify <https://pypi.org/project/pyinotify/>`_ is installed, it will be used for watching file changes instead of the built in polling based watcher. If you prefer to use the built in watcher, specify the ``--poll`` flag on the command line, or initialize the ``Server`` class in a script like in the following
+
+.. code:: python
+	  
+   from livereload import Server
+   from livereload.watcher import Watcher
+   
+   server = Server(watcher=Watcher())
+
+The `pyinotify <https://pypi.org/project/pyinotify/>`_ watcher is more efficient than the built in polling based watcher since it does not have to continously poll, but it might fail if the inode of the watched file changes, as might happen when doing a move or a copy or using certain editors such as vi or emacs with backup settings enabled.
+ 
 Security Report
 ---------------
 
