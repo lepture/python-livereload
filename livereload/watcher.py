@@ -12,12 +12,7 @@ import glob
 import logging
 import os
 import time
-import sys
-
-if sys.version_info.major < 3:
-    import inspect
-else:
-    from inspect import signature
+from inspect import signature
 
 try:
     import pyinotify
@@ -108,11 +103,7 @@ class Watcher:
                         name = getattr(func, '__name__', 'anonymous')
                     logger.info(
                         f"Running task: {name} (delay: {delay})")
-                    if sys.version_info.major < 3:
-                        sig_len = len(inspect.getargspec(func)[0])
-                    else:
-                        sig_len = len(signature(func).parameters)
-                    if sig_len > 0 and isinstance(changed, list):
+                    if len(signature(func).parameters) > 0 and isinstance(changed, list):
                         func(changed)
                     else:
                         func()
@@ -205,10 +196,7 @@ class Watcher:
 
     def get_changed_glob_files(self, path, ignore=None):
         """Check if glob path has any changed filepaths."""
-        if sys.version_info[0] >=3 and sys.version_info[1] >=5:
-            files = glob.glob(path, recursive=True)
-        else:
-            files = glob.glob(path)
+        files = glob.glob(path, recursive=True)
         changed_files = [f for f in files if self.is_file_changed(f, ignore)]
         return changed_files
 
