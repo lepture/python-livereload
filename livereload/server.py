@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     livereload.server
     ~~~~~~~~~~~~~~~~~
@@ -94,8 +93,7 @@ def shell(cmd, output=None, mode='w', cwd=None, shell=False):
             logger.error(stderr)
             return stderr
         #: stdout is bytes, decode for python3
-        if PY3:
-            stdout = stdout.decode()
+        stdout = stdout.decode()
         with open(output, mode) as f:
             f.write(stdout)
 
@@ -104,7 +102,7 @@ def shell(cmd, output=None, mode='w', cwd=None, shell=False):
 
 class LiveScriptInjector(web.OutputTransform):
     def __init__(self, request):
-        super(LiveScriptInjector, self).__init__(request)
+        super().__init__(request)
 
     def transform_first_chunk(self, status_code, headers, chunk, finishing):
         if HEAD_END in chunk:
@@ -143,7 +141,7 @@ class LiveScriptContainer(WSGIContainer):
         status_code, reason = data["status"].split(' ', 1)
         status_code = int(status_code)
         headers = data["headers"]
-        header_set = set(k.lower() for (k, v) in headers)
+        header_set = {k.lower() for (k, v) in headers}
         body = escape.utf8(body)
 
         if HEAD_END in body:
@@ -174,7 +172,7 @@ class LiveScriptContainer(WSGIContainer):
         self._log(status_code, request)
 
 
-class Server(object):
+class Server:
     """Livereload server interface.
 
     Initialize a server and watch file changes::
@@ -239,7 +237,7 @@ class Server(object):
         :param ignore: A function return True to ignore a certain pattern of
                        filepath.
         """
-        if isinstance(func, string_types):
+        if isinstance(func, str):
             cmd = func
             func = shell(func)
             func.name = "shell: {}".format(cmd)
@@ -332,7 +330,7 @@ class Server(object):
             self.root = root
 
         self._setup_logging()
-        logger.info('Serving on http://%s:%s' % (host, port))
+        logger.info('Serving on http://{}:{}'.format(host, port))
 
         self.default_filename = default_filename
 
@@ -346,7 +344,7 @@ class Server(object):
 
             def opener():
                 time.sleep(open_url_delay)
-                webbrowser.open('http://%s:%s' % (host, port))
+                webbrowser.open('http://{}:{}'.format(host, port))
             threading.Thread(target=opener).start()
 
         try:

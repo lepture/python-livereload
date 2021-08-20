@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     livereload.watcher
     ~~~~~~~~~~~~~~~~~~
@@ -28,7 +27,7 @@ except ImportError:
 logger = logging.getLogger('livereload')
 
 
-class Watcher(object):
+class Watcher:
     """A file watcher registry."""
     def __init__(self):
         self._tasks = {}

@@ -1,12 +1,11 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 import re
 from setuptools import setup
 
 
 def fread(filepath):
-    with open(filepath, 'r') as f:
+    with open(filepath) as f:
         return f.read()
 
 
