@@ -240,7 +240,7 @@ class Server:
         if isinstance(func, str):
             cmd = func
             func = shell(func)
-            func.name = "shell: {}".format(cmd)
+            func.name = f"shell: {cmd}"
 
         self.watcher.watch(filepath, func, delay, ignore=ignore)
 
@@ -330,7 +330,7 @@ class Server:
             self.root = root
 
         self._setup_logging()
-        logger.info('Serving on http://{}:{}'.format(host, port))
+        logger.info(f'Serving on http://{host}:{port}')
 
         self.default_filename = default_filename
 
@@ -344,7 +344,7 @@ class Server:
 
             def opener():
                 time.sleep(open_url_delay)
-                webbrowser.open('http://{}:{}'.format(host, port))
+                webbrowser.open(f'http://{host}:{port}')
             threading.Thread(target=opener).start()
 
         try:

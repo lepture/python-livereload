@@ -107,7 +107,7 @@ class Watcher:
                     if not name:
                         name = getattr(func, '__name__', 'anonymous')
                     logger.info(
-                        "Running task: {} (delay: {})".format(name, delay))
+                        f"Running task: {name} (delay: {delay})")
                     if sys.version_info.major < 3:
                         sig_len = len(inspect.getargspec(func)[0])
                     else:
