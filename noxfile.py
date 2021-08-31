@@ -29,6 +29,7 @@ def _install_this_project_with_flit(session, *, extras=None, editable=False):
 #
 @nox.session(name="docs-live", reuse_venv=True)
 def docs_live(session):
+    _install_this_project_with_flit(session, editable=False)
     session.install("-r", "docs/requirements.txt")
     session.install("sphinx-autobuild")
 
