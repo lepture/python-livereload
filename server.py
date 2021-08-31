@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from livereload import Server, shell
 
 server = Server()

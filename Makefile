@@ -15,7 +15,7 @@ clean-pyc:
 	find . -name '*~' -exec rm -f {} +
 
 install:
-	python setup.py install
+	python3 setup.py install
 
 docs:
 	$(MAKE) -C docs html

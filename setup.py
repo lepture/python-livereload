@@ -1,12 +1,11 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 import re
 from setuptools import setup
 
 
 def fread(filepath):
-    with open(filepath, 'r') as f:
+    with open(filepath) as f:
         return f.read()
 
 
@@ -33,12 +32,11 @@ setup(
         ]
     },
     install_requires=[
-        'tornado;python_version>"2.7"',
-        'tornado<6;python_version=="2.7"',
-        'six',
+        'tornado',
     ],
     license='BSD',
     include_package_data=True,
+    python_requires='>=3.6',
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Console',
@@ -49,13 +47,12 @@ setup(
         'Operating System :: MacOS :: MacOS X',
         'Operating System :: POSIX :: Linux',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3 :: Only',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
         'Topic :: Software Development :: Build Tools',
