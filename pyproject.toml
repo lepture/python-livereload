@@ -2,12 +2,9 @@
 requires = ["flit_core >=3.2,<4"]
 build-backend = "flit_core.buildapi"
 
-[tool.flit.module]
-name = "livereload"
-
 [project]
 dynamic = ["version", "description"]
-name = "python-livereload"
+name = "livereload"
 readme = "README.rst"
 
 dependencies = ["tornado"]
