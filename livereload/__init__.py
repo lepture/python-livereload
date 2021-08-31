@@ -1,11 +1,4 @@
-"""
-    livereload
-    ~~~~~~~~~~
-
-    A python version of livereload.
-
-    :copyright: (c) 2013 by Hsiaoming Yang
-    :license: BSD, see LICENSE for more details.
+"""Reload webpages on changes, without hitting refresh in your browser.
 """
 
 __version__ = '2.6.3'
