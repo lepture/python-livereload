@@ -1,0 +1,44 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+jobs:
+  tests:
+    name: tests / ${{ matrix.os }} / ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}-latest
+
+    strategy:
+      matrix:
+        os: [Windows, Ubuntu, MacOS]
+        python-version: [3.6, 3.7, 3.8, 3.9]
+        include:
+          # Only run PyPy jobs, on Ubuntu.
+          - os: Ubuntu
+            python-version: pypy3
+
+    steps:
+      - uses: actions/checkout@v2
+
+      # Get Python to test against
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      # Setup pip's cache
+      - name: Save date (for cache)
+        id: date
+        run: echo "::set-output name=date::$(date +%F)"
+      - name: Save pip cache dir
+        id: pip-cache-dir
+        run: echo "::set-output name=dir::$(pip cache dir)"
+      - name: pip cache
+        uses: actions/cache@v1
+        with:
+          path: ${{ steps.pip-cache-dir.outputs.dir }}
+          key: pip-v1-${{ runner.os }}-${{ steps.date.outputs.date }}
+          restore-keys: pip-v1-${{ runner.os }}
+
+      - run: pip install nox
+      - run: nox -s test-${{ matrix.python-version }}

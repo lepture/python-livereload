@@ -3,6 +3,14 @@ Changelog
 
 The full list of changes between each Python LiveReload release.
 
+Version 3.0.0
+-------------
+
+*unreleased*
+
+1. Drop support for Python < 3.6.
+
+
 Version 2.6.3
 -------------
 
