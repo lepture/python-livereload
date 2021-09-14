@@ -150,3 +150,18 @@ class TestWatcher(unittest.TestCase):
         os.remove(second_path)
         assert watcher.examine() == (second_path, None)
         assert watcher.examine() == (None, None)
+
+    def test_watch_delay_forever(self):
+        watcher = Watcher()
+
+        filepath = os.path.join(tmpdir, 'foo')
+        abs_filepath = os.path.abspath(filepath)
+
+        with open(filepath, 'w') as f:
+            f.write('')
+
+        watcher.watch(filepath, delay=1.0)
+        watcher.watch(filepath, delay='forever')
+
+        assert watcher.examine() == (abs_filepath, 'forever')
+        assert watcher.examine() == (None, None)
