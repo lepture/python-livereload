@@ -199,7 +199,7 @@ class Server:
         """Add or override HTTP headers at the at the beginning of the 
            request.
 
-        Once you have intialized a server, you can add one or more 
+        Once you have initialized a server, you can add one or more 
         headers before starting the server::
 
             server.setHeader('Access-Control-Allow-Origin', '*')
@@ -216,7 +216,7 @@ class Server:
     def watch(self, filepath, func=None, delay=None, ignore=None):
         """Add the given filepath for watcher list.
 
-        Once you have intialized a server, watch file changes before
+        Once you have initialized a server, watch file changes before
         serve the server::
 
             server.watch('static/*.stylus', 'make static')
