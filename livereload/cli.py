@@ -3,6 +3,7 @@ import argparse
 import tornado.log
 
 from livereload.server import Server
+from livereload.watcher import Watcher
 
 
 parser = argparse.ArgumentParser(description='Start a `livereload` server')
@@ -46,6 +47,11 @@ parser.add_argument(
     help='Enable Tornado pretty logging',
     action='store_true'
 )
+parser.add_argument(
+    '-po', '--poll',
+    help='Use built in polling based watcher instead of pyinotify',
+    action='store_true'
+)
 
 
 def main(argv=None):
@@ -55,7 +61,10 @@ def main(argv=None):
         tornado.log.enable_pretty_logging()
 
     # Create a new application
-    server = Server()
+    if args.poll:
+        server = Server(watcher=Watcher())
+    else:
+        server = Server()
     server.watcher.watch(args.target or args.directory, delay=args.wait)
     server.serve(host=args.host, port=args.port, root=args.directory,
                  open_url_delay=args.open_url_delay)
