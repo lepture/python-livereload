@@ -179,7 +179,7 @@ class Server:
         server = Server(wsgi_app)
         server.serve()
 
-    :param app: a wsgi application instance
+    :param app: a WSGI application instance
     :param watcher: A Watcher instance, you don't have to initialize
                     it by yourself. Under Linux, you will want to install
                     pyinotify and use INotifyWatcher() to avoid wasted
