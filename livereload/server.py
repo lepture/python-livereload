@@ -105,7 +105,7 @@ class LiveScriptInjector(web.OutputTransform):
 
     def transform_first_chunk(self, status_code, headers, chunk, finishing):
         if HEAD_END in chunk:
-            chunk = chunk.replace(HEAD_END, self.script + HEAD_END)
+            chunk = chunk.replace(HEAD_END, self.script + HEAD_END, 1)
             if 'Content-Length' in headers:
                 length = int(headers['Content-Length']) + len(self.script)
                 headers['Content-Length'] = str(length)
