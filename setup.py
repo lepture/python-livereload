@@ -25,7 +25,7 @@ setup(
     packages=['livereload', 'livereload.management.commands'],
     description='Python LiveReload is an awesome tool for web developers',
     long_description_content_type='text/x-rst',
-    long_description=fread('README.rst'),
+    long_description=fread('README.md'),
     entry_points={
         'console_scripts': [
             'livereload = livereload.cli:main',
