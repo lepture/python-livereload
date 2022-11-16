@@ -29,10 +29,7 @@ from .watcher import get_watcher_class
 
 import sys
 
-if sys.version_info >= (3, 7):
-    import errno
-else:
-    from os import errno
+import errno
 
 if sys.version_info >= (3, 8) and sys.platform == 'win32':
     import asyncio
