@@ -103,8 +103,8 @@ class Watcher:
                         name = getattr(func, '__name__', 'anonymous')
                     logger.info(
                         f"Running task: {name} (delay: {delay})")
-                    if len(signature(func).parameters) > 0 and isinstance(changed, list):
-                        func(changed)
+                    if len(signature(func).parameters) > 0:
+                        func(changed if isinstance(changed, list) else [path])
                     else:
                         func()
 
