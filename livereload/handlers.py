@@ -24,6 +24,7 @@ logger = logging.getLogger('livereload')
 
 
 class LiveReloadHandler(WebSocketHandler):
+    DEFAULT_RELOAD_TIME = 3
     waiters = set()
     watcher = None
     live_css = None
@@ -68,7 +69,7 @@ class LiveReloadHandler(WebSocketHandler):
         filepath, delay = cls.watcher.examine()
         if not filepath or delay == 'forever' or not cls.waiters:
             return
-        reload_time = 3
+        reload_time = DEFAULT_RELOAD_TIME
 
         if delay:
             reload_time = max(3 - delay, 1)
