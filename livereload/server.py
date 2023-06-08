@@ -85,11 +85,12 @@ def shell(cmd, output=None, mode='w', cwd=None, shell=False):
                 logger.error("maybe you haven't installed %s", cmd[0])
             return e
         stdout, stderr = p.communicate()
+        #: stdout is bytes, decode for python3
+        stdout = stdout.decode()
+        stderr = stderr.decode()
         if stderr:
             logger.error(stderr)
             return stderr
-        #: stdout is bytes, decode for python3
-        stdout = stdout.decode()
         with open(output, mode) as f:
             f.write(stdout)
 
