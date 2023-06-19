@@ -98,8 +98,8 @@ def shell(cmd, output=None, mode='w', cwd=None, shell=False):
 
 
 class LiveScriptInjector(web.OutputTransform):
-    def __init__(self, request):
-        super().__init__(request)
+    #def __init__(self, request):
+    #    super().__init__(request)
 
     def transform_first_chunk(self, status_code, headers, chunk, finishing):
         if HEAD_END in chunk:
@@ -111,9 +111,19 @@ class LiveScriptInjector(web.OutputTransform):
 
 
 class LiveScriptContainer(WSGIContainer):
-    def __init__(self, wsgi_app, script=''):
-        self.wsgi_app = wsgi_app
+    def __init__(self, wsgi_app, executor=None, script=b''):
+        super().__init__(wsgi_app, executor=executor)
         self.script = script
+
+    @property
+    def wsgi_app(self):
+        return self.wsgi_application
+    @wsgi_app.setter
+    def wsgi_app(self, wsgi_app):
+        self.wsgi_application = wsgi_app
+    @wsgi_app.deleter
+    def wsgi_app(self):
+        del self.wsgi_application
 
     def __call__(self, request):
         data = {}
@@ -125,7 +135,7 @@ class LiveScriptContainer(WSGIContainer):
             return response.append
 
         app_response = self.wsgi_app(
-            WSGIContainer.environ(request), start_response)
+            super().environ(request), start_response)
         try:
             response.extend(app_response)
             body = b"".join(response)
