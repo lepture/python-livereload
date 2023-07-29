@@ -69,7 +69,7 @@ class LiveReloadHandler(WebSocketHandler):
         filepath, delay = cls.watcher.examine()
         if not filepath or delay == 'forever' or not cls.waiters:
             return
-        reload_time = DEFAULT_RELOAD_TIME
+        reload_time = LiveReloadHandler.DEFAULT_RELOAD_TIME
 
         if delay:
             reload_time = max(3 - delay, 1)
