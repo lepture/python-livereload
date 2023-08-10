@@ -1,31 +1,19 @@
 #!/usr/bin/env python
 
-import re
 from setuptools import setup
-
-
-def fread(filepath):
-    with open(filepath) as f:
-        return f.read()
-
-
-def version():
-    content = fread('livereload/__init__.py')
-    pattern = r"__version__ = '([0-9\.dev]*)'"
-    m = re.findall(pattern, content)
-    return m[0]
-
+import re
 
 setup(
     name='livereload',
-    version=version(),
+    version=re.search(r"__version__ *= *[\"'](\d+(\.\d+)*(-(dev|\d+)))?[\"']", open(
+        "livereload/__init__.py").read()).group(1),
     author='Hsiaoming Yang',
     author_email='me@lepture.com',
     url='https://github.com/lepture/python-livereload',
     packages=['livereload', 'livereload.management.commands'],
     description='Python LiveReload is an awesome tool for web developers',
-    long_description_content_type='text/x-rst',
-    long_description=fread('README.md'),
+    long_description_content_type='text/markdown',
+    long_description=open("README.md").read(),
     entry_points={
         'console_scripts': [
             'livereload = livereload.cli:main',
