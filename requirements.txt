@@ -1,0 +1,4 @@
+click
+starlette
+uvicorn
+watchfiles
