@@ -1,3 +1,5 @@
+flake8
+mypy
 click
 starlette
 uvicorn

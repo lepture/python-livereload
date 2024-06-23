@@ -92,8 +92,7 @@ class Server:
             self,
             app: t.Optional[ASGIApp] = None,
             static_directory: t.Optional[str] = None,
-            static_url: str = '/static',
-        ) -> None:
+            static_url: str = '/static') -> None:
         _has_routes: t.Dict[str, bool] = {}
         for route in self.routes:
             route_name = getattr(route, 'name', None)
@@ -111,8 +110,7 @@ class Server:
     def run(
             self,
             host: t.Optional[str] = None,
-            port: t.Optional[int] = None,
-        ) -> None:
+            port: t.Optional[int] = None) -> None:
         import uvicorn
         if host is None:
             host = self.config.get("host", "127.0.0.1")
