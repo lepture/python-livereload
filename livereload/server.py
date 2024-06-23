@@ -125,7 +125,7 @@ class LiveScriptContainer(WSGIContainer):
             return response.append
 
         app_response = self.wsgi_app(
-            WSGIContainer.environ(request), start_response)
+            WSGIContainer(self.wsgi_app).environ(request), start_response)
         try:
             response.extend(app_response)
             body = b"".join(response)
