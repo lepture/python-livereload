@@ -3,6 +3,13 @@ Changelog
 
 The full list of changes between each Python LiveReload release.
 
+Version 2.7.0
+-------------
+
+Released on Jun 23, 2024
+
+1. Fixed many bugs
+
 Version 2.6.3
 -------------
 
