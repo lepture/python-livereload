@@ -54,12 +54,8 @@ def setup(server: Server) -> None:
     if not os.path.isdir(output_dir):
         subprocess.run(cmd)
 
-    server.add_livereload_routes()
-    server.prepare_routes(
-        app=HTMLStaticFiles(directory=output_dir, check_dir=False),
-        static_url="/_static",
-        static_directory=os.path.join(output_dir, '_static'),
-    )
+    server.add_static_route("/_static", os.path.join(output_dir, '_static'))
+    server.run(app=HTMLStaticFiles(directory=output_dir, check_dir=False))
 
 
 def guess_docs_source_dir() -> str:
