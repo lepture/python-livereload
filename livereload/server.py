@@ -347,8 +347,12 @@ class Server:
         try:
             self.watcher._changes.append(('__livereload__', restart_delay))
             LiveReloadHandler.start_tasks()
-            add_reload_hook(lambda: IOLoop.instance().close(all_fds=True))
+            # When autoreload is triggered, initiate a shutdown of the IOLoop
+            add_reload_hook(lambda: IOLoop.instance().stop())
+            # The call to start() does not return until the IOLoop is stopped.
             IOLoop.instance().start()
+            # Once the IOLoop is stopped, the IOLoop can be closed to free resources
+            IOLoop.current().close(all_fds=True)
         except KeyboardInterrupt:
             logger.info('Shutting down...')
 
