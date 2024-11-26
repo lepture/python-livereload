@@ -95,7 +95,7 @@ class Watcher:
             if changed:
                 func = item['func']
                 delay = item['delay']
-                if delay and isinstance(delay, float):
+                if delay and isinstance(delay, float) or delay == 'forever':
                     delays.add(delay)
                 if func:
                     name = getattr(func, 'name', None)
@@ -108,8 +108,10 @@ class Watcher:
                     else:
                         func()
 
-        if delays:
-            delay = max(delays)
+        if delays == {'forever'}:
+            delay = 'forever'
+        elif delays:
+            delay = max(delays - {'forever'})
         else:
             delay = None
         return self.filepath, delay
