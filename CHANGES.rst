@@ -3,6 +3,14 @@ Changelog
 
 The full list of changes between each Python LiveReload release.
 
+Version 2.7.1
+-------------
+
+Released on Dec 18, 2024
+
+1. Wait for the IOLoop to be stopped before attempting to close it
+2. Not injecting live script when serving non-HTML content
+
 Version 2.7.0
 -------------
 
