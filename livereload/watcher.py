@@ -95,7 +95,7 @@ class Watcher:
             if changed:
                 func = item['func']
                 delay = item['delay']
-                if delay and isinstance(delay, float):
+                if delay and isinstance(delay, float) or delay == 'forever':
                     delays.add(delay)
                 if func:
                     name = getattr(func, 'name', None)
