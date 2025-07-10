@@ -186,8 +186,10 @@ class Server:
     """
     def __init__(self, app=None, watcher=None):
         self.root = None
-
         self.app = app
+        self.ioloop = None
+        self._http_servers = []
+
         if not watcher:
             watcher_cls = get_watcher_class()
             watcher = watcher_cls()
@@ -277,6 +279,7 @@ class Server:
         class ConfiguredTransform(LiveScriptInjector):
             script = live_script
 
+        # Create the main site service
         if not liveport:
             handlers = live_handlers + web_handlers
             app = web.Application(
@@ -284,16 +287,21 @@ class Server:
                 debug=debug,
                 transforms=[ConfiguredTransform]
             )
-            app.listen(port, address=host)
+            server = app.listen(port, address=host)
+            self._http_servers.append(server)
         else:
+            # Create the main service
             app = web.Application(
                 handlers=web_handlers,
                 debug=debug,
                 transforms=[ConfiguredTransform]
             )
-            app.listen(port, address=host)
+            server = app.listen(port, address=host)
+            self._http_servers.append(server)
+            # Creating a livereload.js Server
             live = web.Application(handlers=live_handlers, debug=False)
-            live.listen(liveport, address=host)
+            live_server = live.listen(liveport, address=host)
+            self._http_servers.append(live_server)
 
     def get_web_handlers(self, script):
         if self.app:
@@ -338,6 +346,7 @@ class Server:
         # Async open web browser after 5 sec timeout
         if open_url:
             logger.error('Use `open_url_delay` instead of `open_url`')
+
         if open_url_delay is not None:
 
             def opener():
@@ -346,16 +355,45 @@ class Server:
             threading.Thread(target=opener).start()
 
         try:
+            # Save IOLoop instance
+            self.ioloop = IOLoop.current()
             self.watcher._changes.append(('__livereload__', restart_delay))
             LiveReloadHandler.start_tasks()
             # When autoreload is triggered, initiate a shutdown of the IOLoop
-            add_reload_hook(lambda: IOLoop.instance().stop())
+            add_reload_hook(lambda: self.ioloop.stop())
             # The call to start() does not return until the IOLoop is stopped.
-            IOLoop.instance().start()
+            self.ioloop.start()
             # Once the IOLoop is stopped, the IOLoop can be closed to free resources
-            IOLoop.current().close(all_fds=True)
+            self.ioloop.close(all_fds=True)
         except KeyboardInterrupt:
             logger.info('Shutting down...')
+
+    def stop(self):
+        """Proactively stop the server, close the listening and release resources"""
+
+        # NOTE:
+        # In Tornado ≥ 6.0, IOLoop is a wrapper around the underlying asyncio event loop.
+        # The IOLoop itself does not expose `.is_running()` directly.
+        # To check if the loop is active, we must use `self.ioloop.asyncio_loop.is_running()`,
+        # which is thread-safe and reflects the actual running state.
+        if self.ioloop and self.ioloop.asyncio_loop.is_running():
+            logger.info('Stopping livereload server...')
+
+            # Stop all HTTP servers
+            for server in self._http_servers:
+                try:
+                    server.stop()
+                except Exception as e:
+                    logger.warning(f"Failed to stop server: {e}")
+            self._http_servers.clear()
+
+            # Stop IOLoop (thread-safe)
+            try:
+                self.ioloop.add_callback(self.ioloop.stop)
+            except Exception as e:
+                logger.error(f"Unable to schedule IOLoop stop: {e}")
+        else:
+            logger.warning("IOLoop is not running or not initialized.")
 
     def _setup_logging(self):
         logger.setLevel(logging.INFO)
