@@ -14,6 +14,7 @@ import shlex
 import logging
 import threading
 import webbrowser
+import re
 from subprocess import Popen, PIPE
 
 from tornado.wsgi import WSGIContainer
@@ -37,7 +38,12 @@ if sys.version_info >= (3, 8) and sys.platform == 'win32':
 
 logger = logging.getLogger('livereload')
 
-HEAD_END = b'</head>'
+HEAD_END_RE = re.compile(br'</head>', re.IGNORECASE)
+
+
+def inject_script_at_head(content, script):
+    """Inject script before closing </head> tag, case-insensitive."""
+    return HEAD_END_RE.sub(lambda match: script + match.group(0), content, count=1)
 
 
 def set_header(fn, name, value):
@@ -103,8 +109,8 @@ class LiveScriptInjector(web.OutputTransform):
 
     def transform_first_chunk(self, status_code, headers, chunk, finishing):
         is_html = "html" in headers.get("Content-Type", "")
-        if is_html and HEAD_END in chunk:
-            chunk = chunk.replace(HEAD_END, self.script + HEAD_END, 1)
+        if is_html and HEAD_END_RE.search(chunk):
+            chunk = inject_script_at_head(chunk, self.script)
             if 'Content-Length' in headers:
                 length = int(headers['Content-Length']) + len(self.script)
                 headers['Content-Length'] = str(length)
@@ -142,8 +148,8 @@ class LiveScriptContainer(WSGIContainer):
         header_set = {k.lower() for (k, v) in headers}
         body = escape.utf8(body)
 
-        if HEAD_END in body:
-            body = body.replace(HEAD_END, self.script + HEAD_END)
+        if HEAD_END_RE.search(body):
+            body = inject_script_at_head(body, self.script)
 
         if status_code != 304:
             if "content-type" not in header_set:
