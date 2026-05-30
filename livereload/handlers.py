@@ -72,7 +72,7 @@ class LiveReloadHandler(WebSocketHandler):
         reload_time = LiveReloadHandler.DEFAULT_RELOAD_TIME
 
         if delay:
-            reload_time = max(3 - delay, 1)
+            reload_time = max(delay, 3)
         if filepath == '__livereload__':
             reload_time = 0
 
