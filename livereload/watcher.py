@@ -184,6 +184,7 @@ class Watcher:
 
     def is_folder_changed(self, path, ignore=None):
         """Check if directory path has any changed filepaths."""
+        changed = False
         for root, dirs, files in os.walk(path, followlinks=True):
             for d in self.ignored_dirs:
                 if d in dirs:
@@ -191,8 +192,8 @@ class Watcher:
 
             for f in files:
                 if self.is_file_changed(os.path.join(root, f), ignore):
-                    return True
-        return False
+                    changed = True
+        return changed
 
     def get_changed_glob_files(self, path, ignore=None):
         """Check if glob path has any changed filepaths."""

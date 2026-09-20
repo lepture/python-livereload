@@ -47,6 +47,22 @@ class TestWatcher(unittest.TestCase):
         assert watcher.is_changed(tmpdir)
         assert watcher.is_changed(tmpdir) is False
 
+    def test_watch_dir_reports_every_changed_file_at_once(self):
+        watcher = Watcher()
+        watcher._start -= 1
+
+        watcher.watch(tmpdir)
+        assert watcher.examine() == (None, None)
+
+        for name in ('foo', 'bar', 'baz'):
+            with open(os.path.join(tmpdir, name), 'w') as f:
+                f.write('')
+
+        reported, delay = watcher.examine()
+        assert reported is not None
+        assert delay is None
+        assert watcher.examine() == (None, None)
+
     def test_watch_file(self):
         watcher = Watcher()
         watcher.count = 0
