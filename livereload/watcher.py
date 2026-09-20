@@ -88,6 +88,7 @@ class Watcher:
         # clean filepath
         self.filepath = None
         delays = set()
+        never_reload = False
         for path in self._tasks:
             item = self._tasks[path]
             self._task_mtimes = item['mtimes']
@@ -95,7 +96,9 @@ class Watcher:
             if changed:
                 func = item['func']
                 delay = item['delay']
-                if delay and isinstance(delay, float):
+                if delay == 'forever':
+                    never_reload = True
+                elif delay and isinstance(delay, float):
                     delays.add(delay)
                 if func:
                     name = getattr(func, 'name', None)
@@ -110,6 +113,8 @@ class Watcher:
 
         if delays:
             delay = max(delays)
+        elif never_reload:
+            delay = 'forever'
         else:
             delay = None
         return self.filepath, delay
