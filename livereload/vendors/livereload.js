@@ -12,7 +12,9 @@
       this.WebSocket = WebSocket;
       this.Timer = Timer;
       this.handlers = handlers;
-      this._uri = ((window.location.protocol == "https:") ? "wss://" : "ws://") + this.options.host + ":" + this.options.port + "/livereload";
+      // python-livereload patch: use wss:// on https pages (#152), and honour
+      // the ?path= option (as in livereload-js v4) for use behind a proxy.
+      this._uri = ((window.location.protocol == "https:") ? "wss://" : "ws://") + this.options.host + ":" + this.options.port + "/" + (this.options.path || "livereload");
       this._nextDelay = this.options.mindelay;
       this._connectionDesired = false;
       this.protocol = 0;
@@ -493,7 +495,9 @@
       element = _ref[_i];
       if ((src = element.src) && (m = src.match(/^[^:]+:\/\/(.*)\/z?livereload\.js(?:\?(.*))?$/))) {
         options = new Options();
-        if (mm = m[1].match(/^([^\/:]+)(?::(\d+))?$/)) {
+        // python-livereload patch: allow a path prefix after host:port, so
+        // livereload.js can be served from below the root.
+        if (mm = m[1].match(/^([^\/:]+)(?::(\d+))?(?:\/.*)?$/)) {
           options.host = mm[1];
           if (mm[2]) {
             options.port = parseInt(mm[2], 10);

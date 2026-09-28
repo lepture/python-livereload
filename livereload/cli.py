@@ -2,7 +2,14 @@ import argparse
 
 import tornado.log
 
-from livereload.server import Server
+from livereload.server import Server, normalize_base_path
+
+
+def base_path(value):
+    try:
+        return normalize_base_path(value)
+    except ValueError as e:
+        raise argparse.ArgumentTypeError(str(e))
 
 
 parser = argparse.ArgumentParser(description='Start a `livereload` server')
@@ -46,6 +53,12 @@ parser.add_argument(
     help='Enable Tornado pretty logging',
     action='store_true'
 )
+parser.add_argument(
+    '--base-path',
+    help='URL path prefix when served behind a reverse proxy that strips '
+         'it, e.g. /proxy/5500',
+    type=base_path,
+)
 
 
 def main(argv=None):
@@ -58,4 +71,4 @@ def main(argv=None):
     server = Server()
     server.watcher.watch(args.target or args.directory, delay=args.wait)
     server.serve(host=args.host, port=args.port, root=args.directory,
-                 open_url_delay=args.open_url_delay)
+                 open_url_delay=args.open_url_delay, base_path=args.base_path)

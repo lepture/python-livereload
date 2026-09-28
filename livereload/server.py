@@ -16,6 +16,7 @@ import threading
 import webbrowser
 import re
 from subprocess import Popen, PIPE
+from urllib.parse import unquote
 
 from tornado.wsgi import WSGIContainer
 from tornado.ioloop import IOLoop
@@ -44,6 +45,61 @@ HEAD_END_RE = re.compile(br'</head>', re.IGNORECASE)
 def inject_script_at_head(content, script):
     """Inject script before closing </head> tag, case-insensitive."""
     return HEAD_END_RE.sub(lambda match: script + match.group(0), content, count=1)
+
+
+BASE_PATH_RE = re.compile(r'^[A-Za-z0-9._~%/-]*$')
+
+
+def normalize_base_path(base_path):
+    """Normalize a URL base path to ``/prefix`` form, or ``''`` for none.
+
+    The result is embedded in the injected script, so only characters that
+    are safe in a URL path are allowed. ``.`` and ``..`` segments are
+    rejected, as the browser would resolve them to a different path.
+    """
+    if not base_path:
+        return ''
+    if not BASE_PATH_RE.match(base_path):
+        raise ValueError(
+            f'invalid base path: {base_path!r} (allowed characters are '
+            'letters, digits and . _ ~ % - /)'
+        )
+    stripped = base_path.strip('/')
+    if any(unquote(segment) in ('.', '..') for segment in stripped.split('/')):
+        raise ValueError(
+            f"invalid base path: {base_path!r} ('.' and '..' segments are "
+            'not allowed)'
+        )
+    return f'/{stripped}' if stripped else ''
+
+
+def build_live_script(liveport=None, base_path=''):
+    """Build the snippet that loads livereload.js into a page.
+
+    Uses JavaScript to dynamically inject the client's hostname and, unless
+    ``liveport`` is given, port. This allows for serving on 0.0.0.0 and
+    behind a reverse proxy. ``base_path`` is the URL prefix of livereload as
+    seen by the browser, and is passed on to livereload.js as its ``path``
+    option so the websocket connects there too.
+    """
+    base_path = normalize_base_path(base_path)
+    if liveport:
+        port = liveport
+    else:
+        port = "(window.location.port || (window.location.protocol == 'https:' ? 443: 80))"
+    options = ''
+    if base_path:
+        options = f' + "&path={base_path[1:]}/livereload"'
+    live_script = (
+        '<script type="text/javascript">(function(){'
+        'var s=document.createElement("script");'
+        f'var port={port};'
+        's.src="//"+window.location.hostname+":"+port'
+        f'+ "{base_path}/livereload.js?port=" + port{options};'
+        'document.head.appendChild(s);'
+        '})();</script>'
+    )
+    return escape.utf8(live_script)
 
 
 def set_header(fn, name, value):
@@ -249,7 +305,7 @@ class Server:
         self.watcher.watch(filepath, func, delay, ignore=ignore)
 
     def application(self, port, host, liveport=None, debug=None,
-                    live_css=True):
+                    live_css=True, base_path=''):
         LiveReloadHandler.watcher = self.watcher
         LiveReloadHandler.live_css = live_css
         if debug is None and self.app:
@@ -261,22 +317,7 @@ class Server:
             (r'/livereload.js', LiveReloadJSHandler)
         ]
 
-        # The livereload.js snippet.
-        # Uses JavaScript to dynamically inject the client's hostname.
-        # This allows for serving on 0.0.0.0.
-        live_script = (
-            '<script type="text/javascript">(function(){'
-            'var s=document.createElement("script");'
-            'var port=%s;'
-            's.src="//"+window.location.hostname+":"+port'
-            '+ "/livereload.js?port=" + port;'
-            'document.head.appendChild(s);'
-            '})();</script>'
-        )
-        if liveport:
-            live_script = escape.utf8(live_script % liveport)
-        else:
-            live_script = escape.utf8(live_script % "(window.location.port || (window.location.protocol == 'https:' ? 443: 80))")
+        live_script = build_live_script(liveport, base_path)
 
         web_handlers = self.get_web_handlers(live_script)
 
@@ -314,7 +355,7 @@ class Server:
 
     def serve(self, port=5500, liveport=None, host=None, root=None, debug=None,
               open_url=False, restart_delay=2, open_url_delay=None,
-              live_css=True, default_filename='index.html'):
+              live_css=True, default_filename='index.html', base_path=None):
         """Start serve the server with the given port.
 
         :param port: serve on this port, default is 5500
@@ -328,18 +369,26 @@ class Server:
         :param live_css: whether to use live css or force reload on css.
                          Defaults to True
         :param default_filename: launch this file from the selected root on startup
+        :param base_path: URL path prefix of livereload as seen by the
+                          browser, e.g. ``/proxy/5500`` when behind a reverse
+                          proxy that strips that prefix before forwarding.
+                          With ``liveport``, this is the live server's prefix.
         """
         host = host or '127.0.0.1'
         if root is not None:
             self.root = root
+        base_path = normalize_base_path(base_path)
 
         self._setup_logging()
         logger.info(f'Serving on http://{host}:{port}')
+        if base_path:
+            logger.info(f'Expecting to be proxied under {base_path}')
 
         self.default_filename = default_filename
 
         self.application(
-            port, host, liveport=liveport, debug=debug, live_css=live_css)
+            port, host, liveport=liveport, debug=debug, live_css=live_css,
+            base_path=base_path)
 
         # Async open web browser after 5 sec timeout
         if open_url:
