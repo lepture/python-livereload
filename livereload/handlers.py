@@ -228,5 +228,16 @@ class ForceReloadHandler(web.RequestHandler):
 
 
 class StaticFileHandler(MtimeStaticFileHandler):
+    def initialize(self, path, default_filename=None, no_cache=True):
+        super().initialize(path, default_filename)
+        self.no_cache = no_cache
+
     def should_return_304(self):
         return False
+
+    def set_extra_headers(self, path):
+        # Without Cache-Control, browsers cache by heuristics and a refresh
+        # can reuse stale files. Keep any value already set, e.g. by
+        # Server.setHeader or Tornado's max-age for ?v= URLs.
+        if self.no_cache and 'Cache-Control' not in self._headers:
+            self.set_header('Cache-Control', 'no-cache')

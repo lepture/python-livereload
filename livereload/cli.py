@@ -46,6 +46,12 @@ parser.add_argument(
     help='Enable Tornado pretty logging',
     action='store_true'
 )
+parser.add_argument(
+    '--allow-cache',
+    help="Don't send Cache-Control: no-cache, allowing browsers and proxies "
+         "to cache static files",
+    action='store_true'
+)
 
 
 def main(argv=None):
@@ -58,4 +64,5 @@ def main(argv=None):
     server = Server()
     server.watcher.watch(args.target or args.directory, delay=args.wait)
     server.serve(host=args.host, port=args.port, root=args.directory,
-                 open_url_delay=args.open_url_delay)
+                 open_url_delay=args.open_url_delay,
+                 allow_cache=args.allow_cache)

@@ -309,12 +309,13 @@ class Server:
             (r'/(.*)', self.SFH, {
                 'path': self.root or '.',
                 'default_filename': self.default_filename,
+                'no_cache': not self.allow_cache,
             }),
         ]
 
     def serve(self, port=5500, liveport=None, host=None, root=None, debug=None,
               open_url=False, restart_delay=2, open_url_delay=None,
-              live_css=True, default_filename='index.html'):
+              live_css=True, default_filename='index.html', allow_cache=False):
         """Start serve the server with the given port.
 
         :param port: serve on this port, default is 5500
@@ -328,6 +329,9 @@ class Server:
         :param live_css: whether to use live css or force reload on css.
                          Defaults to True
         :param default_filename: launch this file from the selected root on startup
+        :param allow_cache: don't send ``Cache-Control: no-cache`` for static
+                            files, leaving caching to browser and proxy
+                            heuristics. Defaults to False
         """
         host = host or '127.0.0.1'
         if root is not None:
@@ -337,6 +341,7 @@ class Server:
         logger.info(f'Serving on http://{host}:{port}')
 
         self.default_filename = default_filename
+        self.allow_cache = allow_cache
 
         self.application(
             port, host, liveport=liveport, debug=debug, live_css=live_css)
