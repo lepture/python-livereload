@@ -103,10 +103,13 @@ class Watcher:
                         name = getattr(func, '__name__', 'anonymous')
                     logger.info(
                         f"Running task: {name} (delay: {delay})")
-                    if len(signature(func).parameters) > 0 and isinstance(changed, list):
-                        func(changed)
-                    else:
-                        func()
+                    try:
+                        if len(signature(func).parameters) > 0 and isinstance(changed, list):
+                            func(changed)
+                        else:
+                            func()
+                    except Exception as e:
+                        logger.error(f"Error while running task '{name}': {e}", exc_info=True)
 
         if delays:
             delay = max(delays)

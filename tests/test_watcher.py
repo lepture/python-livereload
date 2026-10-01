@@ -150,3 +150,21 @@ class TestWatcher(unittest.TestCase):
         os.remove(second_path)
         assert watcher.examine() == (second_path, None)
         assert watcher.examine() == (None, None)
+
+    def test_task_exception_resilience(self):
+        watcher = Watcher()
+        filepath = os.path.join(tmpdir, 'foo')
+        with open(filepath, 'w') as f:
+            f.write('')
+
+        def failing_task():
+            raise RuntimeError("Task failed!")
+
+        watcher.watch(filepath, failing_task)
+
+        time.sleep(1)
+        with open(filepath, 'w') as f:
+            f.write('updated')
+
+        abs_filepath = os.path.abspath(filepath)
+        assert watcher.examine() == (abs_filepath, None)
