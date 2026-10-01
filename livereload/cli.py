@@ -37,6 +37,11 @@ parser.add_argument(
     default=0.0
 )
 parser.add_argument(
+    '-b', '--open-url',
+    help='Open the browser automatically upon starting',
+    action='store_true'
+)
+parser.add_argument(
     '-o', '--open-url-delay',
     help='If set, triggers browser opening <D> seconds after starting',
     type=float
@@ -58,4 +63,4 @@ def main(argv=None):
     server = Server()
     server.watcher.watch(args.target or args.directory, delay=args.wait)
     server.serve(host=args.host, port=args.port, root=args.directory,
-                 open_url_delay=args.open_url_delay)
+                 open_url=args.open_url, open_url_delay=args.open_url_delay)

@@ -1,6 +1,8 @@
+import time
 import unittest
+from unittest.mock import patch
 
-from livereload.server import inject_script_at_head
+from livereload.server import Server, inject_script_at_head
 
 
 class TestInjectScriptAtHead(unittest.TestCase):
@@ -24,3 +26,15 @@ class TestInjectScriptAtHead(unittest.TestCase):
         content = b"<html><body>no head end</body></html>"
         script = b"<script>LR</script>"
         assert inject_script_at_head(content, script) == content
+
+
+class TestServerOpenUrl(unittest.TestCase):
+    @patch('webbrowser.open')
+    @patch('tornado.ioloop.IOLoop.instance')
+    @patch('livereload.server.LiveReloadHandler.start_tasks')
+    def test_open_url_true_opens_browser(self, mock_tasks, mock_ioloop, mock_browser):
+        mock_ioloop.return_value.start.side_effect = lambda: None
+        server = Server()
+        server.serve(port=5500, open_url=True)
+        time.sleep(0.05)
+        mock_browser.assert_called_once_with('http://127.0.0.1:5500')

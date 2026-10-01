@@ -341,13 +341,15 @@ class Server:
         self.application(
             port, host, liveport=liveport, debug=debug, live_css=live_css)
 
-        # Async open web browser after 5 sec timeout
-        if open_url:
-            logger.error('Use `open_url_delay` instead of `open_url`')
+        # Async open web browser
+        if open_url and open_url_delay is None:
+            open_url_delay = 0
+
         if open_url_delay is not None:
 
             def opener():
-                time.sleep(open_url_delay)
+                if open_url_delay > 0:
+                    time.sleep(open_url_delay)
                 webbrowser.open(f'http://{host}:{port}')
             threading.Thread(target=opener).start()
 
