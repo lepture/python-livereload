@@ -1,11 +1,11 @@
 """
-    livereload.watcher
-    ~~~~~~~~~~~~~~~~~~
+livereload.watcher
+~~~~~~~~~~~~~~~~~~
 
-    A file watch management for LiveReload Server.
+A file watch management for LiveReload Server.
 
-    :copyright: (c) 2013 - 2015 by Hsiaoming Yang
-    :license: BSD, see LICENSE for more details.
+:copyright: (c) 2013 - 2015 by Hsiaoming Yang
+:license: BSD, see LICENSE for more details.
 """
 
 import glob
@@ -19,11 +19,12 @@ try:
 except ImportError:
     pyinotify = None
 
-logger = logging.getLogger('livereload')
+logger = logging.getLogger("livereload")
 
 
 class Watcher:
     """A file watcher registry."""
+
     def __init__(self):
         self._tasks = {}
 
@@ -40,7 +41,7 @@ class Watcher:
         self._start = time.time()
 
         # list of ignored dirs
-        self.ignored_dirs = ['.git', '.hg', '.svn', '.cvs']
+        self.ignored_dirs = [".git", ".hg", ".svn", ".cvs"]
 
     def ignore_dirs(self, *args):
         self.ignored_dirs.extend(args)
@@ -52,7 +53,7 @@ class Watcher:
     def ignore(self, filename):
         """Ignore a given filename or not."""
         _, ext = os.path.splitext(filename)
-        return ext in ['.pyc', '.pyo', '.o', '.swp']
+        return ext in [".pyc", ".pyo", ".o", ".swp"]
 
     def watch(self, path, func=None, delay=0, ignore=None):
         """Add a task to watcher.
@@ -66,10 +67,10 @@ class Watcher:
                        filepath.
         """
         self._tasks[path] = {
-            'func': func,
-            'delay': delay,
-            'ignore': ignore,
-            'mtimes': {},
+            "func": func,
+            "delay": delay,
+            "ignore": ignore,
+            "mtimes": {},
         }
 
     def start(self, callback):
@@ -90,20 +91,21 @@ class Watcher:
         delays = set()
         for path in self._tasks:
             item = self._tasks[path]
-            self._task_mtimes = item['mtimes']
-            changed = self.is_changed(path, item['ignore'])
+            self._task_mtimes = item["mtimes"]
+            changed = self.is_changed(path, item["ignore"])
             if changed:
-                func = item['func']
-                delay = item['delay']
+                func = item["func"]
+                delay = item["delay"]
                 if delay and isinstance(delay, float):
                     delays.add(delay)
                 if func:
-                    name = getattr(func, 'name', None)
+                    name = getattr(func, "name", None)
                     if not name:
-                        name = getattr(func, '__name__', 'anonymous')
-                    logger.info(
-                        f"Running task: {name} (delay: {delay})")
-                    if len(signature(func).parameters) > 0 and isinstance(changed, list):
+                        name = getattr(func, "__name__", "anonymous")
+                    logger.info(f"Running task: {name} (delay: {delay})")
+                    if len(signature(func).parameters) > 0 and isinstance(
+                        changed, list
+                    ):
                         func(changed)
                     else:
                         func()
@@ -222,15 +224,17 @@ class INotifyWatcher(Watcher):
             self.callback = callback
 
             from tornado import ioloop
+
             self.notifier = pyinotify.TornadoAsyncNotifier(
-                self.wm, ioloop.IOLoop.instance(),
-                default_proc_fun=self.inotify_event
+                self.wm,
+                ioloop.IOLoop.instance(),
+                default_proc_fun=self.inotify_event,
             )
             callback()
         return True
 
 
 def get_watcher_class():
-    if pyinotify is None or not hasattr(pyinotify, 'TornadoAsyncNotifier'):
+    if pyinotify is None or not hasattr(pyinotify, "TornadoAsyncNotifier"):
         return Watcher
     return INotifyWatcher

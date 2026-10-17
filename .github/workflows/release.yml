@@ -1,0 +1,28 @@
+name: "GitHub Release"
+on:
+  push:
+    tags: ["v*"]
+permissions: {}
+jobs:
+  release:
+    name: "Write release notes"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      # NOTE: changing to gh specific actions can help drop node setup
+      - name: "Setup node"
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - name: "Generate changelog"
+        run: npx changelogithub --no-group
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}

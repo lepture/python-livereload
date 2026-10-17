@@ -1,0 +1,24 @@
+[global]
+disable = [
+  "MD025",  # Allow multiple h1 headings
+  "MD026",  # Permit punctuation in heading
+  "MD033",  # Permit inline HTML
+  "MD040",  # Bare fences are intentional (shell snippets)
+  "MD041",  # Allow first line to be anything (not just h1)
+]
+extend-enable = ["MD060"]  # Table alignment
+respect-gitignore = true
+
+[MD013]  # Line length
+line-length = 160
+code-blocks = false
+tables = false
+headings = false
+
+[MD060]  # Table alignment
+enabled = true
+style = "aligned"
+
+[per-file-flavor]
+# Sphinx docs use MyST directives such as ```{toctree}.
+"docs/**/*.md" = "myst"

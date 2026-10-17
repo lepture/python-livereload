@@ -1,0 +1,95 @@
+[build-system]
+build-backend = "hatchling.build"
+requires = [ "hatchling>=1.26" ]
+
+[project]
+name = "livereload"
+description = "Python LiveReload is an awesome tool for web developers"
+readme = "README.md"
+keywords = [
+  "autoreload",
+  "browser-refresh",
+  "development-server",
+  "django",
+  "file-watcher",
+  "live-reload",
+  "livereload",
+  "static-server",
+  "tornado",
+  "wsgi",
+]
+license = "BSD-3-Clause"
+license-files = [ "LICEN[CS]E*" ]
+authors = [ { name = "Hsiaoming Yang", email = "me@lepture.com" } ]
+requires-python = ">=3.10"
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Environment :: Console",
+  "Environment :: Web Environment :: Mozilla",
+  "Intended Audience :: Developers",
+  "Natural Language :: English",
+  "Operating System :: MacOS :: MacOS X",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Programming Language :: Python :: 3.15",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+  "Topic :: Software Development :: Build Tools",
+  "Topic :: Software Development :: Compilers",
+  "Topic :: Software Development :: Debuggers",
+]
+dynamic = [ "version" ]
+dependencies = [
+  # 6.1 handles the default Windows proactor event loop on its own.
+  "tornado>=6.1",
+  # typing.override is only available from Python 3.12.
+  "typing-extensions>=4.4; python_version<'3.12'",
+]
+optional-dependencies.notify = [
+  # pyinotify imports asyncore, which was removed in Python 3.12.
+  "pyinotify>=0.9.6; python_version<'3.12'",
+]
+urls.Changelog = "https://github.com/lepture/python-livereload/blob/master/CHANGES.rst"
+urls.Documentation = "https://livereload.readthedocs.io"
+urls.Issues = "https://github.com/lepture/python-livereload/issues"
+urls.Repository = "https://github.com/lepture/python-livereload"
+scripts.livereload = "livereload.cli:main"
+
+[dependency-groups]
+dev = [
+  "django-stubs>=6.0.9",
+  "prek>=0.5.5",
+  "pytest>=8.4.2",
+  "typing-extensions>=4.4",
+]
+
+[tool.hatch]
+version.path = "src/livereload/__init__.py"
+build.targets.wheel.packages = [ "src/livereload" ]
+build.targets.sdist.include = [ "/src", "/tests", "/docs", "/CHANGES.rst" ]
+
+[tool.ruff]
+line-length = 80
+lint.extend-select = [ "ANN" ]
+lint.unfixable = [ "F401" ]
+
+# Tests might fail in 3.10 and 3.11
+[tool.pytest]
+ini_options.filterwarnings = [
+  # pyinotify imports asyncore, deprecated on Python 3.10 and 3.11.
+  "ignore:The asyncore module is deprecated:DeprecationWarning",
+]
+
+[tool.basedpyright]
+# Check against the oldest supported Python
+pythonVersion = "3.10"
+reportUnusedCallResult = false
+executionEnvironments = [
+  { root = "tests", reportPrivateUsage = false },
+]

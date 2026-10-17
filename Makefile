@@ -1,4 +1,5 @@
-.PHONY: clean-pyc clean-build docs test coverage
+# .PHONY: clean-pyc clean-build docs test coverage lint typecheck check build install
+.PHONY: clean-pyc clean-build docs test coverage check build install
 
 clean: clean-build clean-pyc
 
@@ -15,14 +16,25 @@ clean-pyc:
 	find . -name '*~' -exec rm -f {} +
 
 install:
-	python3 setup.py install
+	uv sync
+
+build:
+	uv build
 
 docs:
 	$(MAKE) -C docs html
 
 test:
-	@nosetests -s
+	uv run pytest
+
+# lint:
+#	uv run ruff check .
+
+# typecheck:
+#	uv run basedpyright
+
+# check: lint typecheck test
+check: test
 
 coverage:
-	@rm -f .coverage
-	@nosetests --with-coverage --cover-package=livereload --cover-html
+	uv run --with pytest-cov pytest --cov=livereload --cov-report=html

@@ -1,0 +1,31 @@
+name: "Run Tests (pytest)"
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+permissions: {}
+jobs:
+  tests:
+    name: "Run pytest"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.10', '3.11', '3.12', '3.13', '3.14']
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: "Install uv and set up Python version"
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          enable-cache: true
+          python-version: ${{ matrix.python-version }}
+      - name: "Install dependencies"
+        run: uv sync --locked --all-extras --dev
+      - name: "Run pytest"
+        run: uv run pytest
