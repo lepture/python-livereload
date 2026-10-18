@@ -106,6 +106,9 @@ def shell(cmd, output=None, mode='w', cwd=None, shell=False):
 class LiveScriptInjector(web.OutputTransform):
     def __init__(self, request):
         super().__init__(request)
+        self._is_head = request.method == 'HEAD'
+        self._searching_head = False
+        self._pending = b''
 
     def transform_first_chunk(self, status_code, headers, chunk, finishing):
         is_html = "html" in headers.get("Content-Type", "")
@@ -114,7 +117,29 @@ class LiveScriptInjector(web.OutputTransform):
             if 'Content-Length' in headers:
                 length = int(headers['Content-Length']) + len(self.script)
                 headers['Content-Length'] = str(length)
+        elif is_html and status_code == 200 and not self._is_head and not finishing:
+            # A later chunk may contain </head>, so the final length is not
+            # known yet. Let Tornado select the response framing.
+            headers.pop('Content-Length', None)
+            self._searching_head = True
+            chunk = self.transform_chunk(chunk, finishing)
         return status_code, headers, chunk
+
+    def transform_chunk(self, chunk, finishing):
+        if not self._searching_head:
+            return chunk
+        chunk = self._pending + chunk
+        if HEAD_END_RE.search(chunk):
+            self._searching_head = False
+            self._pending = b''
+            return inject_script_at_head(chunk, self.script)
+        if finishing:
+            self._searching_head = False
+            self._pending = b''
+            return chunk
+        # Keep only the bytes that could begin a tag split across chunks.
+        self._pending = chunk[-6:]
+        return chunk[:-6]
 
 
 class LiveScriptContainer(WSGIContainer):
