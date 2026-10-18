@@ -328,12 +328,14 @@ class Server:
         :param live_css: whether to use live css or force reload on css.
                          Defaults to True
         :param default_filename: launch this file from the selected root on startup
+
+        Library users configure the ``livereload`` and ``tornado`` loggers.
+        The command-line entry point configures default console logging.
         """
         host = host or '127.0.0.1'
         if root is not None:
             self.root = root
 
-        self._setup_logging()
         logger.info(f'Serving on http://{host}:{port}')
 
         self.default_filename = default_filename
