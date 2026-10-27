@@ -909,7 +909,7 @@
                 link: link,
                 rule: rule,
                 index: index,
-                href: rule.href
+                href: rule.styleSheet ? rule.styleSheet.href : rule.href
               });
               this.collectImportedStylesheets(link, rule.styleSheet, result);
               break;
@@ -1004,7 +1004,7 @@
       var href, index, link, media, newRule, parent, rule, tempLink;
       rule = _arg.rule, index = _arg.index, link = _arg.link;
       parent = rule.parentStyleSheet;
-      href = this.generateCacheBustUrl(rule.href);
+      href = this.generateCacheBustUrl(_arg.href);
       media = rule.media.length ? [].join.call(rule.media, ', ') : '';
       newRule = "@import url(\"" + href + "\") " + media + ";";
       rule.__LiveReload_newHref = href;
