@@ -17,7 +17,7 @@ from tornado import web
 from tornado import ioloop
 from tornado import escape
 from tornado.log import gen_log
-from tornado.websocket import WebSocketHandler
+from tornado.websocket import WebSocketHandler, WebSocketClosedError
 from tornado.util import ObjectDict
 
 logger = logging.getLogger('livereload')
@@ -45,8 +45,24 @@ class LiveReloadHandler(WebSocketHandler):
             message = escape.json_encode(message)
 
         try:
-            self.write_message(message)
-        except:
+            future = self.write_message(message)
+            if future is not None:
+                ioloop.IOLoop.current().add_future(
+                    future, self._on_write_complete)
+        except WebSocketClosedError:
+            LiveReloadHandler.waiters.discard(self)
+        except Exception:
+            logger.error('Error sending message', exc_info=True)
+
+    def _on_write_complete(self, future):
+        if future.cancelled():
+            LiveReloadHandler.waiters.discard(self)
+            return
+        try:
+            future.result()
+        except WebSocketClosedError:
+            LiveReloadHandler.waiters.discard(self)
+        except Exception:
             logger.error('Error sending message', exc_info=True)
 
     @classmethod
@@ -107,11 +123,7 @@ class LiveReloadHandler(WebSocketHandler):
 
         cls._last_reload_time = time.time()
         for waiter in cls.waiters.copy():
-            try:
-                waiter.write_message(msg)
-            except:
-                logger.error('Error sending message', exc_info=True)
-                cls.waiters.remove(waiter)
+            waiter.send_message(msg)
 
     def on_message(self, message):
         """Handshake with livereload.js

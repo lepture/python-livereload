@@ -3,6 +3,11 @@ Changelog
 
 The full list of changes between each Python LiveReload release.
 
+Unreleased
+----------
+
+1. Observe asynchronous WebSocket write failures and remove disconnected browsers.
+
 Version 2.7.1
 -------------
 
